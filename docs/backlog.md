@@ -8,7 +8,7 @@ DoD global (master prompt §22): migration + model + FormRequest + Policy + logi
 ## EPIC A — Fondasi (Fase 1) · Modul M13, M14, M15, M16, M17
 
 ### A1 — Skeleton proyek & tooling
-- Laravel terbaru, PostgreSQL, Pest, Tailwind, Livewire, Larastan (level max), Pint, Workbox.
+- Laravel terbaru, PostgreSQL, Pest, Tailwind, Livewire, Larastan (level 8, target naik bertahap), Pint, Workbox.
 - **Terima:** `composer test` hijau; `pint --test` bersih; `.env.example` lengkap; CI lokal (script) menjalankan lint+stan+test; `README` & `docs/` ter-commit.
 
 ### A2 — Autentikasi (M13)

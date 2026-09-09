@@ -22,7 +22,9 @@ arch('application code declares strict types')
 
 arch('models extend the Eloquent base model')
     ->expect('App\Models')
-    ->toExtend('Illuminate\Database\Eloquent\Model');
+    ->classes()
+    ->toExtend('Illuminate\Database\Eloquent\Model')
+    ->ignoring('App\Models\Concerns');
 
 // Domain-boundary arch rules (AI has no DB access, no cross-domain imports)
 // are added in Phase 1 A3+ once each domain namespace contains classes.

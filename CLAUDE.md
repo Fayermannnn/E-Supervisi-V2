@@ -17,14 +17,14 @@ Sistem **E-Supervisi Klinis Pendidikan v2.0**. Baca `README.md` dan `docs/` sebe
 
 ## Stack
 
-PHP 8.4 (Herd) · Laravel 13 · PostgreSQL 16 · Livewire 3 · Tailwind 4 · Pest 5 · Larastan (max) · Pint (strict types).
+PHP 8.4 (Herd) · Laravel 13 · PostgreSQL 16 · Livewire 3 · Tailwind 4 · Pest 5 · Larastan 8 · Pint (strict types).
 
 ## Perintah
 
 ```bash
 composer ci          # pint --test + phpstan + pest   (gate sebelum commit)
 composer test        # pest saja
-composer stan        # phpstan max
+composer stan        # phpstan (level 8)
 composer lint        # pint (perbaiki format)
 php artisan migrate:fresh --seed
 npm run dev

@@ -23,9 +23,9 @@ class DomainServiceProvider extends ServiceProvider
      * @var list<class-string<ServiceProvider>>
      */
     protected array $domainProviders = [
-        // \App\Domain\Identity\IdentityServiceProvider::class,
-        // \App\Domain\Audit\AuditServiceProvider::class,
-        // ...
+        \App\Domain\Identity\IdentityServiceProvider::class,
+        \App\Domain\Audit\AuditServiceProvider::class,
+        \App\Domain\Notification\NotificationServiceProvider::class,
     ];
 
     public function register(): void

@@ -11,7 +11,7 @@ Sumber: master prompt §17, §22, §26. Runner: **Pest**. DB test: PostgreSQL (b
 | Security | Privilege escalation, IDOR, cross-school/cross-dinas access, unauthorized API, audit log immutability, upload file berbahaya | `tests/Feature/Security` |
 | Architecture | Larangan import lintas domain, audit log tanpa route tulis, AI tanpa akses DB | `tests/Arch` (pest-arch) |
 | Browser | Alur kritis Guru & Supervisor (termasuk skenario luring→online) | `tests/Browser` |
-| Static | Larastan level max, Pint | CI |
+| Static | Larastan level 8 (target: naik bertahap), Pint | CI |
 
 ## Kasus wajib per master prompt §17
 

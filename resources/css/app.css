@@ -1,9 +1,79 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../views';
+@source '../../app/Livewire';
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Palet institusional: netral tinta + satu aksen biru tua */
+    --color-brand-50: #eef2ff;
+    --color-brand-100: #e0e7ff;
+    --color-brand-200: #c7d2fe;
+    --color-brand-500: #4f5bd5;
+    --color-brand-600: #3d47b8;
+    --color-brand-700: #323a96;
+    --color-brand-900: #1e2159;
+
+    --color-ink-50: #f6f7f9;
+    --color-ink-100: #eceef2;
+    --color-ink-200: #d9dde5;
+    --color-ink-300: #b6bdcb;
+    --color-ink-400: #8b95a8;
+    --color-ink-500: #667085;
+    --color-ink-600: #4b5566;
+    --color-ink-700: #363e4d;
+    --color-ink-800: #232935;
+    --color-ink-900: #151a22;
+}
+
+/* Status siklus & RTL — dipakai <x-status-badge> */
+@theme {
+    --color-status-draft: #667085;
+    --color-status-scheduled: #3d47b8;
+    --color-status-progress: #b45309;
+    --color-status-done: #15803d;
+    --color-status-overdue: #b91c1c;
+    --color-status-archived: #4b5566;
+}
+
+@layer base {
+    [x-cloak] {
+        display: none !important;
+    }
+
+    :root {
+        --surface: var(--color-white);
+        --surface-muted: var(--color-ink-50);
+        --border: var(--color-ink-200);
+        --text: var(--color-ink-900);
+        --text-muted: var(--color-ink-500);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+            --surface: var(--color-ink-900);
+            --surface-muted: var(--color-ink-800);
+            --border: var(--color-ink-700);
+            --text: var(--color-ink-50);
+            --text-muted: var(--color-ink-300);
+        }
+    }
+
+    :root[data-theme='dark'] {
+        --surface: var(--color-ink-900);
+        --surface-muted: var(--color-ink-800);
+        --border: var(--color-ink-700);
+        --text: var(--color-ink-50);
+        --text-muted: var(--color-ink-300);
+    }
+
+    body {
+        background-color: var(--surface-muted);
+        color: var(--text);
+    }
 }

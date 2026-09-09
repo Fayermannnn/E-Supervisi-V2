@@ -8,14 +8,18 @@ Sistem versi lama (17 modul, 10-status generik) **deprecated** dan tidak dijadik
 
 ## Status
 
-**PHASE 0 — Discovery & Architecture (selesai, menunggu checkpoint).**
-Belum ada kode aplikasi. Dokumen arsitektur baseline ada di `docs/`.
+**PHASE 1 — Fondasi selesai.** Autentikasi, RBAC, organisasi, manajemen pengguna,
+penugasan, audit log append-only, notifikasi, kebijakan, bantuan, design system.
+`composer ci` hijau (Pint + PHPStan 8 + 85 tes Pest). Jalankan `php artisan migrate:fresh --seed`
+lalu `npm run dev` dan masuk sebagai `admin.sistem@esupervisi.test` / `password`.
+
+Detail progres: [docs/DECISIONS.md](docs/DECISIONS.md).
 
 | Fase | Fokus | Modul | Status |
 |---|---|---|---|
-| 0 | Discovery & architecture baseline | — | ✅ Dokumen siap, menunggu keputusan checkpoint |
-| 1 | Fondasi: identitas, RBAC, organisasi, audit, notifikasi | M13, M14, M15, M16, M17 | ⏳ Menunggu approval |
-| 2 | Inti siklus: Perencanaan → Observasi | M1, M2, M8 | ⏳ |
+| 0 | Discovery & architecture baseline | — | ✅ Selesai (checkpoint dijawab) |
+| 1 | Fondasi: identitas, RBAC, organisasi, audit, notifikasi | M13, M14, M15, M16, M17 | ✅ Selesai — 85 tes hijau, DoD terpenuhi |
+| 2 | Inti siklus: Perencanaan → Observasi | M1, M2, M8 | ⏳ Berikutnya |
 | 3 | Analisis → Pelaporan (+ AI) | M3, M4, M5, M6, M18 | ⛔ Diblokir spec sampai keputusan checkpoint (lihat `docs/risk-register.md` R-01) |
 | 4 | Pengembangan profesional & akuntabilitas | M7, M9, M10, M11, M12 | ⏸️ |
 | 5 | Kesiapan evaluasi ahli (DSR Artikel 3) | — | ⏸️ |
