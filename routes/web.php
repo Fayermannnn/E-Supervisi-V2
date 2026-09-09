@@ -11,7 +11,13 @@ use App\Livewire\Auth\ForgotPassword;
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\ResetPassword;
 use App\Livewire\Auth\VerifyEmail;
+use App\Livewire\Cycles\CycleCreate;
+use App\Livewire\Cycles\CycleIndex;
+use App\Livewire\Cycles\CycleShow;
 use App\Livewire\Dashboard\Dashboard;
+use App\Livewire\Instruments\InstrumentIndex;
+use App\Livewire\Observation\ObservationConsole;
+use App\Livewire\Planning\PlanningEditor;
 use App\Livewire\Profile\ProfileEdit;
 use App\Livewire\Support\HelpIndex;
 use App\Livewire\Support\HelpShow;
@@ -23,6 +29,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn (): RedirectResponse => redirect()->route(Auth::check() ? 'dashboard' : 'login'));
+
+Route::view('/offline', 'offline')->name('offline');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', Login::class)->name('login');
@@ -56,6 +64,16 @@ Route::middleware('auth')->group(function (): void {
 
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     Route::get('/profile', ProfileEdit::class)->name('profile.edit');
+
+    // Siklus supervisi (Fase 2 — M1, M2)
+    Route::get('/cycles', CycleIndex::class)->name('cycles.index');
+    Route::get('/cycles/create', CycleCreate::class)->name('cycles.create');
+    Route::get('/cycles/{cycle}', CycleShow::class)->name('cycles.show');
+    Route::get('/cycles/{cycle}/planning', PlanningEditor::class)->name('cycles.planning');
+    Route::get('/cycles/{cycle}/observe', ObservationConsole::class)->name('cycles.observe');
+
+    // Bank instrumen (M8)
+    Route::get('/instruments', InstrumentIndex::class)->name('instruments.index');
 
     Route::get('/help', HelpIndex::class)->name('help.index');
     Route::get('/help/{article:slug}', HelpShow::class)->name('help.show');

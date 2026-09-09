@@ -40,6 +40,16 @@ return [
             'report' => false,
         ],
 
+        // Berkas observasi (rekaman, dokumen) — privat, di luar web root,
+        // hanya diakses lewat signed route + Policy (Spec §10, ADR-006).
+        'observation_media' => [
+            'driver' => 'local',
+            'root' => storage_path('app/observation-media'),
+            'serve' => false,
+            'throw' => true,
+            'visibility' => 'private',
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

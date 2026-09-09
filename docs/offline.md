@@ -1,6 +1,19 @@
-# Offline-First — Strategi (DRAFT, diperdalam di Fase 2)
+# Offline-First — Strategi (IMPLEMENTED, Fase 2)
 
-Sumber: Spec §3.2, §9, §13; master prompt §13. Cakupan MVP: **konsol Observasi (M2)** + **unggah bukti RTL (M5)** (lihat `risk-register.md` R-04).
+Sumber: Spec §3.2, §9, §13; master prompt §13. Cakupan MVP: **konsol Observasi (M2)** (selesai) + **unggah bukti RTL (M5)** (Fase 3).
+
+## Implementasi Fase 2
+
+| Bagian | Berkas |
+|---|---|
+| Modul klien | `resources/js/observation-console.js` — IndexedDB (`state` + `outbox`), debounce autosave, retry tiap 20 dtk, listener `online`/`offline`, deteksi & resolusi konflik |
+| Service Worker | `public/sw.js` — precache aset Vite, navigasi network-first + fallback `/offline`, SWR untuk aset statis, API tidak di-cache |
+| Manifest PWA | `public/manifest.json` + `public/icon.svg` |
+| Endpoint sync | `POST /api/v1/sync/observations` (`ability:observation:sync`), `GET /api/v1/sync/bootstrap`, `GET /api/v1/sync/status` |
+| Action server | `App\Domain\Observation\Actions\SyncObservations` — upsert per UUID klien, idempoten via hash payload di `observation_sync_log`, optimistic lock `observations.version` → 409 + state server pada konflik |
+| Indikator UI | `<x-ui.sync-indicator>` — `Siap · Luring · Menyimpan lokal · Menunggu sinkron · Menyinkronkan · Tersinkron · Konflik` |
+
+Diuji: `tests/Feature/Api/ObservationSyncTest.php` (idempotensi 3× kirim → 1 baris; konflik base-version → 409 + `observation_sync_log`; scope token; cross-supervisor ditolak).
 
 > Master prompt §13: **jangan** klaim "offline support" bila hanya menyimpan draft di browser tanpa sinkronisasi sesungguhnya.
 

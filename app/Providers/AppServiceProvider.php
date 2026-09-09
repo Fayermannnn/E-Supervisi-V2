@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,8 +23,5 @@ class AppServiceProvider extends ServiceProvider
 
         // Block destructive Artisan DB commands outside local (RULE 8).
         DB::prohibitDestructiveCommands($this->app->isProduction());
-
-        // All dates are immutable CarbonImmutable instances.
-        Date::use(\Carbon\CarbonImmutable::class);
     }
 }

@@ -4,10 +4,19 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Domain\Instruments\FormatBTemplate;
+use App\Domain\Observation\Actions\SaveObservation;
+use App\Domain\Observation\Actions\StartObservation;
 use App\Domain\Organization\Actions\AssignSupervisor;
+use App\Domain\Planning\Actions\RecordPlanningAgreementConsent;
+use App\Domain\Planning\Actions\SavePlanningAgreement;
+use App\Domain\Supervision\Actions\CreateCycle;
 use App\Models\Dinas;
 use App\Models\HelpArticle;
+use App\Models\Instrument;
+use App\Models\InstrumentVersion;
 use App\Models\Sekolah;
+use App\Models\SupervisorAssignment;
 use App\Models\User;
 use App\Support\Enums\Role;
 use App\Support\Enums\SupervisorType;
@@ -52,10 +61,86 @@ class DatabaseSeeder extends Seeder
         ]);
         $adminDinas->assignRole(Role::AdminDinas, $dinasMahulu);
 
+        $instrument = $this->seedFormatB($adminSistem);
+
         $this->seedDinas($dinasMahulu, wilayah: '3T', supervisorEmailPrefix: 'mahulu');
         $this->seedDinas($dinasSamarinda, wilayah: 'Kota', supervisorEmailPrefix: 'smd');
 
+        $this->seedCycles($instrument->versions()->firstOrFail());
+
         $this->seedHelpArticles($adminSistem);
+    }
+
+    private function seedFormatB(User $author): Instrument
+    {
+        $instrument = Instrument::create([
+            'code' => 'B',
+            'nama' => 'Format B — Observasi Pelaksanaan Pembelajaran (CONTOH)',
+            'deskripsi' => 'Instrumen contoh untuk demo; belum tervalidasi (Artikel 2).',
+            'pemilik_dinas_id' => null,
+            'status' => 'published',
+        ]);
+
+        InstrumentVersion::create([
+            'instrument_id' => $instrument->id,
+            'version' => 1,
+            'schema_json' => FormatBTemplate::schema(),
+            'scoring_config' => FormatBTemplate::scoringConfig(),
+            'catatan_perubahan' => 'Versi awal (contoh).',
+            'published_at' => now(),
+            'created_by' => $author->id,
+        ]);
+
+        return $instrument;
+    }
+
+    private function seedCycles(InstrumentVersion $version): void
+    {
+        $assignments = SupervisorAssignment::query()->with(['supervisor', 'guru'])->limit(4)->get();
+        $createCycle = app(CreateCycle::class);
+        $saveAgreement = app(SavePlanningAgreement::class);
+        $consent = app(RecordPlanningAgreementConsent::class);
+        $start = app(StartObservation::class);
+        $save = app(SaveObservation::class);
+
+        foreach ($assignments as $i => $assignment) {
+            $supervisor = $assignment->supervisor;
+            $guru = $assignment->guru;
+            if ($supervisor === null || $guru === null) {
+                continue;
+            }
+
+            $cycle = $createCycle->handle($supervisor, $guru, '2026/2027', 'ganjil', 'Supervisi Pembelajaran '.$guru->name);
+
+            if ($i === 0) {
+                continue; // biarkan satu siklus berstatus Draf
+            }
+
+            $saveAgreement->handle($supervisor, $cycle, [
+                'fokus_observasi' => 'Pengelolaan kelas dan aktivasi peserta didik',
+                'instrument_version_id' => $version->id,
+                'tipe_observasi' => 'sinkron',
+                'jadwal_mulai' => now()->addDays(3)->setTime(8, 0)->toDateTimeString(),
+                'kelas' => 'VIII-A',
+                'mata_pelajaran' => 'Matematika',
+            ]);
+            $consent->handle($guru, $cycle);
+            $consent->handle($supervisor, $cycle);
+
+            if ($i === 1) {
+                continue; // siklus Terjadwal, siap observasi
+            }
+
+            // Siklus dengan observasi terisi sebagian
+            $observation = $start->handle($supervisor, $cycle->refresh());
+            $rows = [];
+            foreach ($version->schema()->items() as $item) {
+                if ($item->required) {
+                    $rows[] = ['item_key' => $item->key, 'section_key' => 'inti', 'value' => random_int(2, 4)];
+                }
+            }
+            $save->handle($observation, $rows, ['catatan_skrip' => 'Observasi berjalan lancar; peserta didik antusias.']);
+        }
     }
 
     private function seedDinas(Dinas $dinas, string $wilayah, string $supervisorEmailPrefix): void

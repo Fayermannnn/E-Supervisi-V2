@@ -26,6 +26,8 @@ class DomainServiceProvider extends ServiceProvider
         \App\Domain\Identity\IdentityServiceProvider::class,
         \App\Domain\Audit\AuditServiceProvider::class,
         \App\Domain\Notification\NotificationServiceProvider::class,
+        \App\Domain\Instruments\InstrumentsServiceProvider::class,
+        \App\Domain\Supervision\SupervisionServiceProvider::class,
     ];
 
     public function register(): void

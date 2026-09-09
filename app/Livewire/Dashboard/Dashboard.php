@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Livewire\Dashboard;
 
+use App\Models\SupervisionCycle;
 use App\Models\SupportTicket;
 use App\Models\User;
+use App\Support\Enums\CycleStatus;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -41,19 +43,21 @@ class Dashboard extends Component
 
         if ($user->isAdminDinas()) {
             $dinasId = $user->adminDinasId();
+            $base = SupervisionCycle::query()->where('dinas_id', $dinasId);
 
             return [
                 ['label' => 'Sekolah', 'value' => \App\Models\Sekolah::where('dinas_id', $dinasId)->count(), 'href' => route('admin.organizations.index')],
-                ['label' => 'Guru', 'value' => User::whereHas('sekolah', fn ($q) => $q->where('dinas_id', $dinasId))->count()],
-                ['label' => 'Siklus pasca-observasi', 'value' => '—', 'tone' => 'default'],
+                ['label' => 'Siklus berjalan', 'value' => (clone $base)->whereNotIn('status', [CycleStatus::Archived->value, CycleStatus::Canceled->value])->count(), 'href' => route('cycles.index')],
+                ['label' => 'Siklus dilaporkan', 'value' => (clone $base)->where('status', CycleStatus::Reported->value)->count()],
             ];
         }
 
-        // Guru / Supervisor — modul siklus hadir di Fase 2.
+        $scoped = SupervisionCycle::query()->visibleTo($user);
+
         return [
-            ['label' => 'Siklus aktif', 'value' => '—'],
-            ['label' => 'RTL mendekati tenggat', 'value' => '—', 'tone' => 'warning'],
-            ['label' => 'RTL terlambat', 'value' => '—', 'tone' => 'danger'],
+            ['label' => 'Siklus aktif', 'value' => (clone $scoped)->whereNotIn('status', [CycleStatus::Archived->value, CycleStatus::Canceled->value])->count(), 'href' => route('cycles.index')],
+            ['label' => 'Menunggu observasi', 'value' => (clone $scoped)->where('status', CycleStatus::Scheduled->value)->count(), 'tone' => 'warning', 'href' => route('cycles.index', ['status' => CycleStatus::Scheduled->value])],
+            ['label' => 'Perlu tindak lanjut', 'value' => (clone $scoped)->whereIn('status', [CycleStatus::FollowUpActive->value, CycleStatus::FollowUpOverdue->value])->count(), 'tone' => 'danger'],
         ];
     }
 }

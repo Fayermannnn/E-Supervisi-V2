@@ -49,5 +49,30 @@ Legend: ⬜ belum · 🟡 berjalan · ✅ selesai (DoD) · ⏸️ ditunda
 **Tes:** 85 pass / 194 assertions. `composer ci` hijau (Pint + PHPStan 8 + Pest).
 **Diverifikasi di browser:** login, dasbor (4 peran), manajemen pengguna + slide-over, organisasi. Konsol bersih.
 
-### PHASE 2–5
-Belum dimulai. Lihat `roadmap.md`. Berikutnya: Fase 2 (M1, M2, M8).
+### PHASE 2 — Inti Siklus: Perencanaan → Observasi (M1, M2, M8) ✅ (menunggu review)
+
+| Story | Status | Catatan |
+|---|---|---|
+| B1 Bank instrumen (M8) | ✅ | `instruments` + `instrument_versions` (schema JSON + scoring config), `InstrumentSchema` VO + validator, `ItemType`/`InstrumentStatus` enum, `FormatBTemplate` (contoh), Livewire index + editor JSON + pratinjau, InstrumentPolicy |
+| B2 Buat siklus (M1) | ✅ | `SupervisionCycle` + `CycleStatus` enum (10) + `CreateCycle` action (cek binaan aktif, dinas_id dari guru); Livewire + API `POST /cycles` pakai Action sama |
+| State machine | ✅ | `CycleStateMachine` — map transisi + guard + otorisasi peran + transaksi (status + `cycle_status_transitions` append-only + audit + event `CycleTransitioned`); Fase 3 transisi diblokir eksplisit; AI/null-actor tak bisa memicu transisi manusia |
+| B3 Perencanaan & kesepakatan (M1) | ✅ | `PlanningAgreement`, `SavePlanningAgreement` (ubah fokus/instrumen → reset persetujuan), `RecordPlanningAgreementConsent` (kedua pihak setuju → auto transisi DRAFT→SCHEDULED + notifikasi guru); Livewire `PlanningEditor` |
+| B4 Refleksi guru (M1) | ✅ | `TeacherReflection`, `SubmitReflection`, di `CycleShow` |
+| B5 Konsol observasi online (M2) | ✅ | `Observation`/`ObservationResponse` (EAV), `StartObservation`/`SaveObservation`, konsol Livewire render dari schema, Likert/boolean/text |
+| B6 Observasi offline + sync (M2) | ✅ | `observation-console.js` — IndexedDB (state + outbox) + retry 20s + online/offline events + deteksi konflik + resolusi manual; `SyncObservations` action (idempoten via UUID + hash payload, optimistic lock `version`, `observation_sync_log`); endpoint `POST /api/v1/sync/observations` (`ability:observation:sync`), `GET /sync/bootstrap`; Service Worker `public/sw.js` + manifest + `/offline`; `<x-ui.sync-indicator>` |
+| B7 Finalisasi observasi (M2) | ✅ | `FinalizeObservation` — validasi semua item wajib, kunci → transisi SCHEDULED→OBSERVATION_DONE |
+| B8 Unggah media (M2) | ✅ | Disk privat `observation_media` (luar web root), `UploadObservationMediaRequest` (mime/size dari `policy_settings`), `POST /observations/{id}/media`, `observation_media` table |
+| B9/B10 Dasbor | ✅ | Dasbor supervisor/guru menampilkan hitungan siklus nyata (aktif, menunggu observasi, perlu tindak lanjut); `CycleIndex` dengan stepper + filter status |
+| API `/api/v1` | ✅ | Memetakan Spec §8: cycles CRUD/schedule/cancel/reflections, observations start/update/finalize/media, sync bootstrap/observations/status, auth token (ADR-007). Controller = shell atas Action. Sanctum stateful (SPA) + bearer (device). Envelope `{data, meta}` / `{errors}`. |
+| Seed | ✅ | 1 instrumen Format B (contoh), 4 siklus (1 Draf, 1 Terjadwal, 2 Terjadwal+observasi terisi) |
+
+**Tes:** 115 pass / 269 assertions (30 baru: state machine, InstrumentSchema, cycle flow end-to-end, **sync idempotency + 409 konflik**, cross-supervisor/guru access, admin-dinas detail gating, API envelope/auth). `composer ci` hijau.
+**Browser-verified:** login → daftar siklus → detail siklus (stepper, kesepakatan, konsen ✓) → konsol observasi (schema-driven, Likert, autosave → IndexedDB → sync `synced`). Konsol JS bersih.
+
+**Catatan:**
+- Revert `Date::use(CarbonImmutable)` — friksi dengan inferensi tipe Larastan tak sepadan.
+- Sanctum `abilities`/`ability` middleware alias didaftarkan manual di `bootstrap/app.php` (tidak auto-register di Laravel 12+).
+- Transisi Fase 3 (M3–M6) di state machine sudah dipetakan tapi guard-nya melempar "Fase 3" sampai domain tsb dibangun.
+
+### PHASE 3–5
+Belum dimulai. Lihat `roadmap.md`. Berikutnya: Fase 3 (M3, M4, M5, M6, M18) — `@provisional`.

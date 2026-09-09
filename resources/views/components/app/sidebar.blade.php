@@ -19,13 +19,13 @@
         <nav class="flex flex-col gap-1 p-3 text-sm">
             <x-app.nav-link :href="route('dashboard')" icon="home">Dasbor</x-app.nav-link>
 
-            @can('cycles.create')
-                <x-app.nav-link :href="url('/cycles')" icon="clipboard" disabled>Siklus Supervisi</x-app.nav-link>
-            @endcan
+            @if ($user?->isGuru() || $user?->isSupervisor() || $user?->isAdminDinas())
+                <x-app.nav-link :href="route('cycles.index')" icon="clipboard">Siklus Supervisi</x-app.nav-link>
+            @endif
 
-            @can(Permission::ManageInstruments->value)
-                <x-app.nav-link :href="url('/instruments')" icon="stack" disabled>Bank Instrumen</x-app.nav-link>
-            @endcan
+            @if ($user?->isSupervisor() || $user?->can(Permission::ManageInstruments->value))
+                <x-app.nav-link :href="route('instruments.index')" icon="stack">Bank Instrumen</x-app.nav-link>
+            @endif
 
             @can(Permission::ViewAggregateReport->value)
                 <x-app.nav-link :href="url('/reports')" icon="chart" disabled>Pelaporan</x-app.nav-link>

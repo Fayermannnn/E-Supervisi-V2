@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#3d47b8">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <title>{{ $title ?? 'E-Supervisi' }} — {{ config('app.name') }}</title>
     <script>
         (function () {
@@ -54,5 +57,11 @@
             <div class="rounded-md bg-ink-900 px-4 py-2 text-sm text-white shadow-lg" x-text="item.message"></div>
         </template>
     </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+        }
+    </script>
 </body>
 </html>
