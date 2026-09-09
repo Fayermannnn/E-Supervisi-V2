@@ -1,0 +1,13 @@
+/vendor
+/node_modules
+/.env
+/.env.backup
+/public/build
+/public/hot
+/storage/*.key
+/storage/pail
+.phpunit.result.cache
+.DS_Store
+/auth.json
+/.idea
+/.vscode
