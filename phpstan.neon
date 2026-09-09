@@ -1,0 +1,12 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: max
+    paths:
+        - app
+        - database
+        - routes
+    tmpDir: storage/phpstan
+    checkOctaneCompatibility: false
+    noEnvCallsOutsideOfConfig: true

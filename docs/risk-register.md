@@ -4,7 +4,20 @@ Skala: Dampak (Tinggi/Sedang/Rendah) × Kemungkinan. Status: OPEN / MITIGATED / 
 
 ---
 
-## Keputusan checkpoint yang diperlukan sebelum implementasi besar (master prompt STEP 4, RULE 10)
+## ✅ Keputusan checkpoint (disetujui user, 2026-09-09)
+
+| Ref | Keputusan |
+|---|---|
+| **R-01** | **Lanjut Fase 3 sekarang** — M3–M6 & M18 dibangun dengan business rule minimal, semua entitas/endpoint ditandai `@provisional`, hanya perubahan **additive** setelah SLR Gate 6/7. Iterasi didokumentasikan sebagai design cycle sah di manuskrip DSR (Spec §14). |
+| **R-02** | **Multi-dinas via scoping** — hirarki Dinas (kabupaten/kota) → Sekolah → User; field `wilayah`/`kecamatan` di sekolah; tanpa level provinsi (additive bila perlu). |
+| **R-03** | **API internal-first** — `/api/v1` memetakan Spec §8 + endpoint sync PWA; controller = shell tipis atas Action domain; tanpa portal dokumentasi publik di MVP. |
+| **R-04** | **Offline: Observasi + bukti RTL** — konsol observasi (M2) penuh offline + antrean bukti tindak lanjut (M5); refleksi guru = online. |
+
+R-05 tetap OPEN (menunggu Artikel 2 — dimitigasi dengan instrumen schema-driven).
+
+---
+
+## Detail opsi checkpoint (arsip — untuk konteks keputusan di atas)
 
 ### R-01 — Modul Provisional vs instruksi "bangun end-to-end" · Dampak: **TINGGI**
 
