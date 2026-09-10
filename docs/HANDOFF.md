@@ -18,7 +18,10 @@
 
 **Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **224 Pest tests / 585 assertions pass**.
 
-**Pasca-Fase 5** (commit `d71cd84`, di atas tag `phase5-complete`): ekspor laporan server-side — `dompdf/dompdf` (PDF) + `openspout/openspout` (XLSX), keduanya pure-PHP (aman untuk 3T, tanpa headless browser). `report_exports` + job `GenerateReportExport`. **226 tes hijau.**
+**Pasca-Fase 5** (di atas tag `phase5-complete`, 227 tes hijau):
+- `d71cd84` — **ekspor laporan server-side**: `dompdf/dompdf` (PDF) + `openspout/openspout` (XLSX), pure-PHP (aman 3T). `report_exports` + job `GenerateReportExport`.
+- `94e0d91`, `45ebf8b` — **redesain frontend "govtech modern & bersih"**: token `resources/css/app.css` (brand biru tua, netral hangat, shadow/surface), Instrument Sans self-host + `@fonts` di layout (dulu render font sistem), komponen `x-ui.*`/`x-app.*` dipoles, `.field-input` disapu ke seluruh view Livewire, eyebrow di semua `page-header`, layout auth split-screen.
+- `fa08122` — **halaman landing publik** di `/` (route `home`); tamu lihat landing, user login → dasbor. CSS-only.
 
 **MVP LENGKAP — semua domain terbangun.** Fase 5 menambahkan modul **Evaluasi Ahli** in-app (domain `Evaluation` + peran `ahli`): panel ahli (≥ 2 rumpun) menilai artefak → sistem menghitung **CVR/CVI** (Lawshe), **Aiken's V**, **SUS** (`ExpertJudgmentStats`, deterministik + unit-tested). Dokumen baru: `docs/dsr-artefak.md` (DSR Peffers dkk. 2007), `docs/expert-judgment.md`, `docs/technical-evaluation.md`, `docs/demo-script.md`. `tests/Feature/Performance/` masuk `composer ci`. Keputusan checkpoint: `DECISIONS.md` F5-01, F5-02.
 
@@ -101,10 +104,9 @@ npm run dev
 
 ## 5. Berikutnya — tidak ada fase modul terencana
 
-**MVP Fase 0–5 selesai.** Semua domain terbangun & teruji. Pasca-Fase 5 sudah
-dikerjakan: **ekspor laporan server-side** (PDF siklus + PDF/XLSX/CSV agregat,
-job `GenerateReportExport`, disk privat) — commit **`d71cd84`**
-`feat(reporting): server-side report export (PDF / XLSX / CSV)`.
+**MVP Fase 0–5 selesai.** Semua domain terbangun & teruji. Pasca-Fase 5:
+ekspor laporan server-side (`d71cd84`), redesain frontend govtech + design
+system (`94e0d91`, `45ebf8b`), halaman landing publik (`fa08122`). Detail di §1.
 
 Kandidat pekerjaan lanjutan (bukan urutan wajib; masing-masing butuh trigger +
 checkpoint sendiri):
