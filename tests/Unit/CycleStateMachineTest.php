@@ -92,7 +92,7 @@ it('blocks phase 3 transitions until those modules land', function () {
     [$cycle, $supervisor] = draftCycleWithSupervisor(CycleStatus::ObservationDone);
 
     expect(fn () => app(CycleStateMachine::class)->transition($cycle, CycleStatus::AnalysisDone, $supervisor))
-        ->toThrow(InvalidTransitionException::class, 'Fase 3');
+        ->toThrow(InvalidTransitionException::class);
 });
 
 it('never lets a null (AI/agent) actor move a human-gated transition', function () {

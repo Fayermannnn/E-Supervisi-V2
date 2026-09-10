@@ -168,8 +168,70 @@ class CycleStateMachine
         match ([$from->value, $to->value]) {
             [S::Draft->value, S::Scheduled->value] => $this->guardSchedule($cycle),
             [S::Scheduled->value, S::ObservationDone->value] => $this->guardFinalizeObservation($cycle),
-            default => $this->guardPhase3($from, $to),
+            [S::ObservationDone->value, S::AnalysisDone->value] => $this->guardFinalizeAnalysis($cycle),
+            [S::AnalysisDone->value, S::FeedbackGiven->value] => $this->guardFeedbackGiven($cycle),
+            [S::FeedbackGiven->value, S::FollowUpActive->value] => $this->guardFollowUpActive($cycle),
+            [S::FollowUpActive->value, S::Reported->value],
+            [S::FollowUpOverdue->value, S::Reported->value] => $this->guardReported($cycle),
+            [S::FollowUpActive->value, S::FollowUpOverdue->value],
+            [S::FollowUpOverdue->value, S::FollowUpActive->value],
+            [S::Reported->value, S::Archived->value] => null, // dikelola job sistem
+            default => throw InvalidTransitionException::notAllowed($from, $to),
         };
+    }
+
+    /**
+     * Guard tahap pasca-observasi memakai query tabel (bukan model domain lain)
+     * agar Supervisor tidak bergantung pada domain tahap berikutnya. Domain
+     * masing-masing tetap menegakkan prasyarat lengkap di Action-nya.
+     */
+    private function guardFinalizeAnalysis(SupervisionCycle $cycle): void
+    {
+        $ok = DB::table('analysis_results')
+            ->where('cycle_id', $cycle->getKey())
+            ->where('status_review', 'final')
+            ->whereNotNull('reviewed_by')
+            ->where('sumber', '!=', 'ai_draft')
+            ->exists();
+
+        if (! $ok) {
+            throw InvalidTransitionException::guardFailed(S::ObservationDone, S::AnalysisDone, 'analisis final oleh manusia belum ada.');
+        }
+    }
+
+    private function guardFeedbackGiven(SupervisionCycle $cycle): void
+    {
+        $ok = DB::table('feedback_sessions')
+            ->where('cycle_id', $cycle->getKey())
+            ->where('status', 'selesai')
+            ->where('status_konfirmasi_guru', 'dikonfirmasi')
+            ->exists();
+
+        if (! $ok) {
+            throw InvalidTransitionException::guardFailed(S::AnalysisDone, S::FeedbackGiven, 'guru belum mengonfirmasi umpan balik.');
+        }
+    }
+
+    private function guardFollowUpActive(SupervisionCycle $cycle): void
+    {
+        $planIds = DB::table('follow_up_plans')->where('cycle_id', $cycle->getKey())->pluck('id');
+
+        if ($planIds->isEmpty() || ! DB::table('follow_up_items')->whereIn('follow_up_plan_id', $planIds)->exists()) {
+            throw InvalidTransitionException::guardFailed(S::FeedbackGiven, S::FollowUpActive, 'RTL dengan minimal satu butir belum ada.');
+        }
+    }
+
+    private function guardReported(SupervisionCycle $cycle): void
+    {
+        $ok = DB::table('reports')
+            ->where('scope', 'cycle')
+            ->where('scope_id', $cycle->getKey())
+            ->where('status', 'siap')
+            ->exists();
+
+        if (! $ok) {
+            throw InvalidTransitionException::guardFailed($cycle->status, S::Reported, 'laporan siklus belum siap.');
+        }
     }
 
     private function guardSchedule(SupervisionCycle $cycle): void
@@ -192,14 +254,5 @@ class CycleStateMachine
         if (! $hasFinal) {
             throw InvalidTransitionException::guardFailed(S::Scheduled, S::ObservationDone, 'belum ada observasi berstatus final.');
         }
-    }
-
-    private function guardPhase3(S $from, S $to): void
-    {
-        throw InvalidTransitionException::guardFailed(
-            $from,
-            $to,
-            'modul tahap pasca-observasi (analisis/umpan balik/tindak lanjut/pelaporan) hadir di Fase 3.',
-        );
     }
 }

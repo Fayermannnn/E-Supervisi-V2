@@ -97,9 +97,25 @@
         @endif
     </x-ui.card>
 
-    {{-- TAHAP PASCA (Fase 3) --}}
+    {{-- TAHAP PASCA-OBSERVASI --}}
     @if ($cycle->status->value >= CycleStatus::ObservationDone->value)
-        <x-ui.alert variant="info">Analisis, umpan balik, tindak lanjut, dan pelaporan hadir pada Fase 3.</x-ui.alert>
+        <div class="grid gap-3 sm:grid-cols-2">
+            <x-ui.stat label="Analisis" :value="$cycle->status->value > CycleStatus::AnalysisDone->value ? 'Selesai' : ($cycle->status === CycleStatus::ObservationDone ? 'Perlu dikerjakan' : 'Berlangsung')"
+                :href="route('cycles.analysis', $cycle)" :tone="$cycle->status === CycleStatus::ObservationDone ? 'warning' : 'default'" />
+            @if ($cycle->status->value >= CycleStatus::AnalysisDone->value)
+                <x-ui.stat label="Umpan Balik" :value="$cycle->status->value > CycleStatus::FeedbackGiven->value ? 'Selesai' : ($cycle->status === CycleStatus::AnalysisDone ? 'Perlu dikerjakan' : 'Berlangsung')"
+                    :href="route('cycles.feedback', $cycle)" :tone="$cycle->status === CycleStatus::AnalysisDone ? 'warning' : 'default'" />
+            @endif
+            @if ($cycle->status->value >= CycleStatus::FeedbackGiven->value)
+                <x-ui.stat label="Tindak Lanjut (RTL)"
+                    :value="$cycle->status === CycleStatus::FollowUpOverdue ? 'Terlambat' : ($cycle->status->value >= CycleStatus::Reported->value ? 'Selesai' : 'Berjalan')"
+                    :href="route('cycles.follow-up', $cycle)" :tone="$cycle->status === CycleStatus::FollowUpOverdue ? 'danger' : 'default'" />
+            @endif
+            @if ($cycle->status->value >= CycleStatus::FollowUpActive->value)
+                <x-ui.stat label="Laporan" :value="$cycle->status->value >= CycleStatus::Reported->value ? 'Tersedia' : 'Belum disusun'"
+                    :href="route('cycles.report', $cycle)" :tone="$cycle->status->value >= CycleStatus::Reported->value ? 'success' : 'default'" />
+            @endif
+        </div>
     @endif
 
     <x-app.slide-over wire-model="showCancel" title="Batalkan siklus">

@@ -28,7 +28,7 @@
             @endif
 
             @can(Permission::ViewAggregateReport->value)
-                <x-app.nav-link :href="url('/reports')" icon="chart" disabled>Pelaporan</x-app.nav-link>
+                <x-app.nav-link :href="route('reports.aggregate')" icon="chart">Pelaporan Agregat</x-app.nav-link>
             @endcan
 
             @canany([Permission::ManageUsers->value, Permission::ManageOrganization->value, Permission::ManageAssignments->value, Permission::ManagePolicySettings->value, Permission::ViewAuditLog->value])

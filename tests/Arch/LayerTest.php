@@ -26,5 +26,22 @@ arch('models extend the Eloquent base model')
     ->toExtend('Illuminate\Database\Eloquent\Model')
     ->ignoring('App\Models\Concerns');
 
-// Domain-boundary arch rules (AI has no DB access, no cross-domain imports)
-// are added in Phase 1 A3+ once each domain namespace contains classes.
+arch('the AI provider layer never touches the database (ADR-009)')
+    ->expect('App\Domain\Ai\Providers')
+    ->not->toUse([
+        'Illuminate\Support\Facades\DB',
+        'Illuminate\Database\Eloquent\Model',
+        'App\Models',
+    ]);
+
+arch('the AI contract is provider-agnostic')
+    ->expect('App\Domain\Ai\Contracts')
+    ->not->toUse(['App\Domain\Ai\Providers']);
+
+arch('the state machine is the only writer of cycle status transitions')
+    ->expect('App\Models\CycleStatusTransition')
+    ->toOnlyBeUsedIn([
+        'App\Domain\Supervision',
+        'App\Domain\Reporting\Actions\CompileCycleReport',
+        'App\Models',
+    ]);

@@ -8,10 +8,11 @@ Sistem versi lama (17 modul, 10-status generik) **deprecated** dan tidak dijadik
 
 ## Status
 
-**PHASE 2 selesai.** Fondasi (Fase 1) + siklus supervisi end-to-end Perencanaan → Observasi:
-bank instrumen schema-driven, state machine 10-status, kesepakatan pra-observasi,
-refleksi guru, **konsol observasi luring-mampu** (IndexedDB + outbox + sync + deteksi konflik),
-Service Worker/PWA, API `/api/v1` (Spec §8). `composer ci` hijau (Pint + PHPStan 8 + 115 tes).
+**PHASE 3 selesai.** Siklus supervisi **end-to-end** — perencanaan → observasi (offline)
+→ analisis (skoring deterministik + draf AI) → umpan balik terstruktur → tindak lanjut
+(RTL + eskalasi + bukti offline) → pelaporan (per siklus + agregat) → arsip.
+AI **human-in-the-loop**: setiap keluaran berstatus `draft`, wajib ditinjau, tak pernah
+memicu transisi status. `composer ci` hijau (Pint + PHPStan 8 + 128 tes).
 
 ```bash
 php artisan migrate:fresh --seed && npm run dev
@@ -24,9 +25,9 @@ Detail progres: [docs/DECISIONS.md](docs/DECISIONS.md).
 |---|---|---|---|
 | 0 | Discovery & architecture baseline | — | ✅ Selesai (checkpoint dijawab) |
 | 1 | Fondasi: identitas, RBAC, organisasi, audit, notifikasi | M13, M14, M15, M16, M17 | ✅ Selesai |
-| 2 | Inti siklus: Perencanaan → Observasi (+ offline PWA, API) | M1, M2, M8 | ✅ Selesai — 115 tes hijau |
-| 3 | Analisis → Pelaporan (+ AI) | M3, M4, M5, M6, M18 | ⏳ Berikutnya — `@provisional` (R-01 disetujui) |
-| 4 | Pengembangan profesional & akuntabilitas | M7, M9, M10, M11, M12 | ⏸️ |
+| 2 | Inti siklus: Perencanaan → Observasi (+ offline PWA, API) | M1, M2, M8 | ✅ Selesai |
+| 3 | Analisis → Pelaporan (+ AI, human-in-the-loop) | M3, M4, M5, M6, M18 | ✅ Selesai — 128 tes hijau, `@provisional` |
+| 4 | Pengembangan profesional & akuntabilitas | M7, M9, M10, M11, M12 | ⏳ Berikutnya |
 | 5 | Kesiapan evaluasi ahli (DSR Artikel 3) | — | ⏸️ |
 
 ## Stack

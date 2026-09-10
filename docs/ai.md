@@ -1,6 +1,27 @@
-# Asisten AI — Abstraction Layer (DRAFT, implementasi Fase 3)
+# Asisten AI — Abstraction Layer (IMPLEMENTED, Fase 3 — `@provisional`)
 
 Sumber: Spec §4, §6.6, §10, §11; master prompt §5, §16, RULE 4.
+
+## Implementasi
+
+| Bagian | Berkas |
+|---|---|
+| Kontrak | `App\Domain\Ai\Contracts\AiProvider` — `generate(AiRequest): AiResult` |
+| Penyedia | `Providers\{MockAiProvider (default), OpenAiProvider, AnthropicProvider}` |
+| Pemilihan | `AiServiceProvider` — dari `config('ai.provider')`; **tanpa kunci API → paksa `mock`** |
+| Prompt | `ai_prompt_templates` (berversi, `key`+`version` unik) + `PromptRenderer` (`{{ var }}` / `{{ json:var }}`) |
+| Orkestrasi | `Actions\GenerateAiDraft` (otorisasi `ai.request_draft`, rate-limit/menit) → `Jobs\RunAiGeneration` (async) |
+| Penyimpanan | `ai_generations` — `provider, model, prompt_key, prompt_version, source, input_context, output, status, review_status, reviewer_id, generated_at, token_usage` |
+| Tinjauan | `Actions\ReviewAiGeneration` — `accept` / `edit` / `reject`; `AiGeneration::usableText()` mengembalikan `null` sampai `isHumanApproved()` |
+
+## Gerbang human-in-the-loop yang ditegakkan (diuji)
+
+- `AiGeneration::review_status` **tidak pernah** otomatis `accepted`/`edited` — hanya lewat `ReviewAiGeneration` oleh user dengan `ai.review_draft`.
+- `FinalizeAnalysis` **menolak** ringkasan dengan `sumber = ai_draft` (AI mentah belum ditinjau).
+- `PostFeedbackMessage` **menolak** pesan bersumber AI yang belum `isHumanApproved`.
+- `AcknowledgeFeedback` **menolak** bila masih ada saran AI belum ditinjau di sesi.
+- Tidak ada jalur kode di mana `AiProvider` mengakses DB (arch: layer `Ai` tidak meng-`use` `DB`/`Model`).
+- Tidak ada transisi `CycleStateMachine` yang dapat dipicu aktor `null`/AI pada edge bergerbang-manusia.
 
 ## Prinsip
 

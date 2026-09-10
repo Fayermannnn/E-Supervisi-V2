@@ -4,7 +4,15 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Domain\Analysis\Actions\FinalizeAnalysis;
+use App\Domain\Analysis\Actions\PerformAnalysis;
+use App\Domain\Analysis\Actions\SaveAnalysisSummary;
+use App\Domain\Feedback\Actions\AcknowledgeFeedback;
+use App\Domain\Feedback\Actions\PostFeedbackMessage;
+use App\Domain\Feedback\Actions\StartFeedbackSession;
+use App\Domain\FollowUp\Actions\CreateFollowUpPlan;
 use App\Domain\Instruments\FormatBTemplate;
+use App\Domain\Observation\Actions\FinalizeObservation;
 use App\Domain\Observation\Actions\SaveObservation;
 use App\Domain\Observation\Actions\StartObservation;
 use App\Domain\Organization\Actions\AssignSupervisor;
@@ -61,6 +69,8 @@ class DatabaseSeeder extends Seeder
         ]);
         $adminDinas->assignRole(Role::AdminDinas, $dinasMahulu);
 
+        $this->call(AiPromptTemplateSeeder::class);
+
         $instrument = $this->seedFormatB($adminSistem);
 
         $this->seedDinas($dinasMahulu, wilayah: '3T', supervisorEmailPrefix: 'mahulu');
@@ -96,12 +106,7 @@ class DatabaseSeeder extends Seeder
 
     private function seedCycles(InstrumentVersion $version): void
     {
-        $assignments = SupervisorAssignment::query()->with(['supervisor', 'guru'])->limit(4)->get();
-        $createCycle = app(CreateCycle::class);
-        $saveAgreement = app(SavePlanningAgreement::class);
-        $consent = app(RecordPlanningAgreementConsent::class);
-        $start = app(StartObservation::class);
-        $save = app(SaveObservation::class);
+        $assignments = SupervisorAssignment::query()->with(['supervisor', 'guru'])->limit(8)->get();
 
         foreach ($assignments as $i => $assignment) {
             $supervisor = $assignment->supervisor;
@@ -110,13 +115,12 @@ class DatabaseSeeder extends Seeder
                 continue;
             }
 
-            $cycle = $createCycle->handle($supervisor, $guru, '2026/2027', 'ganjil', 'Supervisi Pembelajaran '.$guru->name);
-
+            $cycle = app(CreateCycle::class)->handle($supervisor, $guru, '2026/2027', 'ganjil', 'Supervisi Pembelajaran '.$guru->name);
             if ($i === 0) {
-                continue; // biarkan satu siklus berstatus Draf
+                continue; // Draf
             }
 
-            $saveAgreement->handle($supervisor, $cycle, [
+            app(SavePlanningAgreement::class)->handle($supervisor, $cycle, [
                 'fokus_observasi' => 'Pengelolaan kelas dan aktivasi peserta didik',
                 'instrument_version_id' => $version->id,
                 'tipe_observasi' => 'sinkron',
@@ -124,23 +128,54 @@ class DatabaseSeeder extends Seeder
                 'kelas' => 'VIII-A',
                 'mata_pelajaran' => 'Matematika',
             ]);
-            $consent->handle($guru, $cycle);
-            $consent->handle($supervisor, $cycle);
-
+            app(RecordPlanningAgreementConsent::class)->handle($guru, $cycle);
+            app(RecordPlanningAgreementConsent::class)->handle($supervisor, $cycle);
             if ($i === 1) {
-                continue; // siklus Terjadwal, siap observasi
+                continue; // Terjadwal
             }
 
-            // Siklus dengan observasi terisi sebagian
-            $observation = $start->handle($supervisor, $cycle->refresh());
+            $observation = app(StartObservation::class)->handle($supervisor, $cycle->refresh());
             $rows = [];
-            foreach ($version->schema()->items() as $item) {
-                if ($item->required) {
-                    $rows[] = ['item_key' => $item->key, 'section_key' => 'inti', 'value' => random_int(2, 4)];
-                }
+            foreach ($version->schema()->requiredItemKeys() as $key) {
+                $rows[] = ['item_key' => $key, 'section_key' => 'inti', 'value' => random_int(2, 4)];
             }
-            $save->handle($observation, $rows, ['catatan_skrip' => 'Observasi berjalan lancar; peserta didik antusias.']);
+            app(SaveObservation::class)->handle($observation, $rows, ['catatan_skrip' => 'Observasi berjalan lancar; peserta didik antusias.']);
+            if ($i === 2) {
+                continue; // Terjadwal + observasi draft
+            }
+
+            app(FinalizeObservation::class)->handle($supervisor, $observation->refresh());
+            if ($i === 3) {
+                continue; // Observasi Selesai
+            }
+
+            $analysis = app(PerformAnalysis::class)->handle($supervisor, $cycle->refresh());
+            app(SaveAnalysisSummary::class)->handle($supervisor, $analysis, 'Guru menunjukkan penguasaan materi yang baik. Area yang perlu diperkuat adalah aktivasi peserta didik pada kegiatan inti dan refleksi di penutup.');
+            app(FinalizeAnalysis::class)->handle($supervisor, $analysis->refresh());
+            if ($i === 4) {
+                continue; // Analisis Selesai
+            }
+
+            $session = app(StartFeedbackSession::class)->handle($cycle->refresh());
+            app(PostFeedbackMessage::class)->handle($supervisor, $session, 'observasi', 'Terima kasih, pengelolaan kelas sudah tertata. Mari kita bahas aktivasi peserta didik.');
+            app(PostFeedbackMessage::class)->handle($guru, $session, 'tanggapan', 'Baik, saya rasa memang perlu lebih banyak pertanyaan terbuka.');
+            app(PostFeedbackMessage::class)->handle($supervisor, $session, 'kesepakatan', 'Sepakat: pada 2 pertemuan berikutnya menerapkan diskusi kelompok terstruktur.');
+            app(AcknowledgeFeedback::class)->handle($guru, $session);
+            if ($i === 5) {
+                continue; // Umpan Balik Diberikan
+            }
+
+            // Tenggat lampau untuk i>=7 agar demo eskalasi RTL terlihat.
+            $tenggat = $i >= 7 ? now()->subDays(5)->toDateString() : now()->addWeeks(4)->toDateString();
+
+            app(CreateFollowUpPlan::class)->handle($supervisor, $cycle->refresh(), 'Meningkatkan partisipasi aktif peserta didik pada kegiatan inti.', $tenggat, [
+                ['deskripsi' => 'Menyusun 3 pertanyaan pemantik per pertemuan', 'indikator_keberhasilan' => 'RPP memuat pertanyaan pemantik'],
+                ['deskripsi' => 'Menerapkan diskusi kelompok', 'indikator_keberhasilan' => 'Terlaksana pada 2 pertemuan'],
+            ]);
         }
+
+        // Jalankan deteksi keterlambatan agar status siklus demo konsisten.
+        app(\App\Domain\FollowUp\Actions\DetectOverdueFollowUps::class)->handle();
     }
 
     private function seedDinas(Dinas $dinas, string $wilayah, string $supervisorEmailPrefix): void

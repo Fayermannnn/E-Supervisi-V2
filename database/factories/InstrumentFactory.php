@@ -21,7 +21,7 @@ class InstrumentFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => 'B',
+            'code' => 'B-'.fake()->unique()->bothify('??##'),
             'nama' => 'Format B — Observasi Pelaksanaan Pembelajaran (CONTOH)',
             'deskripsi' => 'Instrumen contoh untuk demo; belum tervalidasi.',
             'pemilik_dinas_id' => null,

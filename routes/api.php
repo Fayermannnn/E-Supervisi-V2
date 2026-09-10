@@ -2,9 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\V1\AiGenerationController;
+use App\Http\Controllers\Api\V1\AnalysisController;
 use App\Http\Controllers\Api\V1\AuthTokenController;
 use App\Http\Controllers\Api\V1\CycleController;
+use App\Http\Controllers\Api\V1\FeedbackController;
+use App\Http\Controllers\Api\V1\FollowUpController;
 use App\Http\Controllers\Api\V1\ObservationController;
+use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\SyncController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +38,19 @@ Route::prefix('v1')->group(function (): void {
         Route::patch('/observations/{observation}', [ObservationController::class, 'update']);
         Route::post('/observations/{observation}/finalize', [ObservationController::class, 'finalize']);
         Route::post('/observations/{observation}/media', [ObservationController::class, 'media']);
+
+        // Tahap pasca-observasi (M3–M6, M18) — @provisional
+        Route::get('/cycles/{cycle}/analysis/draft', [AnalysisController::class, 'draft']);
+        Route::post('/cycles/{cycle}/analysis', [AnalysisController::class, 'finalize']);
+        Route::post('/cycles/{cycle}/feedback', [FeedbackController::class, 'store']);
+        Route::patch('/cycles/{cycle}/feedback/ack', [FeedbackController::class, 'acknowledge']);
+        Route::post('/cycles/{cycle}/follow-up', [FollowUpController::class, 'store']);
+        Route::patch('/follow-up/{item}', [FollowUpController::class, 'updateItem']);
+        Route::patch('/follow-up/{item}/evidence', [FollowUpController::class, 'evidence'])
+            ->middleware('ability:follow-up:evidence');
+        Route::get('/reports/cycle/{cycle}', [ReportController::class, 'cycle']);
+        Route::get('/reports/aggregate', [ReportController::class, 'aggregate']);
+        Route::post('/ai/generations/{generation}/review', [AiGenerationController::class, 'review']);
 
         // Sinkronisasi PWA luring (ADR-006)
         Route::middleware('throttle:60,1')->group(function (): void {

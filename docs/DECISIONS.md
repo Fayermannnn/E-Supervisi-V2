@@ -74,5 +74,30 @@ Legend: ⬜ belum · 🟡 berjalan · ✅ selesai (DoD) · ⏸️ ditunda
 - Sanctum `abilities`/`ability` middleware alias didaftarkan manual di `bootstrap/app.php` (tidak auto-register di Laravel 12+).
 - Transisi Fase 3 (M3–M6) di state machine sudah dipetakan tapi guard-nya melempar "Fase 3" sampai domain tsb dibangun.
 
-### PHASE 3–5
-Belum dimulai. Lihat `roadmap.md`. Berikutnya: Fase 3 (M3, M4, M5, M6, M18) — `@provisional`.
+### PHASE 3 — Analisis → Pelaporan + AI (M3, M4, M5, M6, M18) ✅ `@provisional` (menunggu review)
+
+| Story | Status | Catatan |
+|---|---|---|
+| M18 AI abstraction | ✅ | `AiProvider` interface + `MockAiProvider` (default, deterministik) + `OpenAiProvider`/`AnthropicProvider`; `AiServiceProvider` paksa mock tanpa kunci API; `ai_prompt_templates` berversi + `PromptRenderer`; `RunAiGeneration` Job (async); `ai_generations` — setiap keluaran `draft`, `review_status` tak pernah otomatis `accepted`; `GenerateAiDraft` (rate-limited) + `ReviewAiGeneration` (accept/edit/reject) |
+| C1 Skoring & analisis (M3) | ✅ | `SchemaDrivenScorer` (deterministik, dari `scoring_config` — weighted-mean-normalized + bands; diuji unit), `AnalysisResult`/`AnalysisFinding`, `PerformAnalysis` (skor + baseline findings), `SaveAnalysisSummary`, `FinalizeAnalysis` (butuh reviewer manusia; **tolak ringkasan `ai_draft` mentah**) → transisi OBSERVATION_DONE→ANALYSIS_DONE; `AnalysisWorkspace` Livewire |
+| C2 Draft analisis AI | ✅ | `RequestAnalysisAiDraft` (konteks dari data lolos otorisasi — AI tak akses DB), banner "DRAFT/SARAN AI", tombol Tinjau & Sunting |
+| C3 Umpan balik terstruktur (M4) | ✅ | `FeedbackSession`/`FeedbackMessage`/`FeedbackAgreement`, `PostFeedbackMessage` (tipe percakapan), `AcknowledgeFeedback` (guru) → transisi ANALYSIS_DONE→FEEDBACK_GIVEN; `FeedbackRoom` Livewire |
+| C4 Saran umpan balik AI | ✅ | pesan bersumber AI ditolak masuk percakapan bila belum `isHumanApproved`; guru tak bisa konfirmasi bila ada saran AI belum ditinjau |
+| C5 RTL / Tindak Lanjut (M5) | ✅ | `FollowUpPlan`/`FollowUpItem`/`FollowUpEvidence` (bukti UUID klien — offline R-04), `CreateFollowUpPlan` (jadwalkan reminder H-n dari `policy_settings`) → FEEDBACK_GIVEN→FOLLOW_UP_ACTIVE; `DetectOverdueFollowUps` job harian → tandai `terlambat` → FOLLOW_UP_ACTIVE↔FOLLOW_UP_OVERDUE + eskalasi notifikasi supervisor; `SubmitFollowUpEvidence`/`UpdateFollowUpItem`; `FollowUpTracker` Livewire |
+| C6 Pelaporan siklus (M6) | ✅ | `Report`/`ReportSnapshot`, `CompileCycleReport` (materialisasi snapshot 6 tahap; tolak bila RTL terbuka tanpa catatan override) → FOLLOW_UP→REPORTED; `CycleReport` Livewire (print-to-PDF) |
+| C7 Agregat (M6) | ✅ | `BuildAggregateReport` (per dinas/sekolah/wilayah/jenjang, tanpa data individual guru, anomali label-saja), `AggregateDashboard` Livewire |
+| C8 Arsip | ✅ | `ArchiveReportedCycles` job mingguan → REPORTED→ARCHIVED (data tak dihapus) |
+| State machine Fase 3 | ✅ | Guard transisi 2→7 diaktifkan via query tabel (bukan import domain lanjut) — defense-in-depth; Action tiap domain tetap menegakkan prasyarat lengkap |
+| API `/api/v1` | ✅ | `GET analysis/draft`, `POST analysis`, `POST feedback`, `PATCH feedback/ack`, `POST follow-up`, `PATCH follow-up/{item}`, `PATCH follow-up/{item}/evidence` (`ability:follow-up:evidence`), `GET reports/cycle/{id}`, `GET reports/aggregate`, `POST ai/generations/{id}/review` |
+| Seed | ✅ | 8 siklus melintasi seluruh status (Draf → FollowUpOverdue); 4 template prompt AI; RTL terlambat + reminder demo |
+
+**Tes:** 128 pass / 302 assertions (+13: skoring deterministik, alur pasca-observasi end-to-end, **AI human-in-the-loop** (tak pernah auto-approve, rate-limit, usableText null sampai ditinjau), eskalasi + pemulihan RTL, kompilasi laporan). `composer ci` hijau.
+**Browser-verified:** analysis workspace (skor 76% "Baik", section scores, baseline findings, toast), request AI draft.
+
+**Catatan:**
+- `QUEUE_CONNECTION=sync` di `.env` dev (AI/notifikasi/reminder langsung); produksi pakai `database` + worker (`.env.example`).
+- Ekspor laporan MVP = print-to-PDF browser; PDF/XLSX server-side ditunda.
+- Transisi Fase 3 di state machine memakai `DB::table()` query, bukan model domain M3–M6, agar tak melanggar arah dependensi domain-map.
+
+### PHASE 4–5
+Belum dimulai. Berikutnya: Fase 4 (M7 program tahunan, M9 PKB, M10 praktik baik, M11 360°, M12 kalibrasi).
