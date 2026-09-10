@@ -62,11 +62,19 @@ Workflow tiap fase: **DISCOVER → PLAN → ARCHITECT → DATABASE → BACKEND �
 
 ---
 
-## PHASE 4 — Pengembangan Profesional & Akuntabilitas · M7, M9, M10, M11, M12
+## PHASE 4 — Pengembangan Profesional & Akuntabilitas · M7, M9, M10, M11, M12 ✅
 
 **Prasyarat:** Fase 2–3 stabil digunakan (Spec §12).
-**Backlog:** EPIC D. M7 (Confirmed) dapat didahulukan bahkan bila R-01 = (b).
-**Exit criteria:** program tahunan menghasilkan siklus; PKB & praktik baik terhubung ke hasil analisis/RTL; 360° & kalibrasi (jika multi-supervisor) berjalan + mendukung data reliabilitas Artikel 2.
+**Backlog:** EPIC D. Keputusan checkpoint F4-01..F4-04 (`DECISIONS.md`).
+**Exit criteria (terpenuhi):**
+- ✅ program tahunan (pemilik supervisor) menghasilkan siklus DRAFT massal, idempoten, tanpa mengubah state machine;
+- ✅ rekomendasi PKB deterministik terhubung ke area pengembangan analisis + pola RTL berulang;
+- ✅ praktik baik: nominasi → persetujuan guru (UU PDP) → kurasi dinas → terbit;
+- ✅ 360° dengan ambang anonimitas; tidak memicu transisi siklus;
+- ✅ kalibrasi antar-penilai + `CalibrationStats` deterministik (persen kesepakatan, variansi, Fleiss' κ) — mendukung data reliabilitas Artikel 2.
+- ✅ `composer ci` hijau (Pint + PHPStan 8 + 192 Pest). Tag `phase4-complete`.
+
+M9–M12 tetap `@provisional` — perubahan skema additive-only setelah SLR Gate 6/7.
 
 ---
 

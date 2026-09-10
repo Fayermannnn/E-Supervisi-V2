@@ -40,6 +40,21 @@ class PolicySettings
             'description' => 'Ukuran maksimum berkas media observasi (MB).',
             'type' => 'integer',
         ],
+        'professional_dev.best_practice_min_score' => [
+            'default' => 0.75,
+            'description' => 'Skor total ternormalisasi minimal (0–1) sebuah siklus agar dapat dinominasikan ke Perpustakaan Praktik Baik (M10).',
+            'type' => 'float',
+        ],
+        'professional_dev.pkb_recurrence_threshold' => [
+            'default' => 2,
+            'description' => 'Jumlah kemunculan area pengembangan serupa lintas siklus guru sebelum ditandai sebagai pola berulang untuk rekomendasi PKB (M9).',
+            'type' => 'integer',
+        ],
+        'accountability.min_responses' => [
+            'default' => 3,
+            'description' => 'Jumlah minimum respons penilaian 360° sebelum agregat ditampilkan (ambang anonimitas, M11).',
+            'type' => 'integer',
+        ],
     ];
 
     public function get(string $key, ?string $dinasId = null): mixed

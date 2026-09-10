@@ -118,6 +118,18 @@
         </div>
     @endif
 
+    {{-- FASE 4 — pengembangan profesional & akuntabilitas --}}
+    @if ($cycle->status->value >= CycleStatus::AnalysisDone->value && ($isGuru || $isSupervisor))
+        <div class="grid gap-3 sm:grid-cols-2">
+            <x-ui.stat label="PKB & Praktik Baik" value="Rekomendasi pengembangan"
+                :href="route('cycles.pkb', $cycle)" />
+            @if ($isGuru && $cycle->status->value >= CycleStatus::FeedbackGiven->value && $cycle->status->value < CycleStatus::Reported->value)
+                <x-ui.stat label="Penilaian 360°" value="Nilai proses supervisi"
+                    :href="route('cycles.evaluate', $cycle)" tone="warning" />
+            @endif
+        </div>
+    @endif
+
     <x-app.slide-over wire-model="showCancel" title="Batalkan siklus">
         <form wire:submit="cancel" class="space-y-4">
             <p class="text-sm text-[var(--text-muted)]">Pembatalan bersifat permanen dan tercatat di audit.</p>

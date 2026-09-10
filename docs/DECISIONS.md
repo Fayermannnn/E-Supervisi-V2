@@ -2,6 +2,17 @@
 
 Catatan keputusan berjalan + status implementasi per story. ADR formal ada di `architecture.md`.
 
+## Keputusan checkpoint Fase 4 (2026-09-10)
+
+| Ref | Keputusan | Sumber |
+|---|---|---|
+| F4-01 | **M7 program tahunan dimiliki supervisor** (bukan admin dinas). Tanpa `program_assignments`/delegasi pengawas di MVP (additive bila perlu). Siklus di-generate berstatus **DRAFT** via `CreateCycle` — perencanaan, instrumen & kesepakatan tetap manual per siklus. State machine **tidak berubah**. | User checkpoint |
+| F4-02 | **M10 Perpustakaan Praktik Baik**: alur nominasi supervisor → **consent guru** (UU PDP) → kurasi Admin Dinas → terbit dinas-wide. Gate skor via `policy_settings['professional_dev.best_practice_min_score']` (default 0.75). Status: `menunggu_consent → menunggu_kurasi → terbit/ditolak/ditarik`. | User checkpoint |
+| F4-03 | **M11 360°**: formulir terbuka sejak `FEEDBACK_GIVEN`, satu penilaian per siklus, editable s/d `REPORTED`. Agregat butuh **≥ `accountability.min_responses` (default 3)** respons (ambang anonimitas); respons individual tak pernah diekspos. Tidak memicu transisi siklus. | User checkpoint |
+| F4-04 | **M12 Kalibrasi**: sesi kalibrasi fungsional + `CalibrationStats` deterministik teruji (persen kesepakatan, variansi, deviasi absolut, Fleiss' κ). Tidak menyentuh siklus nyata / state machine. | User checkpoint |
+| — | Permission M9–M12 disimpan di kode (`RolePermissionMap`), sama seperti Fase 1–3. `memory_limit=512M` ditambahkan ke `phpunit.xml` (arch test butuh > 128M setelah jumlah file domain bertambah). | Fase 4 |
+| — | `GeneratePkbRecommendations` membaca `analysis_findings`/`follow_up_*` via `DB::table()` (bukan import model Analysis/FollowUp) agar arah ketergantungan `domain-map.md` terjaga — pola yang sama dengan guard state machine Fase 3. | Fase 4 |
+
 ## Keputusan checkpoint (2026-09-09)
 
 | Ref | Keputusan | Sumber |
@@ -99,5 +110,26 @@ Legend: ⬜ belum · 🟡 berjalan · ✅ selesai (DoD) · ⏸️ ditunda
 - Ekspor laporan MVP = print-to-PDF browser; PDF/XLSX server-side ditunda.
 - Transisi Fase 3 di state machine memakai `DB::table()` query, bukan model domain M3–M6, agar tak melanggar arah dependensi domain-map.
 
-### PHASE 4–5
-Belum dimulai. Berikutnya: Fase 4 (M7 program tahunan, M9 PKB, M10 praktik baik, M11 360°, M12 kalibrasi).
+### PHASE 4 — Pengembangan Profesional & Akuntabilitas (M7, M9, M10, M11, M12) ✅ (menunggu review)
+
+| Story | Status | Catatan |
+|---|---|---|
+| D1 M7 Program Tahunan | ✅ | `annual_programs` + `program_targets`; `SaveAnnualProgram`/`SyncProgramTargets`/`GenerateProgramCycles` (→ `CreateCycle` DRAFT, set `program_id`)/`SetProgramStatus`; `AnnualProgramPolicy` (owner supervisor); Livewire `ProgramIndex`/`ProgramEditor`; API `/programs*`. State machine tak berubah (F4-01). |
+| D2 M9 Katalog PKB | ✅ `@provisional` | `pkb_catalog_items` (admin dinas/sistem kelola; global/per-dinas) + `pkb_recommendations`; `SavePkbCatalogItem`/`SetPkbCatalogItemStatus`; `GeneratePkbRecommendations` (deterministik via `PkbMatcher`, tanda `rtl_berulang` bila pola berulang lintas siklus guru); `RespondPkbRecommendation` (guru pilih/tolak/selesai); Livewire `PkbCatalogIndex`/`CyclePkb`. |
+| D3 M10 Perpustakaan Praktik Baik | ✅ `@provisional` | `best_practices`; `NominateBestPractice` (skor ≥ policy, siklus REPORTED/ARCHIVED) → `RespondBestPracticeConsent` (guru) → `CurateBestPractice` (admin dinas) → `WithdrawBestPractice`; notifikasi tiap tahap; Livewire `BestPracticeLibrary` + panel di `CyclePkb`. |
+| D4 M11 Akuntabilitas 360° | ✅ `@provisional` | `supervisor_evaluations`; `SupervisionProcessSurvey` (5 dimensi Likert 1–4); `SubmitSupervisorEvaluation` (buka `FEEDBACK_GIVEN`..`FOLLOW_UP_OVERDUE`, upsert, tak memicu transisi); `AccountabilityAggregator` (ambang `accountability.min_responses`); Livewire `SupervisorEvaluationForm`/`AccountabilityDashboard`. |
+| D5 M12 Kalibrasi Antar-Penilai | ✅ `@provisional` | `calibration_sessions`/`calibration_participants`/`calibration_scores`; `CreateCalibrationSession`/`AddCalibrationParticipant`/`SubmitCalibrationScores`/`CloseCalibrationSession`; `CalibrationStats` (persen kesepakatan, variansi, deviasi absolut, variansi skor total, Fleiss' κ — deterministik, unit-tested); Livewire `CalibrationIndex`/`CalibrationShow`. |
+| RBAC | ✅ | 11 permission baru di `Permission` enum + `RolePermissionMap` + 19 baris matriks `rbac.md` diuji parametrik. |
+| API `/api/v1` | ✅ | `AnnualProgramController`, `ProfessionalDevController`, `AccountabilityController` — shell tipis atas Action (Spec §8 tidak merinci endpoint modul ini; ditambahkan additive, R-03). |
+| Arch guardrails | ✅ | Domain tahap siklus tak boleh `use` `Program`/`ProfessionalDev`/`Accountability`; layer tsb tak boleh menyentuh `CycleStateMachine`/`CycleStatusTransition`; `Ai` tak menyentuh domain Fase 4. |
+| Seed | ✅ | 4 item katalog PKB global, 1 program tahunan (3 target → 3 siklus DRAFT), 3 penilaian 360°, 1 sesi kalibrasi selesai (3 penilai, snapshot statistik). |
+
+**Tes:** 192 pass / 454 assertions (+61: `CalibrationStats`, `PkbMatcher`, program generate/idempotensi/scoping, rekomendasi PKB dari analisis + pola berulang, praktik baik nominate→consent→curate + gate skor/PDP/lintas-dinas, 360° timing + ambang anonimitas + tak memicu transisi, kalibrasi end-to-end + guard, render layar Fase 4, arch). `composer ci` hijau (Pint + PHPStan 8 + Pest).
+
+**Catatan:**
+- M9–M12 `@provisional` — skema additive-only setelah SLR Gate 6/7 (docblock `@provisional` di model & migrasi).
+- API Fase 4 belum diuji feature-level (write path lewat Livewire yang diuji); ditandai known limitation.
+- M7 tanpa delegasi pengawas (F4-01) — bila dibutuhkan, `program_assignments` = penambahan additive.
+
+### PHASE 5
+Belum dimulai. Kesiapan evaluasi ahli (DSR Artikel 3).

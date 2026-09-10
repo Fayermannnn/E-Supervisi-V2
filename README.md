@@ -8,11 +8,13 @@ Sistem versi lama (17 modul, 10-status generik) **deprecated** dan tidak dijadik
 
 ## Status
 
-**PHASE 3 selesai.** Siklus supervisi **end-to-end** — perencanaan → observasi (offline)
-→ analisis (skoring deterministik + draf AI) → umpan balik terstruktur → tindak lanjut
-(RTL + eskalasi + bukti offline) → pelaporan (per siklus + agregat) → arsip.
-AI **human-in-the-loop**: setiap keluaran berstatus `draft`, wajib ditinjau, tak pernah
-memicu transisi status. `composer ci` hijau (Pint + PHPStan 8 + 128 tes).
+**PHASE 4 selesai.** Di atas siklus end-to-end Fase 1–3, kini tersedia lapisan
+pengembangan profesional & akuntabilitas: **program supervisi tahunan** (generate
+siklus massal), **katalog PKB** + rekomendasi deterministik dari area pengembangan,
+**perpustakaan praktik baik** (nominasi → persetujuan guru → kurasi dinas),
+**akuntabilitas supervisor 360°** (agregat anonim), dan **kalibrasi antar-penilai**
+(statistik reliabilitas deterministik: persen kesepakatan, Fleiss' κ).
+Modul M9–M12 = `@provisional`. `composer ci` hijau (Pint + PHPStan 8 + 192 tes).
 
 ```bash
 php artisan migrate:fresh --seed && npm run dev
@@ -26,9 +28,9 @@ Detail progres: [docs/DECISIONS.md](docs/DECISIONS.md).
 | 0 | Discovery & architecture baseline | — | ✅ Selesai (checkpoint dijawab) |
 | 1 | Fondasi: identitas, RBAC, organisasi, audit, notifikasi | M13, M14, M15, M16, M17 | ✅ Selesai |
 | 2 | Inti siklus: Perencanaan → Observasi (+ offline PWA, API) | M1, M2, M8 | ✅ Selesai |
-| 3 | Analisis → Pelaporan (+ AI, human-in-the-loop) | M3, M4, M5, M6, M18 | ✅ Selesai — 128 tes hijau, `@provisional` |
-| 4 | Pengembangan profesional & akuntabilitas | M7, M9, M10, M11, M12 | ⏳ Berikutnya |
-| 5 | Kesiapan evaluasi ahli (DSR Artikel 3) | — | ⏸️ |
+| 3 | Analisis → Pelaporan (+ AI, human-in-the-loop) | M3, M4, M5, M6, M18 | ✅ Selesai — `@provisional` |
+| 4 | Pengembangan profesional & akuntabilitas | M7, M9, M10, M11, M12 | ✅ Selesai — 192 tes hijau (M9–M12 `@provisional`) |
+| 5 | Kesiapan evaluasi ahli (DSR Artikel 3) | — | ⏳ Berikutnya |
 
 ## Stack
 

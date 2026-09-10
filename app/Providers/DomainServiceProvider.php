@@ -33,6 +33,9 @@ class DomainServiceProvider extends ServiceProvider
         \App\Domain\Feedback\FeedbackServiceProvider::class,
         \App\Domain\FollowUp\FollowUpServiceProvider::class,
         \App\Domain\Reporting\ReportingServiceProvider::class,
+        \App\Domain\Program\ProgramServiceProvider::class,
+        \App\Domain\ProfessionalDev\ProfessionalDevServiceProvider::class,
+        \App\Domain\Accountability\AccountabilityServiceProvider::class,
     ];
 
     public function register(): void

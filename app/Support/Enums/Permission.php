@@ -52,6 +52,22 @@ enum Permission: string
     case ViewAggregateReport = 'reports.view_aggregate';
     case ExportReport = 'reports.export';
 
+    // Program tahunan (Fase 4 — M7, Confirmed)
+    case ManageAnnualProgram = 'program.manage';
+
+    // Pengembangan profesional (Fase 4 — M9/M10, @provisional)
+    case ManagePkbCatalog = 'pkb.manage_catalog';
+    case RespondPkbRecommendation = 'pkb.respond_recommendation';
+    case NominateBestPractice = 'best_practice.nominate';
+    case RespondBestPracticeConsent = 'best_practice.consent';
+    case CurateBestPractice = 'best_practice.curate';
+
+    // Akuntabilitas & kalibrasi (Fase 4 — M11/M12, @provisional)
+    case SubmitSupervisorEvaluation = 'accountability.submit_evaluation';
+    case ViewAccountabilityReport = 'accountability.view_report';
+    case ManageCalibration = 'calibration.manage';
+    case ParticipateCalibration = 'calibration.participate';
+
     /**
      * @return list<string>
      */

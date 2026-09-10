@@ -31,6 +31,23 @@
                 <x-app.nav-link :href="route('reports.aggregate')" icon="chart">Pelaporan Agregat</x-app.nav-link>
             @endcan
 
+            @can(Permission::ManageAnnualProgram->value)
+                <x-app.nav-link :href="route('programs.index')" icon="clipboard">Program Tahunan</x-app.nav-link>
+            @endcan
+
+            @if ($user?->isGuru() || $user?->isSupervisor() || $user?->can(Permission::ManagePkbCatalog->value))
+                <x-app.nav-link :href="route('pkb.catalog')" icon="stack">Katalog PKB</x-app.nav-link>
+                <x-app.nav-link :href="route('best-practices.index')" icon="stack">Praktik Baik</x-app.nav-link>
+            @endif
+
+            @can(Permission::ViewAccountabilityReport->value)
+                <x-app.nav-link :href="route('accountability.index')" icon="chart">Akuntabilitas 360°</x-app.nav-link>
+            @endcan
+
+            @canany([Permission::ManageCalibration->value, Permission::ParticipateCalibration->value])
+                <x-app.nav-link :href="route('calibration.index')" icon="shield">Kalibrasi Penilai</x-app.nav-link>
+            @endcanany
+
             @canany([Permission::ManageUsers->value, Permission::ManageOrganization->value, Permission::ManageAssignments->value, Permission::ManagePolicySettings->value, Permission::ViewAuditLog->value])
                 <p class="mt-4 px-3 text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Administrasi</p>
 

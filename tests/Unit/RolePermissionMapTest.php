@@ -46,6 +46,27 @@ dataset('rbac matrix', function () {
         'admin dinas TIDAK dapat kelola pengguna' => [$ad, Permission::ManageUsers, false],
         'admin dinas TIDAK dapat observasi' => [$ad, Permission::ConductObservation, false],
 
+        // Fase 4 — pengembangan profesional & akuntabilitas
+        'supervisor dapat kelola program tahunan' => [$s, Permission::ManageAnnualProgram, true],
+        'guru TIDAK dapat kelola program tahunan' => [$g, Permission::ManageAnnualProgram, false],
+        'admin dinas TIDAK dapat kelola program tahunan' => [$ad, Permission::ManageAnnualProgram, false],
+        'admin dinas dapat kelola katalog PKB' => [$ad, Permission::ManagePkbCatalog, true],
+        'admin sistem dapat kelola katalog PKB' => [$as, Permission::ManagePkbCatalog, true],
+        'supervisor TIDAK dapat kelola katalog PKB' => [$s, Permission::ManagePkbCatalog, false],
+        'guru dapat merespons rekomendasi PKB' => [$g, Permission::RespondPkbRecommendation, true],
+        'supervisor dapat menominasikan praktik baik' => [$s, Permission::NominateBestPractice, true],
+        'guru dapat memberi persetujuan praktik baik' => [$g, Permission::RespondBestPracticeConsent, true],
+        'admin dinas dapat mengkurasi praktik baik' => [$ad, Permission::CurateBestPractice, true],
+        'supervisor TIDAK dapat mengkurasi praktik baik' => [$s, Permission::CurateBestPractice, false],
+        'guru dapat mengirim penilaian 360' => [$g, Permission::SubmitSupervisorEvaluation, true],
+        'supervisor TIDAK dapat mengirim penilaian 360' => [$s, Permission::SubmitSupervisorEvaluation, false],
+        'supervisor dapat melihat laporan akuntabilitas' => [$s, Permission::ViewAccountabilityReport, true],
+        'admin dinas dapat melihat laporan akuntabilitas' => [$ad, Permission::ViewAccountabilityReport, true],
+        'guru TIDAK dapat melihat laporan akuntabilitas' => [$g, Permission::ViewAccountabilityReport, false],
+        'admin dinas dapat mengelola kalibrasi' => [$ad, Permission::ManageCalibration, true],
+        'supervisor dapat ikut kalibrasi' => [$s, Permission::ParticipateCalibration, true],
+        'guru TIDAK dapat ikut kalibrasi' => [$g, Permission::ParticipateCalibration, false],
+
         // Admin Sistem
         'admin sistem dapat kelola pengguna' => [$as, Permission::ManageUsers, true],
         'admin sistem dapat kelola organisasi' => [$as, Permission::ManageOrganization, true],

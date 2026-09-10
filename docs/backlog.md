@@ -150,12 +150,35 @@ DoD global (master prompt §22): migration + model + FormRequest + Policy + logi
 
 ## EPIC D — Pengembangan Profesional & Kualitas (Fase 4) · M7, M9–M12
 
-Backlog ringkas — diperinci saat Fase 4:
-- **D1 M7** Program tahunan + delegasi pengawas + generate siklus massal.
-- **D2 M9** Katalog PKB + rekomendasi dari hasil analisis/RTL (AI opsional).
-- **D3 M10** Perpustakaan praktik baik (kurasi, tag, dari siklus berkinerja baik).
-- **D4 M11** Akuntabilitas supervisor 360° (guru menilai proses supervisi, bukan performa mengajarnya).
-- **D5 M12** Kalibrasi antar-penilai (hanya bila multi-supervisor; dukung reliabilitas Artikel 2).
+Keputusan checkpoint: `DECISIONS.md` F4-01..F4-04. M9–M12 = `@provisional` (additive-only setelah SLR Gate 6/7).
+
+### D1 — Program Supervisi Tahunan (M7) — Confirmed
+- `annual_programs` dimiliki **supervisor** (F4-01) + `program_targets` (guru binaan + fokus + rencana tanggal).
+- Actions: `SaveAnnualProgram`, `SyncProgramTargets` (validasi binaan aktif), `GenerateProgramCycles` (→ `CreateCycle` per target, siklus **DRAFT**, `program_id` di-set, idempoten), `SetProgramStatus`.
+- **Terima:** hanya guru binaan aktif jadi target; generate kedua = no-op untuk target yang sudah punya siklus; supervisor lain tak bisa menyunting; state machine tak berubah; Livewire + API pakai Action sama.
+
+### D2 — Katalog PKB (M9) — @provisional
+- `pkb_catalog_items` (admin dinas/sistem kelola; `pemilik_dinas_id` null = global) + `pkb_recommendations` (per siklus).
+- `GeneratePkbRecommendations`: deterministik (`PkbMatcher`, irisan kata kunci area pengembangan × tag katalog), tandai `rtl_berulang` bila kata kunci muncul di ≥ `professional_dev.pkb_recurrence_threshold` siklus guru. Baca `analysis_findings` via query tabel.
+- `RespondPkbRecommendation` (guru: `dipilih`/`ditolak`; lalu `selesai`).
+- **Terima:** rekomendasi tak menimpa keputusan guru; hanya item terbit yang berlaku utk dinas; ditolak sebelum analisis final; test unit `PkbMatcher` + feature end-to-end.
+
+### D3 — Perpustakaan Praktik Baik (M10) — @provisional
+- `best_practices` (unik per siklus). Alur `menunggu_consent → menunggu_kurasi → terbit/ditolak/ditarik`.
+- `NominateBestPractice` (supervisor, siklus REPORTED/ARCHIVED, `score_summary.total ≥ professional_dev.best_practice_min_score`), `RespondBestPracticeConsent` (guru — UU PDP), `CurateBestPractice` (admin dinas), `WithdrawBestPractice`.
+- **Terima:** tak terbit tanpa consent guru; skor di bawah ambang ditolak; admin dinas lain tak bisa mengkurasi; notifikasi tiap tahap; opsi anonim.
+
+### D4 — Akuntabilitas Supervisor 360° (M11) — @provisional
+- `supervisor_evaluations` (unik per siklus). `SupervisionProcessSurvey` = 5 dimensi Likert 1–4 + komentar.
+- `SubmitSupervisorEvaluation` (guru, buka `FEEDBACK_GIVEN`..`FOLLOW_UP_OVERDUE`, upsert, **tidak** memicu transisi).
+- `AccountabilityAggregator`: rata-rata per dimensi untuk supervisor (miliknya) & admin dinas (lintas sekolah); disembunyikan bila responden < `accountability.min_responses` (default 3).
+- **Terima:** hanya guru siklus yang menilai; agregat < ambang → "data belum cukup"; respons individual tak pernah muncul; test batas ambang + "tak memicu transisi".
+
+### D5 — Kalibrasi Antar-Penilai (M12) — @provisional
+- `calibration_sessions` + `calibration_participants` + `calibration_scores`. Dibuat admin dinas/sistem, menaut ke `instrument_version` (+ observasi/artefak).
+- `AddCalibrationParticipant`, `SubmitCalibrationScores` (skor item independen, validasi terhadap skema), `CloseCalibrationSession` (≥2 penilai submit → hitung + simpan `stats`).
+- `CalibrationStats` (deterministik, unit-tested): persen kesepakatan per item + keseluruhan, variansi, rentang, deviasi absolut rata-rata, variansi skor total, **Fleiss' κ**.
+- **Terima:** tak bisa ditutup < 2 penilai; non-peserta tak bisa mengirim skor; supervisor tak bisa membuat sesi; statistik deterministik & diuji.
 
 ---
 

@@ -82,6 +82,14 @@ Setiap pemanggilan `CycleStateMachine::transition($cycle, $to, $actor, $context)
 - `finalizeAnalysis` menolak bila `analysis_result.finalized_by` bukan user manusia atau `sumber = ai_draft` tanpa `reviewed_by`.
 - `recordFeedback` menolak pengiriman final bila konten identik dengan `ai_generations.output` yang belum `review_status ∈ {accepted, edited}`.
 
+## Fase 4 — tidak menambah status/transisi
+
+M7, M9–M12 **tidak menyentuh** state machine siklus (keputusan F4-01, `DECISIONS.md`):
+
+- **M7 Program Tahunan**: `GenerateProgramCycles` memanggil `CreateCycle` biasa → siklus lahir di `DRAFT` dan mengikuti jalur transisi normal. Kolom `supervision_cycles.program_id` hanya penanda asal.
+- **M11 Akuntabilitas 360°**: penilaian guru disimpan tanpa memicu transisi (Spec §11 — sistem hanya menandai). Diuji di `SupervisorEvaluationTest` ("never triggers a cycle status transition").
+- **M9/M10/M12**: entitas terpisah; tidak ada jalur kode dari domain `ProfessionalDev`/`Accountability` ke `CycleStateMachine` (dijaga arch test `LayerTest`).
+
 ## Enum status turunan (bukan status siklus)
 
 - `follow_up_plans.status`: `berjalan` | `terlambat` | `selesai` | `dibatalkan`

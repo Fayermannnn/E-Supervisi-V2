@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $supervisor_id
  * @property string $sekolah_id
  * @property string $dinas_id
+ * @property string|null $program_id
  * @property string $tahun_ajaran
  * @property string $semester
  * @property string $judul
@@ -44,6 +45,7 @@ class SupervisionCycle extends Model
         'supervisor_id',
         'sekolah_id',
         'dinas_id',
+        'program_id',
         'tahun_ajaran',
         'semester',
         'judul',
@@ -90,6 +92,14 @@ class SupervisionCycle extends Model
     public function sekolah(): BelongsTo
     {
         return $this->belongsTo(Sekolah::class);
+    }
+
+    /**
+     * @return BelongsTo<AnnualProgram, $this>
+     */
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(AnnualProgram::class, 'program_id');
     }
 
     /**

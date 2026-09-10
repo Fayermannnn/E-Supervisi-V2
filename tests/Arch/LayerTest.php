@@ -45,3 +45,33 @@ arch('the state machine is the only writer of cycle status transitions')
         'App\Domain\Reporting\Actions\CompileCycleReport',
         'App\Models',
     ]);
+
+arch('cycle-stage domains never depend on the Fase 4 professional-development layer')
+    ->expect([
+        'App\Domain\Planning',
+        'App\Domain\Observation',
+        'App\Domain\Analysis',
+        'App\Domain\Feedback',
+        'App\Domain\FollowUp',
+        'App\Domain\Reporting',
+    ])
+    ->not->toUse([
+        'App\Domain\Program',
+        'App\Domain\ProfessionalDev',
+        'App\Domain\Accountability',
+    ]);
+
+arch('the professional-development and accountability layers never trigger cycle transitions')
+    ->expect(['App\Domain\ProfessionalDev', 'App\Domain\Accountability'])
+    ->not->toUse([
+        'App\Domain\Supervision\StateMachine\CycleStateMachine',
+        'App\Models\CycleStatusTransition',
+    ]);
+
+arch('the AI layer stays out of the Fase 4 domains')
+    ->expect('App\Domain\Ai')
+    ->not->toUse([
+        'App\Domain\Program',
+        'App\Domain\ProfessionalDev',
+        'App\Domain\Accountability',
+    ]);

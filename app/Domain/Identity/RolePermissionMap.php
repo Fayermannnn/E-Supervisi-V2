@@ -27,6 +27,9 @@ final class RolePermissionMap
             Permission::AcknowledgeFeedback,
             Permission::UpdateFollowUp,
             Permission::UploadFollowUpEvidence,
+            Permission::RespondPkbRecommendation,
+            Permission::RespondBestPracticeConsent,
+            Permission::SubmitSupervisorEvaluation,
         ],
 
         Role::Supervisor->value => [
@@ -48,6 +51,10 @@ final class RolePermissionMap
             Permission::CompileCycleReport,
             Permission::ExportReport,
             Permission::ViewAuditLog,
+            Permission::ManageAnnualProgram,
+            Permission::NominateBestPractice,
+            Permission::ParticipateCalibration,
+            Permission::ViewAccountabilityReport,
         ],
 
         Role::AdminDinas->value => [
@@ -59,6 +66,10 @@ final class RolePermissionMap
             Permission::ViewAggregateReport,
             Permission::ExportReport,
             Permission::ViewAuditLog,
+            Permission::ManagePkbCatalog,
+            Permission::CurateBestPractice,
+            Permission::ViewAccountabilityReport,
+            Permission::ManageCalibration,
         ],
 
         Role::AdminSistem->value => [
@@ -70,6 +81,8 @@ final class RolePermissionMap
             Permission::ManageInstruments,
             Permission::ManageSupportTickets,
             Permission::ViewAuditLog,
+            Permission::ManagePkbCatalog,
+            Permission::ManageCalibration,
         ],
     ];
 

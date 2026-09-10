@@ -101,6 +101,30 @@ Konvensi API: prefix `/api/v1`, auth Sanctum, envelope `{ data, meta, errors }`,
 | `POST` | `/cycles/{id}/ai/feedback-suggestion` | Minta draft saran umpan balik | idem |
 | `POST` | `/ai/generations/{id}/review` | Supervisor accept/edit/reject | wajib sebelum dipakai |
 
+### 2e. Pengembangan profesional & akuntabilitas (Fase 4 — M7 Confirmed, M9–M12 `@provisional`)
+
+Spec §8 tidak merinci endpoint modul ini; ditambahkan **additive** (R-03). Controller = shell tipis atas Action.
+
+| Method | Endpoint | Fungsi | Akses |
+|---|---|---|---|
+| `GET` | `/programs` | Daftar program tahunan milik supervisor | Supervisor |
+| `POST` | `/programs` | Buat program tahunan | Supervisor |
+| `GET`/`PATCH` | `/programs/{program}` | Detail / ubah program | Supervisor (owner) |
+| `PUT` | `/programs/{program}/targets` | Sinkron daftar guru target | Supervisor (owner) |
+| `POST` | `/programs/{program}/generate` | Generate siklus DRAFT massal | Supervisor (owner) |
+| `GET` | `/pkb/catalog` | Katalog PKB yang berlaku utk dinas | Semua (login) |
+| `POST` | `/cycles/{cycle}/pkb/recommendations` | Susun rekomendasi PKB dari analisis final | Supervisor (siklus) |
+| `PATCH` | `/pkb/recommendations/{recommendation}` | Guru pilih/tolak/selesai | Guru/Supervisor (siklus) |
+| `POST` | `/cycles/{cycle}/best-practice` | Nominasi praktik baik | Supervisor (siklus, REPORTED+, skor ≥ ambang) |
+| `PATCH` | `/best-practices/{bestPractice}/consent` | Persetujuan guru | Guru (pemilik) |
+| `PATCH` | `/best-practices/{bestPractice}/curate` | Kurasi terbit/tolak | Admin Dinas (dinasnya) |
+| `POST` | `/cycles/{cycle}/supervisor-evaluation` | Kirim penilaian 360° | Guru (siklus, FEEDBACK_GIVEN..REPORTED) |
+| `GET` | `/accountability/aggregate` | Agregat 360° (≥ ambang responden) | Supervisor / Admin Dinas |
+| `POST` | `/calibration/sessions` | Buat sesi kalibrasi | Admin Dinas / Admin Sistem |
+| `POST` | `/calibration/sessions/{session}/participants` | Tambah penilai | Admin (pengelola sesi) |
+| `POST` | `/calibration/sessions/{session}/scores` | Penilai kirim skor item | Supervisor (peserta) |
+| `POST` | `/calibration/sessions/{session}/close` | Tutup + hitung statistik reliabilitas | Admin (pengelola sesi) |
+
 ### 2d. Auth token (Fase 1)
 
 | `POST` | `/auth/token` | Terbitkan token device (setelah login web / kredensial) |

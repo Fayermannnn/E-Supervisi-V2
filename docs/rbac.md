@@ -50,6 +50,26 @@ Legend: ✅ boleh · 🔶 boleh (terbatas scope) · ➖ tidak · 👁 read-only
 | Konfigurasi sistem / kebijakan | ➖ | ➖ | 🔶 (kebijakan dinas) | ✅ (teknis) | ➖ |
 | Batalkan siklus (alasan tercatat) | ➖ | 🔶 | ➖ | ➖ | ➖ |
 
+## Matriks hak akses — Fase 4 (M7, M9–M12)
+
+| Aksi | Guru | Supervisor | Admin Dinas | Admin Sistem | AI |
+|---|---|---|---|---|---|
+| Kelola program supervisi tahunan (M7) | ➖ | 🔶 (miliknya) | ➖ | ➖ | ➖ |
+| Generate siklus massal dari program | ➖ | 🔶 (binaan, siklus DRAFT) | ➖ | ➖ | ➖ |
+| Kelola katalog PKB (M9) | ➖ | ➖ | 🔶 (dinasnya + item global read) | ✅ | ➖ |
+| Susun rekomendasi PKB dari analisis | ➖ | 🔶 (siklus binaan) | ➖ | ➖ | ➖ |
+| Respons rekomendasi PKB (pilih/tolak/selesai) | 🔶 (miliknya) | 🔶 (siklusnya) | ➖ | ➖ | ➖ |
+| Nominasi praktik baik (M10) | ➖ | 🔶 (siklus binaan, REPORTED+, skor ≥ ambang) | ➖ | ➖ | ➖ |
+| Setujui/tolak publikasi praktik baik (consent) | 🔶 (miliknya) | ➖ | ➖ | ➖ | ➖ |
+| Kurasi praktik baik (terbit/tolak) | ➖ | ➖ | 🔶 (dinasnya) | ➖ | ➖ |
+| Lihat perpustakaan praktik baik terbit | 👁 (dinasnya) | 👁 (dinasnya) | 👁 (dinasnya) | ➖ | ➖ |
+| Kirim penilaian 360° proses supervisi (M11) | 🔶 (siklusnya, FEEDBACK_GIVEN..REPORTED) | ➖ | ➖ | ➖ | ➖ |
+| Lihat agregat akuntabilitas 360° | ➖ | 🔶 (miliknya, ≥ ambang responden) | 🔶 (dinasnya, ≥ ambang) | ➖ | ➖ |
+| Kelola sesi kalibrasi (M12) | ➖ | ➖ | 🔶 (dinasnya) | ✅ | ➖ |
+| Kirim skor sebagai penilai kalibrasi | ➖ | 🔶 (peserta sesi) | ➖ | ➖ | ➖ |
+
+Catatan: penilaian 360° adalah guru menilai **proses supervisi**, bukan sebaliknya. Respons individual tidak pernah diekspos — hanya agregat di atas ambang `accountability.min_responses`. Modul M9–M12 = `@provisional`.
+
 ## Scoping data (global query scopes)
 
 | Peran | Scope `supervision_cycles` |

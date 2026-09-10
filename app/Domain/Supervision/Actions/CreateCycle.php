@@ -26,6 +26,7 @@ class CreateCycle
         string $semester,
         string $judul,
         ?string $fokusRingkas = null,
+        ?string $programId = null,
     ): SupervisionCycle {
         $isBinaan = SupervisorAssignment::query()
             ->where('supervisor_id', $supervisor->getKey())
@@ -41,12 +42,13 @@ class CreateCycle
             throw new DomainException('Guru belum ditempatkan pada sekolah.');
         }
 
-        return DB::transaction(function () use ($supervisor, $guru, $tahunAjaran, $semester, $judul, $fokusRingkas): SupervisionCycle {
+        return DB::transaction(function () use ($supervisor, $guru, $tahunAjaran, $semester, $judul, $fokusRingkas, $programId): SupervisionCycle {
             $cycle = SupervisionCycle::create([
                 'guru_id' => $guru->getKey(),
                 'supervisor_id' => $supervisor->getKey(),
                 'sekolah_id' => $guru->sekolah_id,
                 'dinas_id' => $guru->resolveDinasId(),
+                'program_id' => $programId,
                 'tahun_ajaran' => $tahunAjaran,
                 'semester' => $semester,
                 'judul' => $judul,

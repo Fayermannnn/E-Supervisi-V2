@@ -26,6 +26,7 @@ use App\Models\InstrumentVersion;
 use App\Models\Sekolah;
 use App\Models\SupervisorAssignment;
 use App\Models\User;
+use App\Support\Enums\CycleStatus;
 use App\Support\Enums\Role;
 use App\Support\Enums\SupervisorType;
 use Illuminate\Database\Seeder;
@@ -78,7 +79,119 @@ class DatabaseSeeder extends Seeder
 
         $this->seedCycles($instrument->versions()->firstOrFail());
 
+        $this->seedFase4($adminSistem, $dinasMahulu, $instrument->versions()->firstOrFail());
+
         $this->seedHelpArticles($adminSistem);
+    }
+
+    /**
+     * Data demo Fase 4: katalog PKB, program tahunan, penilaian 360°, sesi
+     * kalibrasi. Modul M9–M12 = @provisional.
+     */
+    private function seedFase4(User $adminSistem, Dinas $dinas, InstrumentVersion $version): void
+    {
+        // --- M9 Katalog PKB (global) ----------------------------------------
+        $catalog = [
+            ['Lokakarya Pertanyaan Pemantik & Diskusi Terstruktur', 'pelatihan', ['pertanyaan pemantik', 'diskusi kelompok', 'partisipasi aktif']],
+            ['Modul Mandiri: Asesmen Formatif di Kelas', 'mandiri', ['asesmen formatif', 'umpan balik', 'refleksi']],
+            ['Webinar Pengelolaan Kelas Berdiferensiasi', 'webinar', ['pengelolaan kelas', 'diferensiasi', 'motivasi']],
+            ['Bacaan: Membuka Pembelajaran yang Bermakna', 'bacaan', ['apersepsi', 'tujuan pembelajaran', 'pendahuluan']],
+        ];
+        foreach ($catalog as [$judul, $tipe, $tags]) {
+            \App\Models\PkbCatalogItem::create([
+                'judul' => $judul,
+                'deskripsi' => 'Materi PKB contoh untuk demo alur rekomendasi Fase 4.',
+                'tipe' => $tipe,
+                'tags' => $tags,
+                'kompetensi' => [],
+                'pemilik_dinas_id' => null,
+                'status' => \App\Models\PkbCatalogItem::STATUS_TERBIT,
+                'created_by' => $adminSistem->id,
+            ]);
+        }
+
+        // --- M7 Program tahunan milik seorang kepala sekolah ---------------
+        $kepsek = User::query()
+            ->where('email', 'kepsek.mahulu.1@esupervisi.test')
+            ->first();
+
+        if ($kepsek !== null) {
+            $program = app(\App\Domain\Program\Actions\SaveAnnualProgram::class)->handle($kepsek, null, [
+                'judul' => 'Program Supervisi Klinis 2026/2027 — Semester Ganjil',
+                'tahun_ajaran' => '2026/2027',
+                'semester' => 'ganjil',
+                'catatan' => 'Menyasar seluruh guru binaan; fokus pada aktivasi peserta didik.',
+            ]);
+
+            $binaan = SupervisorAssignment::query()
+                ->where('supervisor_id', $kepsek->id)
+                ->activeOn()
+                ->with('guru')
+                ->get();
+
+            $targets = [];
+            foreach ($binaan as $assignment) {
+                if ($assignment->guru !== null) {
+                    $targets[] = ['guru_id' => $assignment->guru_id, 'fokus_ringkas' => 'Aktivasi peserta didik pada kegiatan inti', 'rencana_mulai' => null, 'rencana_selesai' => null];
+                }
+            }
+            if ($targets !== []) {
+                app(\App\Domain\Program\Actions\SyncProgramTargets::class)->handle($kepsek, $program->refresh(), $targets);
+                app(\App\Domain\Program\Actions\GenerateProgramCycles::class)->handle($kepsek, $program->refresh());
+            }
+        }
+
+        // --- M11 Penilaian 360° untuk siklus yang sudah mencapai umpan balik
+        $survey = \App\Domain\Accountability\SupervisionProcessSurvey::dimensions();
+        $cycles = \App\Models\SupervisionCycle::query()
+            ->whereIn('status', [CycleStatus::FeedbackGiven, CycleStatus::FollowUpActive, CycleStatus::FollowUpOverdue])
+            ->get();
+
+        foreach ($cycles as $i => $cycle) {
+            $base = 3 + ($i % 2 === 0 ? 1 : 0);
+            $jawaban = [];
+            foreach (array_keys($survey) as $k) {
+                $jawaban[$k] = min(4, max(1, $base - ($k === 'umpan_balik' ? 1 : 0)));
+            }
+            \App\Models\SupervisorEvaluation::create([
+                'cycle_id' => $cycle->id,
+                'guru_id' => $cycle->guru_id,
+                'supervisor_id' => $cycle->supervisor_id,
+                'dinas_id' => $cycle->dinas_id,
+                'sekolah_id' => $cycle->sekolah_id,
+                'jawaban' => $jawaban,
+                'komentar' => $i === 0 ? 'Umpan balik jelas dan membangun; jadwal sempat berubah.' : null,
+                'submitted_at' => now()->subDays($i + 1),
+            ]);
+        }
+
+        // --- M12 Sesi kalibrasi antar-penilai -----------------------------
+        $adminDinas = User::query()->where('email', 'admin.dinas@esupervisi.test')->first();
+        $raters = User::query()
+            ->whereHas('sekolah', fn ($q) => $q->where('dinas_id', $dinas->id))
+            ->whereHas('roleAssignments', fn ($q) => $q->where('role', Role::Supervisor->value))
+            ->limit(3)
+            ->get();
+
+        if ($adminDinas !== null && $raters->count() >= 2) {
+            $session = app(\App\Domain\Accountability\Actions\CreateCalibrationSession::class)->handle($adminDinas, [
+                'instrument_version_id' => $version->id,
+                'judul' => 'Kalibrasi Format B — Rekaman Pembelajaran Matematika',
+                'deskripsi' => 'Seluruh penilai menskor rekaman yang sama untuk menguji konsistensi.',
+                'artefak_url' => 'https://contoh.test/rekaman-kalibrasi',
+            ]);
+
+            $itemKeys = $version->schema()->requiredItemKeys();
+            foreach ($raters as $r => $rater) {
+                app(\App\Domain\Accountability\Actions\AddCalibrationParticipant::class)->handle($adminDinas, $session->refresh(), $rater);
+                $scores = [];
+                foreach ($itemKeys as $k => $key) {
+                    $scores[$key] = 3 + (($r + $k) % 2); // sedikit variasi antar penilai
+                }
+                app(\App\Domain\Accountability\Actions\SubmitCalibrationScores::class)->handle($rater, $session->refresh(), $scores);
+            }
+            app(\App\Domain\Accountability\Actions\CloseCalibrationSession::class)->handle($adminDinas, $session->refresh());
+        }
     }
 
     private function seedFormatB(User $author): Instrument

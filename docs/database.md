@@ -61,11 +61,11 @@ erDiagram
 **`permissions`** — `id`, `name`, `domain`
 **`role_user`** — `role_id`, `user_id`, `dinas_id` nullable (scope Admin Dinas), unik (role,user)
 **`permission_role`** — `permission_id`, `role_id`
-**`supervisor_assignments`** — `id`, `supervisor_id` FK users, `guru_id` FK users, `annual_program_id` nullable, `mulai`, `selesai` nullable, unik (supervisor,guru,periode)
+**`supervisor_assignments`** — `id`, `supervisor_id` FK users, `guru_id` FK users, `created_by` FK nullable, `mulai`, `selesai` nullable, unik (supervisor,guru,periode)
 
 ### Supervision (Fase 1–2) — jantung sistem
 
-**`supervision_cycles`** † — `id`, `guru_id` FK, `supervisor_id` FK, `sekolah_id` FK, `dinas_id` FK (denormalisasi utk scoping laporan), `annual_program_id` nullable, `tahun_ajaran`, `semester`, `judul`, `status` (enum 0–9), `fokus_ringkas`, `canceled_reason` nullable, `archived_at` nullable, `timestamps`
+**`supervision_cycles`** † — `id`, `guru_id` FK, `supervisor_id` FK, `sekolah_id` FK, `dinas_id` FK (denormalisasi utk scoping laporan), `program_id` FK nullable → `annual_programs` (M7, `nullOnDelete`), `tahun_ajaran`, `semester`, `judul`, `status` (enum 0–9), `fokus_ringkas`, `canceled_reason` nullable, `archived_at` nullable, `timestamps`
   - index: `(supervisor_id, status)`, `(guru_id, status)`, `(dinas_id, tahun_ajaran)`, `(status)`
 **`cycle_status_transitions`** (append-only) — `id`, `cycle_id` FK, `from_status`, `to_status`, `actor_id` FK, `actor_role`, `reason` nullable, `metadata` jsonb, `created_at`
 
@@ -116,14 +116,28 @@ erDiagram
 **`ai_prompt_templates`** — `id`, `key` (`analysis_summary`|`feedback_suggestion`|...), `version` int, `template` text, `variabel` jsonb, `aktif` bool
 **`ai_generations`** — `id`, `provider`, `model`, `prompt_key`, `prompt_version`, `source_type`, `source_id`, `input_context` jsonb, `output` text, `generated_at`, `reviewer_id` nullable, `review_status` (`draft`|`accepted`|`edited`|`rejected`), `reviewed_at` nullable, `token_usage` jsonb nullable
 
-### Program — M7 (Fase 4)
+### Program — M7 (Fase 4, Confirmed)
 
-**`annual_programs`** — `id`, `dinas_id` FK, `sekolah_id` nullable, `tahun_ajaran`, `judul`, `status`, `dibuat_oleh` FK, `timestamps`
-**`program_assignments`** — `id`, `annual_program_id` FK, `supervisor_id` FK, `guru_id` FK, `target_siklus` int, `periode_mulai`, `periode_selesai`
+**`annual_programs`** — `id`, `owner_id` FK users (**supervisor pemilik**), `dinas_id` FK, `tahun_ajaran`, `semester`, `judul`, `catatan` nullable, `status` (`draft`|`aktif`|`selesai`|`dibatalkan`), `timestamps` — index `(owner_id, tahun_ajaran)`, `(dinas_id, status)`
+**`program_targets`** — `id`, `annual_program_id` FK cascade, `guru_id` FK, `fokus_ringkas` nullable, `rencana_mulai`/`rencana_selesai` date nullable, `cycle_id` FK nullable (`nullOnDelete`, di-set saat siklus disemai), `generated_at` nullable, `catatan` nullable, unik `(annual_program_id, guru_id)`
+  - `GenerateProgramCycles` → `CreateCycle` per target → siklus **DRAFT** (perencanaan & kesepakatan tetap manual per siklus; state machine tidak berubah).
 
-### ProfessionalDev / Accountability / Support (Fase 4)
+### ProfessionalDev — M9 Katalog PKB + M10 Perpustakaan Praktik Baik (Fase 4, @provisional)
 
-Rancangan ringkas — dikunci saat Fase 4 dimulai. `pkb_catalog_items`, `pkb_recommendations`, `best_practices`, `supervisor_evaluations`, `calibration_sessions`, `calibration_scores`, `help_articles`, `support_tickets`.
+**`pkb_catalog_items`** — `id`, `judul`, `deskripsi`, `penyelenggara` nullable, `tipe` (`pelatihan`|`mandiri`|`kkg`|`webinar`|`bacaan`|`lainnya`), `tautan` nullable, `tags` jsonb (list, dicocokkan dgn area pengembangan), `kompetensi` jsonb, `durasi_jam` nullable, `pemilik_dinas_id` FK nullable (null = global), `status` (`draft`|`terbit`|`arsip`), `created_by` FK, `timestamps`
+**`pkb_recommendations`** — `id`, `cycle_id` FK cascade, `guru_id` FK, `pkb_catalog_item_id` FK cascade, `sumber` (`analisis`|`rtl_berulang`|`manual`), `alasan` text, `status` (`disarankan`|`dipilih`|`ditolak`|`selesai`), `direkomendasikan_oleh` FK nullable, `direspons_at` nullable, unik `(cycle_id, pkb_catalog_item_id)`
+  - Disusun deterministik oleh `GeneratePkbRecommendations` (irisan kata kunci `PkbMatcher`, tanpa AI); membaca `analysis_findings` via query tabel agar arah domain-map terjaga.
+**`best_practices`** — `id`, `cycle_id` FK unik, `guru_id`/`dinas_id`/`sekolah_id` FK, `nominated_by` FK, `judul`, `ringkasan`, `praktik` text, `tags` jsonb, `skor_band` nullable, `anonim` bool, `consent_by`/`consent_at` nullable (persetujuan guru — UU PDP), `curated_by`/`curated_at`/`catatan_kurasi` nullable, `status` (`menunggu_consent`|`menunggu_kurasi`|`terbit`|`ditolak`|`ditarik`), `terbit_at` nullable
+  - Alur: nominasi supervisor (siklus REPORTED/ARCHIVED + skor ≥ `professional_dev.best_practice_min_score`) → consent guru → kurasi Admin Dinas → terbit dinas-wide.
+
+### Accountability — M11 Akuntabilitas 360° + M12 Kalibrasi Antar-Penilai (Fase 4, @provisional)
+
+**`supervisor_evaluations`** — `id`, `cycle_id` FK unik, `guru_id`/`supervisor_id`/`dinas_id`/`sekolah_id` FK, `jawaban` jsonb (`{dimensi: 1..4}` untuk 5 dimensi `SupervisionProcessSurvey`), `komentar` nullable, `submitted_at`, `timestamps`
+  - Guru menilai **proses** supervisi. Terbuka sejak `FEEDBACK_GIVEN`, editable s/d `REPORTED`. Tidak memicu transisi siklus. Agregat hanya bila responden ≥ `accountability.min_responses` (default 3) — respons individual tak pernah diekspos (`AccountabilityAggregator`).
+**`calibration_sessions`** — `id`, `dinas_id` FK, `instrument_version_id` FK, `observation_id` FK nullable, `judul`, `deskripsi` nullable, `artefak_url` nullable, `status` (`draft`|`berjalan`|`selesai`), `dibuat_oleh` FK, `stats` jsonb (snapshot reliabilitas saat ditutup), `closed_at` nullable
+**`calibration_participants`** — `id`, `calibration_session_id` FK cascade, `supervisor_id` FK, `submitted_at` nullable, unik `(session, supervisor)`
+**`calibration_scores`** — `id`, `calibration_session_id` FK, `calibration_participant_id` FK cascade, `section_key` nullable, `item_key`, `nilai` decimal(6,3), unik `(participant, item_key)`
+  - `CloseCalibrationSession` (≥2 penilai submit) → `CalibrationStats::compute` (deterministik, diuji unit): persen kesepakatan per item, variansi, deviasi absolut rata-rata, variansi skor total, Fleiss' κ.
 
 ### Administration / Audit / Notification (Fase 1)
 

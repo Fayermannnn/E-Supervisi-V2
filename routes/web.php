@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Livewire\Accountability\AccountabilityDashboard;
+use App\Livewire\Accountability\CalibrationIndex;
+use App\Livewire\Accountability\CalibrationShow;
+use App\Livewire\Accountability\SupervisorEvaluationForm;
 use App\Livewire\Admin\Assignments\AssignmentIndex;
 use App\Livewire\Admin\Audit\AuditLogIndex;
 use App\Livewire\Admin\Organizations\OrganizationIndex;
@@ -21,7 +25,12 @@ use App\Livewire\FollowUp\FollowUpTracker;
 use App\Livewire\Instruments\InstrumentIndex;
 use App\Livewire\Observation\ObservationConsole;
 use App\Livewire\Planning\PlanningEditor;
+use App\Livewire\ProfessionalDev\BestPracticeLibrary;
+use App\Livewire\ProfessionalDev\CyclePkb;
+use App\Livewire\ProfessionalDev\PkbCatalogIndex;
 use App\Livewire\Profile\ProfileEdit;
+use App\Livewire\Program\ProgramEditor;
+use App\Livewire\Program\ProgramIndex;
 use App\Livewire\Reporting\AggregateDashboard;
 use App\Livewire\Reporting\CycleReport;
 use App\Livewire\Support\HelpIndex;
@@ -80,6 +89,20 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/cycles/{cycle}/feedback', FeedbackRoom::class)->name('cycles.feedback');
     Route::get('/cycles/{cycle}/follow-up', FollowUpTracker::class)->name('cycles.follow-up');
     Route::get('/cycles/{cycle}/report', CycleReport::class)->name('cycles.report');
+
+    // Fase 4 — pengembangan profesional & akuntabilitas
+    Route::get('/cycles/{cycle}/pkb', CyclePkb::class)->name('cycles.pkb');
+    Route::get('/cycles/{cycle}/evaluate', SupervisorEvaluationForm::class)->name('cycles.evaluate');
+
+    Route::get('/programs', ProgramIndex::class)->name('programs.index');
+    Route::get('/programs/{program}', ProgramEditor::class)->name('programs.show');
+
+    Route::get('/pkb/catalog', PkbCatalogIndex::class)->name('pkb.catalog');
+    Route::get('/best-practices', BestPracticeLibrary::class)->name('best-practices.index');
+
+    Route::get('/accountability', AccountabilityDashboard::class)->name('accountability.index');
+    Route::get('/calibration', CalibrationIndex::class)->name('calibration.index');
+    Route::get('/calibration/{session}', CalibrationShow::class)->name('calibration.show');
 
     // Bank instrumen (M8)
     Route::get('/instruments', InstrumentIndex::class)->name('instruments.index');

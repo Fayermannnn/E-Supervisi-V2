@@ -26,7 +26,7 @@ Pemetaan 18 modul Spec §6 → domain modular monolith → tahap siklus Spec §2
 | **Planning** | M1 Perencanaan Supervisi | Perencanaan | Confirmed | 2 |
 | **Observation** | M2 Observasi Pembelajaran | Observasi | Confirmed | 2 |
 | **Instruments** | M8 Bank Indikator & Instrumen | Perencanaan, Observasi | Confirmed | 2 |
-| **Program** | M7 Manajemen Program Tahunan | Lintas tahap | Confirmed | 4 (butuh Fase 2–3 stabil) |
+| **Program** | M7 Manajemen Program Tahunan (pemilik = supervisor, F4-01) | Lintas tahap | Confirmed | 4 ✅ |
 | **Analysis** | M3 Analisis Hasil Observasi | Analisis | **Provisional** | 3 ⛔ |
 | **Feedback** | M4 Pemberian Umpan Balik | Umpan Balik | **Provisional** | 3 ⛔ |
 | **FollowUp** | M5 Tindak Lanjut (RTL) | Tindak Lanjut | **Prioritas Tinggi\*** | 3 ⛔ |
@@ -50,9 +50,9 @@ Audit  ◄───────┘ (semua domain menulis audit)                 
 Notification ◄──────────────────────────────────────────────────── (event-driven, semua tahap)
 Instruments ──> Planning (pilih instrumen), Observation (isi instrumen), Analysis (skema skoring)
 Ai ──> Analysis (draft), Feedback (draft saran)  [read-only ke data siklus, tulis hanya ke ai_generations]
-Program ──> Supervision (membuat banyak siklus terjadwal)
-ProfessionalDev ──> FollowUp (rekomendasi PKB dari hasil analisis + RTL)
-Accountability ──> Feedback (M11), Analysis (M12)
+Program ──> Supervision (CreateCycle → siklus DRAFT massal; tak menyentuh state machine)
+ProfessionalDev ──> (baca analysis_findings/follow_up via query tabel; tulis pkb_*/best_practices)
+Accountability ──> (baca supervision_cycles/instrument_versions; tulis supervisor_evaluations/calibration_*)
 ```
 
 **Larangan ketergantungan:**
@@ -74,9 +74,9 @@ Accountability ──> Feedback (M11), Analysis (M12)
 | FollowUp | `follow_up_plans`, `follow_up_items`, `follow_up_evidence` |
 | Reporting | `reports`, `report_snapshots` |
 | Instruments | `instruments`, `instrument_versions` |
-| Program | `annual_programs`, `program_assignments` |
+| Program | `annual_programs`, `program_targets` |
 | ProfessionalDev | `pkb_catalog_items`, `pkb_recommendations`, `best_practices` |
-| Accountability | `supervisor_evaluations`, `calibration_sessions`, `calibration_scores` |
+| Accountability | `supervisor_evaluations`, `calibration_sessions`, `calibration_participants`, `calibration_scores` |
 | Notification | `notifications` (Laravel), `reminder_schedules` |
 | Administration | `policy_settings`, `indicator_configs` |
 | Audit | `audit_logs` |
