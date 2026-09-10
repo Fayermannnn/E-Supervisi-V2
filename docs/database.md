@@ -57,10 +57,8 @@ erDiagram
 **`dinas`** — `id`, `nama`, `kode`, `provinsi`, `tipe` (kabupaten/kota), `timestamps`
 **`sekolah`** † — `id`, `dinas_id` FK, `nama`, `npsn`, `jenjang` (SD/SMP/SMA/SMK), `kecamatan`, `alamat`, `timestamps`
 **`users`** † — `id`, `sekolah_id` FK nullable (Admin Dinas/Sistem tanpa sekolah), `nama`, `email` unik, `password`, `nip`, `supervisor_type` nullable (`kepala_sekolah`|`pengawas`), `jabatan`, `is_active`, `email_verified_at`, `last_login_at`, `timestamps`
-**`roles`** — `id`, `name` (`guru`|`supervisor`|`admin_dinas`|`admin_sistem`), `label`
-**`permissions`** — `id`, `name`, `domain`
-**`role_user`** — `role_id`, `user_id`, `dinas_id` nullable (scope Admin Dinas), unik (role,user)
-**`permission_role`** — `permission_id`, `role_id`
+**Peran & permission** disimpan di **kode** (`Role`/`Permission` enum + `App\Domain\Identity\RolePermissionMap`), bukan tabel (A3). Peran: `guru`, `supervisor`, `admin_dinas`, `admin_sistem`, `ahli` (Fase 5).
+**`role_assignments`** — `id`, `user_id` FK, `role` string, `dinas_id` nullable (scope Admin Dinas), `assigned_by` FK nullable, trait `Auditable`, unik `(user, role)`
 **`supervisor_assignments`** — `id`, `supervisor_id` FK users, `guru_id` FK users, `created_by` FK nullable, `mulai`, `selesai` nullable, unik (supervisor,guru,periode)
 
 ### Supervision (Fase 1–2) — jantung sistem
@@ -138,6 +136,13 @@ erDiagram
 **`calibration_participants`** — `id`, `calibration_session_id` FK cascade, `supervisor_id` FK, `submitted_at` nullable, unik `(session, supervisor)`
 **`calibration_scores`** — `id`, `calibration_session_id` FK, `calibration_participant_id` FK cascade, `section_key` nullable, `item_key`, `nilai` decimal(6,3), unik `(participant, item_key)`
   - `CloseCalibrationSession` (≥2 penilai submit) → `CalibrationStats::compute` (deterministik, diuji unit): persen kesepakatan per item, variansi, deviasi absolut rata-rata, variansi skor total, Fleiss' κ.
+
+### Evaluation — panel evaluasi ahli (Fase 5, DSR Artikel 3)
+
+**`evaluation_panels`** — `id`, `judul`, `deskripsi` nullable, `artefak_versi`, `status` (`draft`|`berjalan`|`selesai`), `dibuat_oleh` FK, `stats` jsonb (snapshot CVR/CVI/Aiken's V/SUS saat panel ditutup), `closed_at` nullable, `timestamps`
+**`panel_experts`** — `id`, `evaluation_panel_id` FK cascade, `user_id` FK (peran `ahli`), `rumpun` (`manajemen_pendidikan`|`sistem_informasi`|`lainnya`), `afiliasi` nullable, `diundang_at` nullable, unik `(panel, user)`
+**`expert_reviews`** — `id`, `panel_expert_id` FK unik cascade, `status` (`draft`|`terkirim`), `jawaban` jsonb (`{relevansi:{aspek: esensial|berguna|tidak_perlu}, kualitas:{aspek: 1..5}, sus:{s1..s10: 1..5}}`), `catatan` nullable, `submitted_at` nullable
+  - Perhitungan: `App\Domain\Evaluation\ExpertJudgmentStats` (Lawshe CVR/CVI + tabel nilai kritis, Aiken's V, SUS) — deterministik, tanpa DB, unit-tested.
 
 ### Administration / Audit / Notification (Fase 1)
 

@@ -75,3 +75,30 @@ arch('the AI layer stays out of the Fase 4 domains')
         'App\Domain\ProfessionalDev',
         'App\Domain\Accountability',
     ]);
+
+arch('the evaluation layer is isolated from the supervision cycle')
+    ->expect('App\Domain\Evaluation')
+    ->not->toUse([
+        'App\Domain\Supervision',
+        'App\Domain\Planning',
+        'App\Domain\Observation',
+        'App\Domain\Analysis',
+        'App\Domain\Feedback',
+        'App\Domain\FollowUp',
+        'App\Domain\Reporting',
+        'App\Domain\Ai',
+        'App\Models\SupervisionCycle',
+        'App\Models\CycleStatusTransition',
+    ]);
+
+arch('the evaluation statistics helpers stay pure')
+    ->expect([
+        'App\Domain\Evaluation\ExpertJudgmentStats',
+        'App\Domain\Evaluation\ExpertJudgmentInstrument',
+        'App\Domain\Evaluation\UsabilityQuestionnaire',
+    ])
+    ->not->toUse([
+        'Illuminate\Support\Facades\DB',
+        'Illuminate\Database\Eloquent\Model',
+        'App\Models',
+    ]);

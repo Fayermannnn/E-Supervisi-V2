@@ -20,6 +20,9 @@ use App\Livewire\Cycles\CycleCreate;
 use App\Livewire\Cycles\CycleIndex;
 use App\Livewire\Cycles\CycleShow;
 use App\Livewire\Dashboard\Dashboard;
+use App\Livewire\Evaluation\ExpertReviewForm;
+use App\Livewire\Evaluation\PanelIndex;
+use App\Livewire\Evaluation\PanelShow;
 use App\Livewire\Feedback\FeedbackRoom;
 use App\Livewire\FollowUp\FollowUpTracker;
 use App\Livewire\Instruments\InstrumentIndex;
@@ -103,6 +106,11 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/accountability', AccountabilityDashboard::class)->name('accountability.index');
     Route::get('/calibration', CalibrationIndex::class)->name('calibration.index');
     Route::get('/calibration/{session}', CalibrationShow::class)->name('calibration.show');
+
+    // Fase 5 — evaluasi ahli (DSR Artikel 3)
+    Route::get('/evaluation', PanelIndex::class)->name('evaluation.index');
+    Route::get('/evaluation/{panel}', PanelShow::class)->name('evaluation.show');
+    Route::get('/evaluation/{panel}/review', ExpertReviewForm::class)->name('evaluation.review');
 
     // Bank instrumen (M8)
     Route::get('/instruments', InstrumentIndex::class)->name('instruments.index');

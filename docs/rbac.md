@@ -11,6 +11,7 @@ Sumber: Spec §4, §10. Prinsip: **default deny**. Setiap aksi domain melewati `
 | **Admin Dinas** | `admin_dinas` (di-scope ke `dinas_id`) | Pemantauan **agregat** lintas sekolah dalam dinasnya; kelola bank indikator; ekspor laporan kebijakan. **Bukan** akses data individual tanpa dasar kebijakan. |
 | **Admin Sistem** | `admin_sistem` | Teknis: manajemen user, konfigurasi, audit log, backup. **Tidak** mengakses konten pedagogis siklus. |
 | **Asisten AI** | agen sistem (bukan user) | Baca data observasi utk draft; **tidak punya hak tulis final**. Berjalan atas nama supervisor yang meminta, hasil selalu `draft`. |
+| **Ahli Evaluator** | `ahli` (Fase 5) | **Bukan aktor siklus supervisi.** Hanya mengisi penilaian ahli (CVR/Aiken's V/SUS) pada panel evaluasi yang menugaskannya. Tidak melihat data siklus/guru. Tidak dinas/sekolah-scoped. |
 
 ## Matriks hak akses (aksi × aktor)
 
@@ -69,6 +70,17 @@ Legend: ✅ boleh · 🔶 boleh (terbatas scope) · ➖ tidak · 👁 read-only
 | Kirim skor sebagai penilai kalibrasi | ➖ | 🔶 (peserta sesi) | ➖ | ➖ | ➖ |
 
 Catatan: penilaian 360° adalah guru menilai **proses supervisi**, bukan sebaliknya. Respons individual tidak pernah diekspos — hanya agregat di atas ambang `accountability.min_responses`. Modul M9–M12 = `@provisional`.
+
+## Matriks hak akses — Fase 5 (evaluasi ahli)
+
+| Aksi | Guru | Supervisor | Admin Dinas | Admin Sistem | Ahli |
+|---|---|---|---|---|---|
+| Kelola panel evaluasi (buat, tugaskan ahli, tutup) | ➖ | ➖ | ➖ | ✅ | ➖ |
+| Isi penilaian ahli (CVR / Aiken's V / SUS) | ➖ | ➖ | ➖ | ➖ | 🔶 (panel yang menugaskannya) |
+| Lihat hasil agregat panel | ➖ | ➖ | ➖ | ✅ | 👁 (panelnya, lewat status) |
+| Lihat data siklus / guru | 🔶 (miliknya) | 🔶 (binaan) | 👁 agregat | ➖ | ➖ |
+
+Peran `ahli` diberikan otomatis saat ditugaskan ke panel (`AssignExpertToPanel`). Di luar evaluasi, `ahli` hanya dapat mengelola profilnya sendiri.
 
 ## Scoping data (global query scopes)
 

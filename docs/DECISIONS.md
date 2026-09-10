@@ -2,6 +2,15 @@
 
 Catatan keputusan berjalan + status implementasi per story. ADR formal ada di `architecture.md`.
 
+## Keputusan checkpoint Fase 5 (2026-09-10)
+
+| Ref | Keputusan | Sumber |
+|---|---|---|
+| F5-01 | **Instrumen expert judgment dibangun sebagai modul in-app** (bukan lembar luring + utilitas). Domain `Evaluation` baru + peran `ahli`; ahli login & mengisi CVR/Aiken's V/SUS lewat Livewire; sistem menghitung & menyimpan snapshot agregat. DoD penuh. | User checkpoint |
+| F5-02 | **Uji beban ringan = assertion performa di Pest** (dasbor & laporan agregat pada ~200 siklus, batas jumlah query + wall-clock longgar) + prosedur uji beban manual terdokumentasi (`wrk`). Tanpa harness beban mandiri. | User checkpoint |
+| — | Line coverage tidak dilaporkan (tanpa Xdebug/PCOV di lingkungan) — diganti inventaris tes per kategori (`docs/technical-evaluation.md`). | Fase 5 |
+| — | Peran `ahli` disimpan di kode (`RolePermissionMap`), hanya `ManageOwnProfile` + `SubmitExpertReview`; bukan aktor siklus, tidak dinas/sekolah-scoped. | Fase 5 |
+
 ## Keputusan checkpoint Fase 4 (2026-09-10)
 
 | Ref | Keputusan | Sumber |
@@ -131,5 +140,24 @@ Legend: ⬜ belum · 🟡 berjalan · ✅ selesai (DoD) · ⏸️ ditunda
 - API Fase 4 belum diuji feature-level (write path lewat Livewire yang diuji); ditandai known limitation.
 - M7 tanpa delegasi pengawas (F4-01) — bila dibutuhkan, `program_assignments` = penambahan additive.
 
-### PHASE 5
-Belum dimulai. Kesiapan evaluasi ahli (DSR Artikel 3).
+### PHASE 5 — Kesiapan Evaluasi Ahli (DSR Artikel 3) ✅ (menunggu review)
+
+| Story | Status | Catatan |
+|---|---|---|
+| E1 Paket demo + skenario | ✅ | `docs/demo-script.md` — 6 alur end-to-end + akun demo + perintah terjadwal. Seeder diperluas: 1 panel evaluasi selesai (4 ahli, 3 penilaian, snapshot statistik) di atas data Fase 1–4. |
+| E2 Instrumen expert judgment + usability (F5-01) | ✅ | Domain `Evaluation` + peran `ahli`. `ExpertJudgmentInstrument` (8 aspek, relevansi CVR + kualitas Aiken 1–5), `UsabilityQuestionnaire` (SUS 10 butir). `ExpertJudgmentStats` — CVR/CVI (Lawshe + tabel nilai kritis), Aiken's V, SUS + interpretasi, ringkasan per rumpun. Deterministik, unit-tested. `docs/expert-judgment.md`. |
+| E2 alur & UI | ✅ | `CreateEvaluationPanel`/`AssignExpertToPanel`/`SubmitExpertReview`/`CloseEvaluationPanel`; `EvaluationPanelPolicy`; Livewire `PanelIndex`/`PanelShow`/`ExpertReviewForm`; route `/evaluation*`; nav + dasbor peran `ahli`. |
+| E3 Dokumentasi DSR | ✅ | `docs/dsr-artefak.md` — enam aktivitas Peffers dkk. (2007): problem identification (evidence map Artikel 1) → objectives (7 prinsip non-negosiasi) → design (ADR + iterasi versi lama→v2) → demonstration → evaluation → communication. |
+| E4 Technical evaluation (F5-02) | ✅ | `docs/technical-evaluation.md` — konsolidasi tinjauan keamanan + status risk register T-01..T-13, inventaris tes per kategori (pengganti line coverage), hasil uji performa, prosedur uji beban `wrk`. `tests/Feature/Performance/` (3 tes, di `composer ci`). |
+| RBAC | ✅ | Peran `Role::Ahli` + 2 permission (`ManageEvaluationPanel`, `SubmitExpertReview`) + 7 baris matriks `rbac.md`. |
+| Arch guardrails | ✅ | Domain `Evaluation` terisolasi dari domain siklus & `Ai`; helper statistik murni (tanpa DB). |
+
+**Tes:** 214 pass / 522 assertions (+21: `ExpertJudgmentStats` (CVR/CVI/Aiken/SUS, determinisme, N<5), alur panel evaluasi (create→assign→submit→close, tolak tak lengkap, gate non-ahli/non-peneliti, tak bisa tutup tanpa penilaian), render layar Fase 5, performa dasbor & agregat pada 200 siklus). `composer ci` hijau (Pint + PHPStan 8 + Pest).
+
+**Catatan:**
+- Semua domain sistem selesai. Fase berikutnya (bila ada) = uji lapangan / iterasi berbasis hasil evaluasi ahli, bukan modul baru.
+- API untuk domain `Evaluation` tidak dibuat (bukan bagian Spec §8; alur cukup lewat Livewire).
+- Instrumen expert judgment belum diuji keterbacaan pada panel nyata — redaksi aspek boleh direvisi sebelum panel dijalankan.
+
+### (tidak ada PHASE 6 terencana)
+

@@ -66,6 +66,20 @@ Login → Dasbor Sistem
   └─ Status backup / kesehatan sistem
 ```
 
+## Layar Fase 4–5 (tambahan)
+
+| Rute | Komponen | Aktor | Fungsi |
+|---|---|---|---|
+| `/programs`, `/programs/{id}` | `Program\ProgramIndex`/`ProgramEditor` | Supervisor | Program tahunan + generate siklus DRAFT massal (M7) |
+| `/pkb/catalog` | `ProfessionalDev\PkbCatalogIndex` | Semua (kelola: admin dinas/sistem) | Katalog PKB (M9) |
+| `/cycles/{id}/pkb` | `ProfessionalDev\CyclePkb` | Guru + Supervisor | Rekomendasi PKB + nominasi praktik baik (M9/M10) |
+| `/best-practices` | `ProfessionalDev\BestPracticeLibrary` | Semua (kurasi: admin dinas) | Perpustakaan praktik baik + antrean kurasi (M10) |
+| `/cycles/{id}/evaluate` | `Accountability\SupervisorEvaluationForm` | Guru | Penilaian 360° proses supervisi (M11) |
+| `/accountability` | `Accountability\AccountabilityDashboard` | Supervisor + Admin Dinas | Agregat 360° di atas ambang anonimitas (M11) |
+| `/calibration`, `/calibration/{id}` | `Accountability\CalibrationIndex`/`CalibrationShow` | Admin Dinas/Sistem + peserta supervisor | Sesi kalibrasi + statistik reliabilitas (M12) |
+| `/evaluation`, `/evaluation/{id}` | `Evaluation\PanelIndex`/`PanelShow` | Admin Sistem + Ahli | Panel evaluasi ahli + hasil CVR/Aiken's V/SUS (Fase 5) |
+| `/evaluation/{id}/review` | `Evaluation\ExpertReviewForm` | Ahli | Isi relevansi + kualitas + kuesioner SUS |
+
 ## Pola komponen
 
 - **Design system**: Tailwind + token warna institusional (netral + 1 warna aksen). Komponen Blade: `<x-card>`, `<x-stat>`, `<x-status-badge>`, `<x-timeline>`, `<x-cycle-stepper>`, `<x-sync-indicator>`, `<x-ai-draft-banner>`.

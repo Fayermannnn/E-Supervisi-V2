@@ -81,7 +81,65 @@ class DatabaseSeeder extends Seeder
 
         $this->seedFase4($adminSistem, $dinasMahulu, $instrument->versions()->firstOrFail());
 
+        $this->seedFase5($adminSistem);
+
         $this->seedHelpArticles($adminSistem);
+    }
+
+    /**
+     * Data demo Fase 5: panel evaluasi ahli + penilaian CVR/Aiken's V/SUS
+     * atas artefak sistem (DSR Artikel 3).
+     */
+    private function seedFase5(User $adminSistem): void
+    {
+        $panel = app(\App\Domain\Evaluation\Actions\CreateEvaluationPanel::class)->handle($adminSistem, [
+            'judul' => 'Validasi Artefak E-Supervisi Klinis Pendidikan v2.0',
+            'artefak_versi' => 'MVP Fase 1–5 (tag phase5-complete)',
+            'deskripsi' => 'Nilai setiap aspek dari sisi relevansi (CVR) dan kualitas (Aiken 1–5), lalu isi kuesioner usability (SUS).',
+        ]);
+
+        $mp = \App\Models\PanelExpert::RUMPUN_MANAJEMEN;
+        $si = \App\Models\PanelExpert::RUMPUN_SISTEM_INFORMASI;
+        $experts = [
+            ['Dr. Sri Wahyuni', 'ahli.mp1@esupervisi.test', $mp, 'Universitas Negeri (Manajemen Pendidikan)'],
+            ['Prof. Bambang Setiawan', 'ahli.mp2@esupervisi.test', $mp, 'Pascasarjana Administrasi Pendidikan'],
+            ['Dr. Rina Kartika', 'ahli.si1@esupervisi.test', $si, 'Fakultas Ilmu Komputer'],
+            ['Andi Nugroho, M.Kom.', 'ahli.si2@esupervisi.test', $si, 'Praktisi Rekayasa Perangkat Lunak'],
+        ];
+
+        $assigned = [];
+        foreach ($experts as [$nama, $email, $rumpun, $afiliasi]) {
+            $user = User::factory()->create([
+                'name' => $nama,
+                'email' => $email,
+                'password' => Hash::make('password'),
+                'jabatan' => 'Ahli Evaluator',
+            ]);
+            $pe = app(\App\Domain\Evaluation\Actions\AssignExpertToPanel::class)
+                ->handle($adminSistem, $panel->refresh(), $user, $rumpun, $afiliasi);
+            $assigned[] = [$user, $pe];
+        }
+
+        $aspects = array_keys(\App\Domain\Evaluation\ExpertJudgmentInstrument::aspects());
+        $susKeys = array_keys(\App\Domain\Evaluation\UsabilityQuestionnaire::items());
+
+        // Tiga dari empat ahli mengirim penilaian (satu belum, agar demo "menunggu" terlihat).
+        foreach (array_slice($assigned, 0, 3) as $idx => [$user, $pe]) {
+            $jawaban = ['relevansi' => [], 'kualitas' => [], 'sus' => []];
+            foreach ($aspects as $i => $aspek) {
+                $jawaban['relevansi'][$aspek] = ($idx === 2 && $i % 4 === 0)
+                    ? \App\Domain\Evaluation\ExpertJudgmentInstrument::RELEVANSI_BERGUNA
+                    : \App\Domain\Evaluation\ExpertJudgmentInstrument::RELEVANSI_ESENSIAL;
+                $jawaban['kualitas'][$aspek] = 4 + (($idx + $i) % 2);
+            }
+            foreach ($susKeys as $k => $key) {
+                $jawaban['sus'][$key] = ($k % 2 === 0) ? 4 : 2;
+            }
+            app(\App\Domain\Evaluation\Actions\SubmitExpertReview::class)
+                ->handle($user, $pe, $jawaban, $idx === 0 ? 'Artefak sudah komprehensif; pertimbangkan panduan onboarding singkat untuk guru.' : null);
+        }
+
+        app(\App\Domain\Evaluation\Actions\CloseEvaluationPanel::class)->handle($adminSistem, $panel->refresh());
     }
 
     /**

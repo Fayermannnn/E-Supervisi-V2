@@ -41,6 +41,16 @@ class Dashboard extends Component
             ];
         }
 
+        if ($user->isAhli()) {
+            $panels = \App\Models\PanelExpert::where('user_id', $user->getKey());
+
+            return [
+                ['label' => 'Panel evaluasi', 'value' => (clone $panels)->count(), 'href' => route('evaluation.index')],
+                ['label' => 'Penilaian terkirim', 'value' => (clone $panels)->whereHas('review', fn ($q) => $q->where('status', 'terkirim'))->count()],
+                ['label' => 'Menunggu penilaian', 'value' => (clone $panels)->whereDoesntHave('review', fn ($q) => $q->where('status', 'terkirim'))->count(), 'tone' => 'warning'],
+            ];
+        }
+
         if ($user->isAdminDinas()) {
             $dinasId = $user->adminDinasId();
             $base = SupervisionCycle::query()->where('dinas_id', $dinasId);

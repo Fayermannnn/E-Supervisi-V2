@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Support\Enums;
 
 /**
- * Peran sistem (Spec §4). Empat peran tetap. Lihat docs/rbac.md.
+ * Peran sistem (Spec §4) + `ahli` (Fase 5 — evaluator artefak DSR Artikel 3,
+ * bukan aktor siklus supervisi). Lihat docs/rbac.md.
  *
  * Peran disimpan sebagai baris di `role_assignments` (bukan kolom pada users)
  * agar dapat diberi lingkup dinas dan diaudit.
@@ -16,6 +17,7 @@ enum Role: string
     case Supervisor = 'supervisor';
     case AdminDinas = 'admin_dinas';
     case AdminSistem = 'admin_sistem';
+    case Ahli = 'ahli';
 
     public function label(): string
     {
@@ -24,6 +26,7 @@ enum Role: string
             self::Supervisor => 'Supervisor',
             self::AdminDinas => 'Admin Dinas',
             self::AdminSistem => 'Admin Sistem',
+            self::Ahli => 'Ahli Evaluator',
         };
     }
 

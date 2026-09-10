@@ -182,9 +182,27 @@ Keputusan checkpoint: `DECISIONS.md` F4-01..F4-04. M9–M12 = `@provisional` (ad
 
 ---
 
-## EPIC E — Kesiapan Evaluasi (Fase 5)
+## EPIC E — Kesiapan Evaluasi (Fase 5) ✅
 
-- **E1** Paket demo + skenario end-to-end + data seed realistis.
-- **E2** Instrumen expert judgment (CVR/Aiken's V) + kuesioner usability.
-- **E3** Dokumentasi DSR: problem identification → design → demonstration → evaluation.
-- **E4** Technical evaluation: audit keamanan, uji beban ringan, laporan cakupan test.
+Keputusan checkpoint: `DECISIONS.md` F5-01 (E2 = modul in-app), F5-02 (E4 = assertion performa Pest + prosedur manual).
+
+### E1 — Paket demo + skenario
+- `docs/demo-script.md`: 6 alur (siklus penuh, program tahunan, PKB & praktik baik, 360°, kalibrasi, evaluasi ahli), tabel akun demo, perintah terjadwal.
+- Seeder (`DatabaseSeeder::seedFase5`): 1 panel evaluasi selesai — 4 ahli (2+2 rumpun), 3 penilaian terkirim, snapshot statistik.
+- **Terima:** `migrate:fresh --seed` menghasilkan data di setiap status siklus + seluruh fitur Fase 4–5 dapat diperagakan tanpa kunci API.
+
+### E2 — Instrumen expert judgment + usability (in-app, F5-01) — @provisional pada redaksi aspek
+- Domain `Evaluation`: `evaluation_panels`, `panel_experts` (rumpun), `expert_reviews` (jawaban jsonb). Peran `ahli`.
+- `ExpertJudgmentInstrument` (8 aspek; relevansi esensial/berguna/tidak_perlu + kualitas 1–5), `UsabilityQuestionnaire` (SUS 10 butir).
+- `ExpertJudgmentStats` (deterministik, unit-tested): CVR per aspek + signifikansi (tabel Lawshe), CVI, Aiken's V per aspek + rata-rata, SUS per ahli + rata-rata + interpretasi, ringkasan per rumpun.
+- Actions: `CreateEvaluationPanel`, `AssignExpertToPanel` (auto-assign role `ahli`), `SubmitExpertReview` (validasi lengkap; editable selama panel berjalan), `CloseEvaluationPanel` (≥1 penilaian → hitung + snapshot).
+- Livewire: `PanelIndex`, `PanelShow` (undang ahli, hasil, tutup), `ExpertReviewForm`.
+- **Terima:** review tak lengkap ditolak; non-ahli/non-peneliti ditolak; ahli tak terdaftar tak bisa mengirim; panel tanpa penilaian tak bisa ditutup; statistik deterministik & diuji; `docs/expert-judgment.md` sebagai rujukan isi + rumus.
+
+### E3 — Dokumentasi DSR
+- `docs/dsr-artefak.md`: problem identification (evidence map Artikel 1) → objectives (7 prinsip non-negosiasi sbg kriteria evaluasi) → design & development (ADR-001..015, iterasi versi lama→v2, peta 6 fase) → demonstration → evaluation (expert judgment + teknis) → communication.
+
+### E4 — Technical evaluation (F5-02)
+- `docs/technical-evaluation.md`: konsolidasi tinjauan keamanan + status `risk-register.md` T-01..T-13; inventaris tes per kategori (pengganti line coverage — tanpa Xdebug/PCOV); hasil uji performa; prosedur uji beban `wrk`.
+- `tests/Feature/Performance/AggregateAndDashboardPerformanceTest.php`: dasbor supervisor & `BuildAggregateReport` pada ~200 siklus — batas jumlah query + wall-clock; verifikasi index tersedia.
+- **Terima:** tidak ada N+1 pada jalur baca kunci; performa dalam batas; berjalan di `composer ci`.

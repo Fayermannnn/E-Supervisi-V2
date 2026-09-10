@@ -36,6 +36,7 @@ Pemetaan 18 modul Spec §6 → domain modular monolith → tahap siklus Spec §2
 | **ProfessionalDev** | M10 Perpustakaan Praktik Baik | Tindak Lanjut | Provisional | 4 |
 | **Accountability** | M11 Akuntabilitas Supervisor 360° | Umpan Balik | Provisional | 4 |
 | **Accountability** | M12 Kalibrasi Antar-Penilai | Analisis | Provisional (hanya bila multi-supervisor) | 4 |
+| **Evaluation** | Panel evaluasi ahli (CVR/Aiken's V/SUS) — DSR Artikel 3 | — (non-siklus) | — | 5 |
 
 \* *Prioritas Tinggi* = dugaan awal SLR bahwa tindak lanjut & pelaporan adalah mata rantai terlemah; **wajib dikonfirmasi ulang** setelah RQ2/RQ3 (Spec §6.1, §13).
 
@@ -53,6 +54,7 @@ Ai ──> Analysis (draft), Feedback (draft saran)  [read-only ke data siklus, 
 Program ──> Supervision (CreateCycle → siklus DRAFT massal; tak menyentuh state machine)
 ProfessionalDev ──> (baca analysis_findings/follow_up via query tabel; tulis pkb_*/best_practices)
 Accountability ──> (baca supervision_cycles/instrument_versions; tulis supervisor_evaluations/calibration_*)
+Evaluation ──> (terisolasi total dari domain siklus; peran `ahli` non-siklus; tulis evaluation_*/expert_reviews)
 ```
 
 **Larangan ketergantungan:**
@@ -77,6 +79,7 @@ Accountability ──> (baca supervision_cycles/instrument_versions; tulis super
 | Program | `annual_programs`, `program_targets` |
 | ProfessionalDev | `pkb_catalog_items`, `pkb_recommendations`, `best_practices` |
 | Accountability | `supervisor_evaluations`, `calibration_sessions`, `calibration_participants`, `calibration_scores` |
+| Evaluation | `evaluation_panels`, `panel_experts`, `expert_reviews` |
 | Notification | `notifications` (Laravel), `reminder_schedules` |
 | Administration | `policy_settings`, `indicator_configs` |
 | Audit | `audit_logs` |

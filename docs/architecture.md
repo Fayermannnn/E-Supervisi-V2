@@ -36,6 +36,7 @@ app/
 │   ├── Program/           # M7 — program supervisi tahunan, delegasi
 │   ├── ProfessionalDev/   # M9 katalog PKB, M10 perpustakaan praktik baik
 │   ├── Accountability/    # M11 akuntabilitas supervisor 360°, M12 kalibrasi antar-penilai
+│   ├── Evaluation/        # Fase 5 — panel evaluasi ahli (CVR/Aiken's V/SUS), DSR Artikel 3
 │   ├── Notification/      # M14 — notifikasi, pengingat, eskalasi
 │   ├── Administration/    # M15 — konfigurasi kebijakan, struktur organisasi
 │   ├── Audit/             # M16 — audit log append-only
@@ -192,6 +193,33 @@ Tidak membangun dokumentasi publik/partner API eksternal pada MVP kecuali dimint
 **Alasan.** Master prompt §17, §22, §26.
 
 **Konsekuensi.** Setiap PR fase menyertakan hasil test dan bagian "Known limitations".
+
+---
+
+## ADR-015 — Domain `Evaluation` untuk validasi ahli (Fase 5)
+
+**Keputusan.** Modul evaluasi ahli dibangun sebagai domain in-app terpisah
+(`app/Domain/Evaluation`) dengan peran baru `ahli`. Panel evaluasi, penugasan
+ahli, pengisian instrumen (relevansi/CVR, kualitas/Aiken's V, usability/SUS),
+dan perhitungan agregat dilakukan di dalam sistem. Definisi instrumen ada di
+kode (`ExpertJudgmentInstrument`, `UsabilityQuestionnaire`); perhitungan di
+`ExpertJudgmentStats` — deterministik & diuji unit (pola sama seperti
+`CalibrationStats` Fase 4).
+
+**Alasan.** Spec §12 Fase 5 ("Validasi artefak oleh ahli") + §14 (CVR/Aiken's V,
+≥ 2 rumpun ahli). Keputusan checkpoint F5-01: modul in-app dipilih di atas
+"instrumen luring + utilitas" agar konsisten dengan semangat sistem
+(mendigitalkan proses manual) dan agar hasil dapat direproduksi dari data mentah.
+
+**Konsekuensi.**
+- Peran `ahli` **bukan aktor siklus supervisi** — hanya `ManageOwnProfile` +
+  `SubmitExpertReview`. `Role::Ahli` tidak dinas/sekolah-scoped.
+- Domain `Evaluation` **terisolasi** dari domain siklus (arch test `LayerTest`):
+  tidak meng-`import` `Supervision`/`Planning`/…/`Ai` atau `SupervisionCycle`.
+- Helper statistik (`ExpertJudgmentStats`, `ExpertJudgmentInstrument`,
+  `UsabilityQuestionnaire`) tidak menyentuh DB (arch test).
+- `evaluation_panels.stats` menyimpan snapshot jsonb saat panel ditutup —
+  sumber angka untuk manuskrip Artikel 3.
 
 ---
 

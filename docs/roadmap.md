@@ -78,12 +78,18 @@ M9–M12 tetap `@provisional` — perubahan skema additive-only setelah SLR Gate
 
 ---
 
-## PHASE 5 — Kesiapan Evaluasi Ahli (DSR Artikel 3)
+## PHASE 5 — Kesiapan Evaluasi Ahli (DSR Artikel 3) ✅
 
-**Prasyarat:** MVP Fase 1–3 berjalan (Spec §12).
+**Prasyarat:** MVP Fase 1–4 berjalan (Spec §12). Checkpoint F5-01, F5-02 (`DECISIONS.md`).
 **Backlog:** EPIC E.
-**Deliverable:** paket demo + skenario, instrumen expert judgment (CVR/Aiken's V), kuesioner usability, dokumentasi DSR (problem→design→demonstration→evaluation), technical evaluation (security audit, coverage report, uji beban ringan).
-**Exit criteria:** artefak siap dinilai minimal dua rumpun ahli (manajemen pendidikan + sistem informasi).
+**Deliverable (terpenuhi):**
+- ✅ **E1** `docs/demo-script.md` (6 alur end-to-end, akun demo, perintah terjadwal); seeder diperluas dengan panel evaluasi ahli.
+- ✅ **E2** instrumen expert judgment **in-app** (F5-01) — domain `Evaluation` + peran `ahli`; CVR/CVI (Lawshe + tabel nilai kritis), Aiken's V, SUS; deterministik & unit-tested; `docs/expert-judgment.md`.
+- ✅ **E3** `docs/dsr-artefak.md` — enam aktivitas Peffers dkk. (2007).
+- ✅ **E4** `docs/technical-evaluation.md` (keamanan + risk register, inventaris tes sbg pengganti line coverage, hasil performa, prosedur uji beban `wrk`); `tests/Feature/Performance/` di `composer ci`.
+- ✅ `composer ci` hijau (Pint + PHPStan 8 + **214 Pest**). Tag `phase5-complete`.
+
+**Exit criteria (terpenuhi):** artefak berjalan end-to-end, terdokumentasi sebagai DSR, siap dinilai panel ≥ 2 rumpun ahli (manajemen pendidikan + sistem informasi) lewat modul in-app; evaluasi teknis menunjukkan kontrol keamanan inti termitigasi & performa dalam batas pada ~200 siklus. Sisa pekerjaan (review hukum PDP, hardening deployment, browser test, uji beban lapangan) bersifat pra-go-live.
 
 ---
 

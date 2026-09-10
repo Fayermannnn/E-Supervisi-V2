@@ -48,6 +48,10 @@
                 <x-app.nav-link :href="route('calibration.index')" icon="shield">Kalibrasi Penilai</x-app.nav-link>
             @endcanany
 
+            @canany([Permission::ManageEvaluationPanel->value, Permission::SubmitExpertReview->value])
+                <x-app.nav-link :href="route('evaluation.index')" icon="chart">Evaluasi Ahli</x-app.nav-link>
+            @endcanany
+
             @canany([Permission::ManageUsers->value, Permission::ManageOrganization->value, Permission::ManageAssignments->value, Permission::ManagePolicySettings->value, Permission::ViewAuditLog->value])
                 <p class="mt-4 px-3 text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Administrasi</p>
 

@@ -16,6 +16,7 @@ dataset('rbac matrix', function () {
     $s = Role::Supervisor;
     $ad = Role::AdminDinas;
     $as = Role::AdminSistem;
+    $ah = Role::Ahli;
 
     return [
         // Guru
@@ -66,6 +67,15 @@ dataset('rbac matrix', function () {
         'admin dinas dapat mengelola kalibrasi' => [$ad, Permission::ManageCalibration, true],
         'supervisor dapat ikut kalibrasi' => [$s, Permission::ParticipateCalibration, true],
         'guru TIDAK dapat ikut kalibrasi' => [$g, Permission::ParticipateCalibration, false],
+
+        // Fase 5 — evaluasi ahli
+        'admin sistem dapat kelola panel evaluasi' => [$as, Permission::ManageEvaluationPanel, true],
+        'ahli TIDAK dapat kelola panel evaluasi' => [$ah, Permission::ManageEvaluationPanel, false],
+        'ahli dapat mengirim penilaian ahli' => [$ah, Permission::SubmitExpertReview, true],
+        'admin sistem TIDAK mengirim penilaian ahli' => [$as, Permission::SubmitExpertReview, false],
+        'supervisor TIDAK dapat mengirim penilaian ahli' => [$s, Permission::SubmitExpertReview, false],
+        'ahli TIDAK dapat buat siklus' => [$ah, Permission::CreateCycle, false],
+        'ahli hanya kelola profil sendiri di luar evaluasi' => [$ah, Permission::ViewAuditLog, false],
 
         // Admin Sistem
         'admin sistem dapat kelola pengguna' => [$as, Permission::ManageUsers, true],

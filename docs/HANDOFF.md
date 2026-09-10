@@ -1,7 +1,7 @@
 # HANDOFF — E-Supervisi Klinis Pendidikan v2.0
 
 > Dokumen untuk **melanjutkan project di chat baru**. Salin bagian "PROMPT UNTUK CHAT BARU" di bawah sebagai pesan pertama, lampiran ini + `CLAUDE.md` + `docs/` sudah cukup sebagai konteks.
-> Terakhir diperbarui: 2026-09-10 (setelah Fase 4 selesai).
+> Terakhir diperbarui: 2026-09-10 (setelah Fase 5 selesai — MVP lengkap).
 
 ---
 
@@ -14,11 +14,13 @@
 | 2 | Inti siklus: Perencanaan → Observasi (+ offline PWA, API Sanctum) | M1, M2, M8 | ✅ Selesai, tag `phase2-complete` |
 | 3 | Analisis → Umpan Balik → RTL → Pelaporan (+ AI human-in-the-loop) | M3, M4, M5, M6, M18 | ✅ Selesai, tag `phase3-complete`, **`@provisional`** |
 | 4 | Pengembangan profesional & akuntabilitas | M7, M9, M10, M11, M12 | ✅ Selesai, tag `phase4-complete` (M9–M12 `@provisional`) |
-| 5 | Kesiapan evaluasi ahli (DSR Artikel 3) | — | ⏳ **BERIKUTNYA** |
+| 5 | Kesiapan evaluasi ahli (DSR Artikel 3) | — | ✅ Selesai, tag `phase5-complete` |
 
-**Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **192 Pest tests / 454 assertions pass**.
+**Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **214 Pest tests / 522 assertions pass**.
 
-**Fase 4 menambahkan:** program supervisi tahunan (M7 — pemilik supervisor, generate siklus DRAFT massal), katalog PKB + rekomendasi deterministik (M9), perpustakaan praktik baik dengan consent guru + kurasi dinas (M10), akuntabilitas 360° dengan ambang anonimitas (M11), kalibrasi antar-penilai + `CalibrationStats` (M12). Domain baru: `Program`, `ProfessionalDev`, `Accountability`. Keputusan checkpoint: `DECISIONS.md` F4-01..F4-04.
+**MVP LENGKAP — semua domain terbangun.** Fase 5 menambahkan modul **Evaluasi Ahli** in-app (domain `Evaluation` + peran `ahli`): panel ahli (≥ 2 rumpun) menilai artefak → sistem menghitung **CVR/CVI** (Lawshe), **Aiken's V**, **SUS** (`ExpertJudgmentStats`, deterministik + unit-tested). Dokumen baru: `docs/dsr-artefak.md` (DSR Peffers dkk. 2007), `docs/expert-judgment.md`, `docs/technical-evaluation.md`, `docs/demo-script.md`. `tests/Feature/Performance/` masuk `composer ci`. Keputusan checkpoint: `DECISIONS.md` F5-01, F5-02.
+
+**Fase 4:** program tahunan (M7), katalog PKB + rekomendasi deterministik (M9), praktik baik + consent guru + kurasi dinas (M10), akuntabilitas 360° (M11), kalibrasi antar-penilai (M12). Domain: `Program`, `ProfessionalDev`, `Accountability`. Checkpoint F4-01..F4-04.
 
 Siklus supervisi sudah **lengkap end-to-end**: Perencanaan → Observasi (offline) → Analisis (skoring deterministik + draf AI) → Umpan Balik terstruktur → Tindak Lanjut (RTL + eskalasi overdue) → Pelaporan (per-siklus + agregat) → Arsip.
 
@@ -89,45 +91,47 @@ npm run dev
 
 ## 4. Peta domain yang sudah ada
 
-`app/Domain/`: `Identity`, `Organization`, `Supervision`, `Planning`, `Observation`, `Analysis`, `Feedback`, `FollowUp`, `Reporting`, `Instruments`, `Ai`, `Audit`, `Notification`, `Administration`, `Support`, `Program` (M7), `ProfessionalDev` (M9/M10), `Accountability` (M11/M12).
+`app/Domain/`: `Identity`, `Organization`, `Supervision`, `Planning`, `Observation`, `Analysis`, `Feedback`, `FollowUp`, `Reporting`, `Instruments`, `Ai`, `Audit`, `Notification`, `Administration`, `Support`, `Program` (M7), `ProfessionalDev` (M9/M10), `Accountability` (M11/M12), `Evaluation` (Fase 5 — panel evaluasi ahli, DSR Artikel 3).
 
-Semua domain sudah dibangun. Fase 5 = kesiapan evaluasi ahli (paket demo, instrumen expert judgment, dokumentasi DSR) — bukan modul baru.
+**Semua domain selesai.** Tidak ada modul baru yang direncanakan. Pekerjaan lanjutan (bila ada) = uji lapangan, iterasi berdasarkan hasil evaluasi ahli, penguncian modul provisional setelah SLR Gate 6/7, atau hardening pra-go-live (lihat `docs/technical-evaluation.md` §5).
 
 ---
 
-## 5. Fase 5 — apa yang harus dikerjakan berikutnya
+## 5. Berikutnya — tidak ada fase modul terencana
 
-Trigger: user mengetik **"lanjut Fase 5"**. Jangan mulai tanpa itu.
+**MVP Fase 0–5 selesai.** Semua domain terbangun & teruji. Kandidat pekerjaan
+lanjutan (bukan urutan wajib; masing-masing butuh trigger + checkpoint sendiri):
 
-Fase 5 = **Kesiapan Evaluasi Ahli (DSR Artikel 3)** — bukan modul baru. Backlog EPIC E:
-- **E1** Paket demo + skenario end-to-end + data seed realistis (sudah cukup lengkap; perlu skrip walkthrough).
-- **E2** Instrumen expert judgment (CVR/Aiken's V) + kuesioner usability.
-- **E3** Dokumentasi DSR: problem identification → design → demonstration → evaluation.
-- **E4** Technical evaluation: audit keamanan, uji beban ringan, laporan cakupan test.
+- **Penguncian modul provisional** setelah SLR Gate 6/7 (M3–M6, M9–M12, M18) —
+  revisi skema/prompt bersifat additive; perbarui `@provisional` → final.
+- **Jalankan panel evaluasi ahli nyata** lewat `/evaluation`; masukkan hasil
+  CVR/CVI, Aiken's V, SUS ke manuskrip Artikel 3 (`docs/dsr-artefak.md` §5).
+- **Hardening pra-go-live**: review hukum PDP + dokumen basis pemrosesan,
+  secure headers/CSP/HSTS, `tests/Browser` (Pest v4) untuk alur luring→online,
+  uji beban lapangan (`docs/technical-evaluation.md` §4–5).
+- **Ekspor laporan server-side** (PDF/XLSX) menggantikan print-to-PDF browser.
+- **Modul JS outbox khusus bukti RTL** (saat ini online via Livewire).
 
-**Prasyarat spec §12:** "Sistem MVP (Fase 1–3) berjalan" ✅ (Fase 4 juga selesai).
-
-**Proses tiap fase (master prompt §20, §25):**
-1. DISCOVER → baca bagian spec terkait, cek `docs/backlog.md` + `docs/domain-map.md`.
-2. Bila ada ambiguity arsitektur → **checkpoint** (RULE 10) via AskUserQuestion.
-3. PLAN → ARCHITECT → DATABASE → BACKEND → FRONTEND → INTEGRATION → TEST → SECURITY REVIEW → UX REVIEW → DOCUMENTATION.
-4. Update `docs/DECISIONS.md` + `README.md` + docs modul terkait.
-5. `composer ci` hijau → commit `type(domain): ringkas` (akhiri `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`) → tag `phase5-complete`.
-6. Tulis **laporan 7-bagian** ke user.
+**Proses bila melanjutkan (master prompt §20, §25):** DISCOVER → checkpoint bila
+ambiguity → PLAN → implementasi → update docs → `composer ci` hijau → commit
+`type(domain): ringkas` (akhiri `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`)
+→ tag → laporan 7-bagian.
 
 ---
 
 ## 6. Utang teknis / batasan diketahui
 
-- **M3–M6, M18 dan M9–M12 `@provisional`** — skema & prompt direvisi setelah SLR Gate 6/7; hanya additive setelahnya.
+- **M3–M6, M9–M12, M18 `@provisional`** — skema & prompt direvisi setelah SLR Gate 6/7; hanya additive setelahnya.
 - Ekspor laporan MVP = **print-to-PDF browser** (`window.print()`); PDF/XLSX server-side ditunda.
 - `QUEUE_CONNECTION=sync` di dev; `.env.example` tetap `database` + catatan worker untuk produksi.
 - Bukti RTL offline: endpoint idempoten ada, tapi **belum ada modul JS outbox khusus RTL**.
-- Belum ada `tests/Browser` (Pest v4 browser) otomatis untuk alur Fase 3–4.
+- Belum ada `tests/Browser` (Pest v4 browser) otomatis untuk alur luring→online.
 - FormatB instrument = template placeholder, ditandai belum tervalidasi (`FormatBTemplate`).
-- **API Fase 4** (`/programs`, `/pkb/*`, `/best-practices/*`, `/calibration/*`, `/supervisor-evaluation`) belum diuji feature-level — write path terverifikasi lewat Livewire. Spec §8 tak merinci endpoint modul ini (ditambahkan additive).
-- **M7 tanpa delegasi pengawas** (keputusan F4-01) — `program_assignments` bisa ditambahkan additive bila dibutuhkan.
-- `phpunit.xml` menyetel `memory_limit=512M` (arch test butuh > 128M setelah jumlah file domain bertambah).
+- **API Fase 4** (`/programs`, `/pkb/*`, `/best-practices/*`, `/calibration/*`, `/supervisor-evaluation`) belum diuji feature-level — write path terverifikasi lewat Livewire. Domain `Evaluation` (Fase 5) tidak punya API (bukan Spec §8).
+- **M7 tanpa delegasi pengawas** (F4-01) — `program_assignments` additive bila dibutuhkan.
+- **Instrumen expert judgment (aspek)** belum diuji keterbacaan pada panel nyata — redaksi `ExpertJudgmentInstrument::aspects()` boleh direvisi sebelum panel dijalankan.
+- Line coverage tidak dilaporkan (tanpa Xdebug/PCOV) — inventaris tes di `docs/technical-evaluation.md`.
+- `phpunit.xml` menyetel `memory_limit=512M` (arch test butuh > 128M).
 
 ---
 
@@ -141,33 +145,36 @@ Fase 5 = **Kesiapan Evaluasi Ahli (DSR Artikel 3)** — bukan modul baru. Backlo
 - **F4-02:** M10 praktik baik: nominasi supervisor → **consent guru** → kurasi Admin Dinas → terbit.
 - **F4-03:** M11 360° buka sejak `FEEDBACK_GIVEN`, editable s/d `REPORTED`, agregat butuh ≥ `accountability.min_responses` (3).
 - **F4-04:** M12 kalibrasi fungsional + `CalibrationStats` deterministik teruji.
+- **F5-01:** Instrumen expert judgment = **modul in-app** (domain `Evaluation` + peran `ahli`), bukan lembar luring.
+- **F5-02:** Uji beban ringan = assertion performa Pest (dasbor/agregat pada ~200 siklus) + prosedur `wrk` terdokumentasi.
 
 ---
 
 ## PROMPT UNTUK CHAT BARU
 
 ```
-Lanjutkan pembangunan E-SUPERVISI KLINIS PENDIDIKAN v2.0 (Laravel 13 modular monolith).
+Lanjutkan pengelolaan E-SUPERVISI KLINIS PENDIDIKAN v2.0 (Laravel 13 modular monolith).
 
-Konteks: baca CLAUDE.md, README.md, docs/HANDOFF.md, docs/DECISIONS.md, dan docs/ lainnya.
-Source of truth: Spesifikasi_E-Supervisi_v2_Evidence-Informed.docx.
+Konteks: baca CLAUDE.md, README.md, docs/HANDOFF.md, docs/DECISIONS.md, docs/dsr-artefak.md,
+dan docs/ lainnya. Source of truth: Spesifikasi_E-Supervisi_v2_Evidence-Informed.docx.
 
-Status: Fase 0–4 SELESAI (tag phase1..4-complete). composer ci hijau (Pint + PHPStan 8 + 192 Pest tests).
-Siklus supervisi lengkap end-to-end + lapisan pengembangan profesional & akuntabilitas.
-Modul M3–M6, M18, M9–M12 = @provisional.
+Status: Fase 0–5 SELESAI (tag phase1..5-complete). MVP LENGKAP — semua domain terbangun.
+composer ci hijau (Pint + PHPStan 8 + 214 Pest tests). Modul M3–M6, M9–M12, M18 = @provisional.
+Tidak ada fase modul baru terencana (lihat HANDOFF §5 untuk kandidat pekerjaan lanjutan).
 
 Aturan wajib ada di CLAUDE.md — patuhi semua (state machine satu jalur, RBAC default-deny,
 AI human-in-the-loop tanpa akses DB & tanpa transisi status, audit append-only, migrasi
 non-destruktif, DoD per modul, RULE 10 checkpoint untuk ambiguity arsitektur).
+Modul provisional: perubahan skema/prompt HANYA additive.
 
 Jebakan lingkungan: working dir "/Users/firmansyah/CLAUDE CODE" (ada spasi, selalu cd dulu);
 JANGAN `| head` (alias rusak); test DB PostgreSQL esupervisi_test; QUEUE sync di dev.
 
-TUGAS: kerjakan Fase 5 (Kesiapan Evaluasi Ahli — DSR Artikel 3). Bukan modul baru:
-paket demo + skenario, instrumen expert judgment (CVR/Aiken's V), kuesioner usability,
-dokumentasi DSR (problem→design→demonstration→evaluation), technical evaluation.
+TUGAS: <sebutkan pekerjaan yang diinginkan — mis. penguncian modul provisional pasca-SLR,
+menjalankan panel evaluasi ahli nyata, hardening pra-go-live, ekspor laporan server-side,
+tests/Browser, atau perbaikan spesifik>.
 
-Mulai dari DISCOVER: baca spec §12, §14 + docs/backlog.md EPIC E, konfirmasi scope,
-berhenti di checkpoint bila ada ambiguity. Setelah itu PLAN → implementasi bertahap.
-Akhiri dengan composer ci hijau, commit, tag phase5-complete, dan laporan 7-bagian.
+Mulai dari DISCOVER: baca bagian docs terkait, konfirmasi scope, berhenti di checkpoint
+bila ada ambiguity arsitektur. Akhiri dengan composer ci hijau + commit + (bila fase) tag
++ laporan 7-bagian.
 ```

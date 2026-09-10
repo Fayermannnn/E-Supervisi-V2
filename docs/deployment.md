@@ -39,15 +39,20 @@ npm run build   # atau: npm run dev
 - Audit log append-only; job arsip ke cold storage, bukan hapus.
 - Sanctum token PWA: kedaluwarsa + pencabutan per device.
 
-## Kepatuhan UU 27/2022 (PDP) — checklist Fase 5
+## Kepatuhan UU 27/2022 (PDP) — checklist pra-go-live
 
-- [ ] Dokumen basis pemrosesan data (pelaksanaan tugas dinas pendidikan).
-- [ ] Kebijakan retensi & arsip (bukan hapus otomatis).
-- [ ] Enkripsi transit (TLS) + at-rest (berkas observasi).
-- [ ] Daftar data pribadi yang diproses + peran (controller/processor).
-- [ ] Prosedur permintaan akses/koreksi data oleh guru.
-- [ ] Audit trail perubahan data sensitif.
+Status per `tag phase5-complete` (lihat juga `docs/technical-evaluation.md` §1):
+
+- [ ] Dokumen basis pemrosesan data (pelaksanaan tugas dinas pendidikan) — **belum**, review hukum.
+- [x] Kebijakan retensi & arsip (bukan hapus otomatis) — `ArchiveReportedCyclesCommand`; `audit_logs` append-only.
+- [ ] Enkripsi transit (TLS) + at-rest (berkas observasi) — konfigurasi deployment.
+- [~] Daftar data pribadi yang diproses + peran — `rbac.md` + `docs/dsr-artefak.md`; formalisasi dokumen hukum belum.
+- [ ] Prosedur permintaan akses/koreksi data oleh guru — UI profil ada; prosedur formal belum.
+- [x] Audit trail perubahan data sensitif — `AuditLogger` + trait `Auditable` + `CycleStateMachine`; diuji immutability.
+- [x] Persetujuan (consent) sebelum mempublikasi praktik pembelajaran guru — `RespondBestPracticeConsent` (M10); penilaian 360° anonim di atas ambang (M11).
 - [ ] Review oleh pihak berkompeten sebelum go-live.
+
+Kontrol teknis yang **sudah** ada: RBAC default-deny + global scope + suite security (IDOR/cross-dinas), rate-limit login/sync, `APP_DEBUG=false` + halaman error kustom, token PWA scoped + dapat dicabut.
 
 ## Rilis
 

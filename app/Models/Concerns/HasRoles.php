@@ -123,6 +123,11 @@ trait HasRoles
         return $this->hasRole(Role::AdminSistem);
     }
 
+    public function isAhli(): bool
+    {
+        return $this->hasRole(Role::Ahli);
+    }
+
     /**
      * dinas_id yang menjadi lingkup Admin Dinas (dari role_assignments).
      */

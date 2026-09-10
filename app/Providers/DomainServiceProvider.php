@@ -36,6 +36,7 @@ class DomainServiceProvider extends ServiceProvider
         \App\Domain\Program\ProgramServiceProvider::class,
         \App\Domain\ProfessionalDev\ProfessionalDevServiceProvider::class,
         \App\Domain\Accountability\AccountabilityServiceProvider::class,
+        \App\Domain\Evaluation\EvaluationServiceProvider::class,
     ];
 
     public function register(): void

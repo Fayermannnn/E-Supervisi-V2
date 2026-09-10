@@ -1,6 +1,8 @@
-# Strategi Pengujian (DRAFT)
+# Strategi Pengujian
 
-Sumber: master prompt §17, §22, §26. Runner: **Pest**. DB test: PostgreSQL (bukan SQLite — paritas fitur jsonb/enum). Browser: Laravel Dusk atau Playwright.
+Sumber: master prompt §17, §22, §26. Runner: **Pest**. DB test: PostgreSQL (bukan SQLite — paritas fitur jsonb/enum). `phpunit.xml` menyetel `memory_limit=512M` (arch test).
+
+**Status (tag `phase5-complete`):** 214 tes / 522 assertions, `composer ci` hijau (Pint + Larastan 8 + Pest). Line coverage tidak dilaporkan (tanpa Xdebug/PCOV) — inventaris per kategori di `docs/technical-evaluation.md`.
 
 ## Piramida
 
@@ -10,8 +12,11 @@ Sumber: master prompt §17, §22, §26. Runner: **Pest**. DB test: PostgreSQL (b
 | Feature | Login, buat siklus, perencanaan, observasi, sync (idempoten/konflik), analisis, umpan balik, tindak lanjut, pelaporan, ekspor | `tests/Feature` |
 | Security | Privilege escalation, IDOR, cross-school/cross-dinas access, unauthorized API, audit log immutability, upload file berbahaya | `tests/Feature/Security` |
 | Architecture | Larangan import lintas domain, audit log tanpa route tulis, AI tanpa akses DB | `tests/Arch` (pest-arch) |
-| Browser | Alur kritis Guru & Supervisor (termasuk skenario luring→online) | `tests/Browser` |
-| Static | Larastan level 8 (target: naik bertahap), Pint | CI |
+| Performance | Batas query + wall-clock jalur baca (dasbor, laporan agregat) pada ~200 siklus; verifikasi index | `tests/Feature/Performance` |
+| Browser | Alur kritis Guru & Supervisor (termasuk skenario luring→online) — **belum diotomasi** | `tests/Browser` |
+| Static | Larastan level 8, Pint (strict types) | CI |
+
+**Modul Fase 4–5 yang diuji:** program M7 (generate/idempotensi/scoping), rekomendasi PKB M9 (`PkbMatcher`, pola berulang), praktik baik M10 (nominate→consent→curate + gate), 360° M11 (timing + ambang anonimitas + tak memicu transisi), kalibrasi M12 (`CalibrationStats`, sesi end-to-end), evaluasi ahli Fase 5 (`ExpertJudgmentStats` CVR/Aiken/SUS, alur panel).
 
 ## Kasus wajib per master prompt §17
 

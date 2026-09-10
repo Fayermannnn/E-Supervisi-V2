@@ -83,6 +83,12 @@ final class RolePermissionMap
             Permission::ViewAuditLog,
             Permission::ManagePkbCatalog,
             Permission::ManageCalibration,
+            Permission::ManageEvaluationPanel,
+        ],
+
+        Role::Ahli->value => [
+            Permission::ManageOwnProfile,
+            Permission::SubmitExpertReview,
         ],
     ];
 

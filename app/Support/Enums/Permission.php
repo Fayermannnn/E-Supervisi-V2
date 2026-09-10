@@ -68,6 +68,10 @@ enum Permission: string
     case ManageCalibration = 'calibration.manage';
     case ParticipateCalibration = 'calibration.participate';
 
+    // Evaluasi ahli / DSR Artikel 3 (Fase 5)
+    case ManageEvaluationPanel = 'evaluation.manage_panel';
+    case SubmitExpertReview = 'evaluation.submit_review';
+
     /**
      * @return list<string>
      */
