@@ -1,7 +1,7 @@
 # HANDOFF — E-Supervisi Klinis Pendidikan v2.0
 
 > Dokumen untuk **melanjutkan project di chat baru**. Salin bagian "PROMPT UNTUK CHAT BARU" di bawah sebagai pesan pertama, lampiran ini + `CLAUDE.md` + `docs/` sudah cukup sebagai konteks.
-> Terakhir diperbarui: 2026-09-10 (setelah Fase 5 selesai — MVP lengkap).
+> Terakhir diperbarui: 2026-09-10 (MVP lengkap Fase 0–5 + ekspor server-side + redesain UI + landing page). Remote: `https://github.com/Fayermannnn/E-Supervisi-V2` (branch `main`, publik).
 
 ---
 
@@ -16,9 +16,9 @@
 | 4 | Pengembangan profesional & akuntabilitas | M7, M9, M10, M11, M12 | ✅ Selesai, tag `phase4-complete` (M9–M12 `@provisional`) |
 | 5 | Kesiapan evaluasi ahli (DSR Artikel 3) | — | ✅ Selesai, tag `phase5-complete` |
 
-**Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **224 Pest tests / 585 assertions pass**.
+**Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **227 Pest tests / 594 assertions pass** (HEAD `5c18d49`).
 
-**Pasca-Fase 5** (di atas tag `phase5-complete`, 227 tes hijau):
+**Pasca-Fase 5** (di atas tag `phase5-complete`):
 - `d71cd84` — **ekspor laporan server-side**: `dompdf/dompdf` (PDF) + `openspout/openspout` (XLSX), pure-PHP (aman 3T). `report_exports` + job `GenerateReportExport`.
 - `94e0d91`, `45ebf8b` — **redesain frontend "govtech modern & bersih"**: token `resources/css/app.css` (brand biru tua, netral hangat, shadow/surface), Instrument Sans self-host + `@fonts` di layout (dulu render font sistem), komponen `x-ui.*`/`x-app.*` dipoles, `.field-input` disapu ke seluruh view Livewire, eyebrow di semua `page-header`, layout auth split-screen.
 - `fa08122` — **halaman landing publik** di `/` (route `home`); tamu lihat landing, user login → dasbor. CSS-only.
@@ -166,8 +166,10 @@ Lanjutkan pengelolaan E-SUPERVISI KLINIS PENDIDIKAN v2.0 (Laravel 13 modular mon
 Konteks: baca CLAUDE.md, README.md, docs/HANDOFF.md, docs/DECISIONS.md, docs/dsr-artefak.md,
 dan docs/ lainnya. Source of truth: Spesifikasi_E-Supervisi_v2_Evidence-Informed.docx.
 
-Status: Fase 0–5 SELESAI (tag phase1..5-complete). MVP LENGKAP — semua domain terbangun.
-composer ci hijau (Pint + PHPStan 8 + 214 Pest tests). Modul M3–M6, M9–M12, M18 = @provisional.
+Status: Fase 0–5 SELESAI (tag phase1..5-complete) + pasca-Fase 5: ekspor laporan server-side,
+redesain frontend "govtech", halaman landing publik. MVP LENGKAP — semua domain terbangun.
+composer ci hijau (Pint + PHPStan 8 + 227 Pest tests). Modul M3–M6, M9–M12, M18 = @provisional.
+Sudah di-push ke https://github.com/Fayermannnn/E-Supervisi-V2 (branch main).
 Tidak ada fase modul baru terencana (lihat HANDOFF §5 untuk kandidat pekerjaan lanjutan).
 
 Aturan wajib ada di CLAUDE.md — patuhi semua (state machine satu jalur, RBAC default-deny,
@@ -178,9 +180,13 @@ Modul provisional: perubahan skema/prompt HANYA additive.
 Jebakan lingkungan: working dir "/Users/firmansyah/CLAUDE CODE" (ada spasi, selalu cd dulu);
 JANGAN `| head` (alias rusak); test DB PostgreSQL esupervisi_test; QUEUE sync di dev.
 
-TUGAS: <sebutkan pekerjaan yang diinginkan — mis. penguncian modul provisional pasca-SLR,
-menjalankan panel evaluasi ahli nyata, hardening pra-go-live, ekspor laporan server-side,
-tests/Browser, atau perbaikan spesifik>.
+TUGAS: <sebutkan pekerjaan yang diinginkan>. Kandidat yang belum dikerjakan:
+- Penguncian modul provisional (M3–M6, M9–M12, M18) setelah SLR Gate 6/7 — additive.
+- Hardening pra-go-live: secure headers/CSP/HSTS, uji unggah berkas berbahaya, review hukum PDP.
+- tests/Browser (Pest v4/Playwright) untuk alur luring→online + walkthrough siklus.
+- Modul JS outbox khusus bukti RTL (kini online via Livewire; R-04 janji offline).
+- Poles UI lanjutan: chart/visualisasi data, verifikasi tiap layar di viewport desktop penuh.
+- Menjalankan panel evaluasi ahli nyata → masukkan hasil CVR/Aiken/SUS ke manuskrip Artikel 3.
 
 Mulai dari DISCOVER: baca bagian docs terkait, konfirmasi scope, berhenti di checkpoint
 bila ada ambiguity arsitektur. Akhiri dengan composer ci hijau + commit + (bila fase) tag
