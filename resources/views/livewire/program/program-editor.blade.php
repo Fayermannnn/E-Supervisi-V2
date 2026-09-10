@@ -7,7 +7,7 @@
     };
 @endphp
 <div class="space-y-6">
-    <x-ui.page-header :title="$program->judul"
+    <x-ui.page-header eyebrow="Program" :title="$program->judul"
         :description="$program->tahun_ajaran.' · '.ucfirst($program->semester)">
         <x-slot:actions>
             <x-ui.status-badge :status="$statusTone" :label="ucfirst($program->status)" />
@@ -28,7 +28,7 @@
             <div class="space-y-2">
                 @foreach ($binaan as $guru)
                     @php $isGenerated = $targets->firstWhere('guru_id', $guru->id)?->cycle_id !== null; @endphp
-                    <div class="flex flex-wrap items-center gap-3 rounded-md border border-[var(--border)] px-3 py-2">
+                    <div class="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface-muted)]/50 px-3.5 py-2.5">
                         <label class="flex items-center gap-2 text-sm">
                             <input type="checkbox" wire:model="selected.{{ $guru->id }}" @if($isGenerated && $program->status !== 'draft') disabled @endif
                                    class="rounded border-[var(--border)] text-brand-600 focus:ring-brand-600">
@@ -36,7 +36,7 @@
                         </label>
                         <span class="text-xs text-[var(--text-muted)]">{{ $guru->sekolah?->nama }}</span>
                         <input type="text" wire:model="fokus.{{ $guru->id }}" placeholder="Fokus supervisi (opsional)"
-                               class="ml-auto w-full max-w-xs rounded-md border-0 bg-[var(--surface)] px-2.5 py-1 text-xs ring-1 ring-inset ring-[var(--border)]">
+                               class="field-input ml-auto max-w-xs py-1 text-xs">
                         @if ($isGenerated) <x-ui.status-badge status="done" label="Siklus dibuat" /> @endif
                     </div>
                 @endforeach
@@ -64,7 +64,7 @@
                         <span>{{ $target->guru?->name }}</span>
                         <span class="flex items-center gap-3">
                             <x-ui.status-badge :status="$target->cycle?->status->tone() ?? 'draft'" :label="$target->cycle?->status->label() ?? 'Draf'" />
-                            <a href="{{ route('cycles.show', $target->cycle_id) }}" wire:navigate class="text-brand-600 hover:underline">Buka</a>
+                            <a href="{{ route('cycles.show', $target->cycle_id) }}" wire:navigate class="text-brand-700 hover:underline">Buka</a>
                         </span>
                     </li>
                 @endforeach

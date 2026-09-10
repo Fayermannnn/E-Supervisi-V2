@@ -1,22 +1,22 @@
 <div class="mx-auto max-w-2xl space-y-6">
-    <x-ui.page-header title="Perencanaan Supervisi" :description="$cycle->judul" />
+    <x-ui.page-header eyebrow="Siklus" title="Perencanaan Supervisi" :description="$cycle->judul" />
 
     <x-ui.card>
         <form wire:submit="save" class="space-y-4">
             <div class="space-y-1.5">
                 <label class="block text-sm font-medium text-ink-800 dark:text-ink-100">Fokus observasi</label>
-                <textarea wire:model="fokusObservasi" rows="2" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)] focus:ring-2 focus:ring-brand-600"></textarea>
+                <textarea wire:model="fokusObservasi" rows="2" class="field-input"></textarea>
                 @error('fokusObservasi') <p class="text-xs text-status-overdue">{{ $message }}</p> @enderror
             </div>
 
             <div class="space-y-1.5">
                 <label class="block text-sm font-medium text-ink-800 dark:text-ink-100">Tujuan (opsional)</label>
-                <textarea wire:model="tujuan" rows="2" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]"></textarea>
+                <textarea wire:model="tujuan" rows="2" class="field-input"></textarea>
             </div>
 
             <div class="space-y-1.5">
                 <label class="block text-sm font-medium text-ink-800 dark:text-ink-100">Instrumen (Format A–E)</label>
-                <select wire:model="instrumentVersionId" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                <select wire:model="instrumentVersionId" class="field-input">
                     <option value="">Pilih instrumen…</option>
                     @foreach ($instruments as $instrument)
                         @foreach ($instrument->versions as $version)
@@ -30,7 +30,7 @@
             <div class="grid gap-4 sm:grid-cols-2">
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium text-ink-800 dark:text-ink-100">Tipe observasi</label>
-                    <select wire:model="tipeObservasi" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                    <select wire:model="tipeObservasi" class="field-input">
                         <option value="sinkron">Sinkron</option>
                         <option value="asinkron">Asinkron</option>
                     </select>

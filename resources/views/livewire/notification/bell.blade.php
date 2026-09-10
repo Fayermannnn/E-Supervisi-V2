@@ -13,7 +13,7 @@
         <div class="flex items-center justify-between border-b border-[var(--border)] px-4 py-2.5">
             <span class="text-sm font-semibold">Notifikasi</span>
             @if ($this->unreadCount > 0)
-                <button wire:click="markAllRead" class="text-xs font-medium text-brand-600 hover:text-brand-700">Tandai semua dibaca</button>
+                <button wire:click="markAllRead" class="text-xs font-medium text-brand-700 hover:text-brand-800">Tandai semua dibaca</button>
             @endif
         </div>
 

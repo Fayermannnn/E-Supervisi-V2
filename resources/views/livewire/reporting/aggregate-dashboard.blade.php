@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Pelaporan Agregat" description="Ringkasan lintas sekolah di dinas Anda. Data individual guru tidak ditampilkan.">
+    <x-ui.page-header eyebrow="Pelaporan" title="Pelaporan Agregat" description="Ringkasan lintas sekolah di dinas Anda. Data individual guru tidak ditampilkan.">
         <x-slot:actions>
             <x-ui.button variant="secondary" wire:click="export('pdf')">PDF</x-ui.button>
             <x-ui.button variant="secondary" wire:click="export('xlsx')">XLSX</x-ui.button>
@@ -16,7 +16,7 @@
                     <li class="flex items-center justify-between py-2">
                         <span>{{ strtoupper($ex->format) }} <span class="text-xs text-[var(--text-muted)]">· {{ $ex->created_at->diffForHumans() }}</span></span>
                         @if ($ex->isReady())
-                            <a href="{{ route('reports.exports.download', $ex) }}" class="text-brand-600 hover:underline">Unduh</a>
+                            <a href="{{ route('reports.exports.download', $ex) }}" class="text-brand-700 hover:underline">Unduh</a>
                         @elseif ($ex->status === 'gagal')
                             <span class="text-xs text-status-overdue">Gagal</span>
                         @else
@@ -30,15 +30,15 @@
 
     <x-ui.card>
         <div class="flex flex-wrap gap-3">
-            <select wire:model.live="tahunAjaran" class="rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+            <select wire:model.live="tahunAjaran" class="field-input">
                 <option value="">Semua tahun ajaran</option>
                 @foreach ($tahunOptions as $t) <option value="{{ $t }}">{{ $t }}</option> @endforeach
             </select>
-            <select wire:model.live="wilayah" class="rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+            <select wire:model.live="wilayah" class="field-input">
                 <option value="">Semua wilayah</option>
                 @foreach ($wilayahOptions as $w) <option value="{{ $w }}">{{ $w }}</option> @endforeach
             </select>
-            <select wire:model.live="jenjang" class="rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+            <select wire:model.live="jenjang" class="field-input">
                 <option value="">Semua jenjang</option>
                 @foreach (['SD','SMP','SMA','SMK'] as $j) <option value="{{ $j }}">{{ $j }}</option> @endforeach
             </select>

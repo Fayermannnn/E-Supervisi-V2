@@ -25,7 +25,7 @@
                 Ingat saya
             </label>
 
-            <a href="{{ route('password.request') }}" wire:navigate class="text-sm font-medium text-brand-600 hover:text-brand-700">
+            <a href="{{ route('password.request') }}" wire:navigate class="text-sm font-medium text-brand-700 hover:text-brand-800">
                 Lupa kata sandi?
             </a>
         </div>

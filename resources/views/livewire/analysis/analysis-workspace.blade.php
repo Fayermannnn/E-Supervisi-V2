@@ -1,7 +1,7 @@
 <div class="space-y-6">
     @php $isFinal = $result?->isFinal(); @endphp
 
-    <x-ui.page-header title="Analisis Hasil Observasi" :description="$cycle->judul">
+    <x-ui.page-header eyebrow="Pasca-Observasi" title="Analisis Hasil Observasi" :description="$cycle->judul">
         <x-slot:actions>
             <x-ui.button as="a" href="{{ route('cycles.show', $cycle) }}" variant="ghost">Kembali</x-ui.button>
         </x-slot:actions>
@@ -66,7 +66,7 @@
                     @unless ($generation->isHumanApproved() || $generation->review_status === 'rejected')
                         <div class="mt-3 space-y-2">
                             <textarea wire:model="aiEdit" rows="6" placeholder="Sunting di sini bila memilih 'Sunting'…"
-                                class="block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]"></textarea>
+                                class="field-input"></textarea>
                             <div class="flex gap-2">
                                 <x-ui.button wire:click="reviewAi('accept')" variant="secondary">Terima apa adanya</x-ui.button>
                                 <x-ui.button wire:click="reviewAi('edit')" variant="secondary">Pakai suntingan saya</x-ui.button>
@@ -87,7 +87,7 @@
                 <p class="mt-3 text-xs text-[var(--text-muted)]">Dikunci · sumber: {{ $result->sumber }} · {{ $result->finalized_at?->translatedFormat('d M Y H:i') }}</p>
             @else
                 <form wire:submit="saveSummary" class="space-y-3">
-                    <textarea wire:model="ringkasan" rows="8" class="block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)] focus:ring-2 focus:ring-brand-600"></textarea>
+                    <textarea wire:model="ringkasan" rows="8" class="field-input"></textarea>
                     @error('ringkasan') <p class="text-xs text-status-overdue">{{ $message }}</p> @enderror
                     <div class="flex gap-2">
                         <x-ui.button type="submit" variant="secondary">Simpan ringkasan</x-ui.button>

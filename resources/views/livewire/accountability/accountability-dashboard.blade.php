@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Akuntabilitas Supervisor (360°)"
+    <x-ui.page-header eyebrow="Akuntabilitas" title="Akuntabilitas Supervisor (360°)"
         :description="$isAdminDinas ? 'Rata-rata persepsi guru atas proses supervisi di dinas Anda.' : 'Rata-rata persepsi guru binaan atas proses supervisi Anda.'" />
 
     @php $fmt = fn ($v) => $v === null ? '—' : number_format((float) $v, 2); @endphp
@@ -11,7 +11,7 @@
         <x-ui.card :title="'Rata-rata keseluruhan: '.$fmt($data['rata_keseluruhan']).' / 4'" :subtitle="$data['responden'].' respons'">
             <dl class="grid gap-3 sm:grid-cols-2">
                 @foreach ($dimensions as $key => $label)
-                    <div class="rounded-md border border-[var(--border)] px-3 py-2">
+                    <div class="rounded-lg border border-[var(--border)] bg-[var(--surface-muted)]/50 px-3.5 py-2.5">
                         <dt class="text-xs text-[var(--text-muted)]">{{ $label }}</dt>
                         <dd class="text-lg font-semibold">{{ $fmt($data['dimensi'][$key] ?? null) }}</dd>
                     </div>

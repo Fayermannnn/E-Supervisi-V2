@@ -1,5 +1,5 @@
 <div class="mx-auto max-w-2xl space-y-6">
-    <x-ui.page-header title="Penilaian Proses Supervisi (360°)"
+    <x-ui.page-header eyebrow="Akuntabilitas" title="Penilaian Proses Supervisi (360°)"
         :description="'Siklus: '.$cycle->judul.' — Anda menilai proses supervisi yang Anda terima, bukan performa mengajar Anda.'" />
 
     <x-ui.alert variant="info">
@@ -16,7 +16,7 @@
                     <div class="mt-2 flex gap-2">
                         @foreach ([1 => 'Kurang', 2 => 'Cukup', 3 => 'Baik', 4 => 'Sangat baik'] as $val => $vlabel)
                             <label class="flex flex-1 cursor-pointer items-center justify-center rounded-md border px-2 py-2 text-xs
-                                {{ ($jawaban[$key] ?? 0) === $val ? 'border-brand-600 bg-brand-50 text-brand-700 dark:bg-brand-900/40' : 'border-[var(--border)]' }}">
+                                {{ ($jawaban[$key] ?? 0) === $val ? 'border-brand-600 bg-brand-50 font-semibold text-brand-800 dark:border-brand-500 dark:bg-brand-950/50 dark:text-brand-100' : 'border-[var(--border)]' }}">
                                 <input type="radio" wire:model="jawaban.{{ $key }}" value="{{ $val }}" class="sr-only">
                                 {{ $val }} · {{ $vlabel }}
                             </label>
@@ -28,7 +28,7 @@
 
             <div class="space-y-1.5">
                 <label class="block text-sm font-medium">Komentar <span class="text-[var(--text-muted)]">(opsional)</span></label>
-                <textarea wire:model="komentar" rows="3" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]"></textarea>
+                <textarea wire:model="komentar" rows="3" class="field-input"></textarea>
             </div>
 
             <div class="flex items-center gap-3">

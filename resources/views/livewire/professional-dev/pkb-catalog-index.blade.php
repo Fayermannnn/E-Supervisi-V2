@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Katalog PKB"
+    <x-ui.page-header eyebrow="Pengembangan Profesional" title="Katalog PKB"
         description="Materi & kegiatan pengembangan keprofesian berkelanjutan yang dapat direkomendasikan dari hasil analisis siklus.">
         <x-slot:actions>
             @if ($canManage)
@@ -16,11 +16,11 @@
                 <div class="sm:col-span-2"><x-ui.input label="Judul" name="judul" wire:model="judul" /></div>
                 <div class="sm:col-span-2 space-y-1.5">
                     <label class="block text-sm font-medium">Deskripsi</label>
-                    <textarea wire:model="deskripsi" rows="3" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]"></textarea>
+                    <textarea wire:model="deskripsi" rows="3" class="field-input"></textarea>
                 </div>
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium">Tipe</label>
-                    <select wire:model="tipe" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                    <select wire:model="tipe" class="field-input">
                         @foreach (['pelatihan','mandiri','kkg','webinar','bacaan','lainnya'] as $t)
                             <option value="{{ $t }}">{{ ucfirst($t) }}</option>
                         @endforeach
@@ -54,14 +54,14 @@
                         </div>
                     @endif
                     @if ($item->tautan)
-                        <a href="{{ $item->tautan }}" target="_blank" rel="noopener" class="mt-2 inline-block text-xs text-brand-600 hover:underline">Buka tautan ↗</a>
+                        <a href="{{ $item->tautan }}" target="_blank" rel="noopener" class="mt-2 inline-block text-xs text-brand-700 hover:underline">Buka tautan ↗</a>
                     @endif
                 </div>
                 @if ($canManage)
                     <div class="flex shrink-0 flex-col items-end gap-2">
                         <x-ui.status-badge :status="match ($item->status) { 'terbit' => 'done', 'arsip' => 'archived', default => 'draft' }" :label="ucfirst($item->status)" />
                         <div class="flex gap-1">
-                            <button wire:click="edit('{{ $item->id }}')" class="text-xs text-brand-600 hover:underline">Sunting</button>
+                            <button wire:click="edit('{{ $item->id }}')" class="text-xs text-brand-700 hover:underline">Sunting</button>
                             @if ($item->status !== 'terbit')
                                 <button wire:click="setStatus('{{ $item->id }}','terbit')" class="text-xs text-status-done hover:underline">Terbitkan</button>
                             @else

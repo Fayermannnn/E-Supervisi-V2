@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header :title="$session->judul" :description="$session->deskripsi">
+    <x-ui.page-header eyebrow="Akuntabilitas" :title="$session->judul" :description="$session->deskripsi">
         <x-slot:actions>
             <x-ui.status-badge :status="match ($session->status) { 'selesai' => 'done', 'berjalan' => 'progress', default => 'draft' }" :label="ucfirst($session->status)" />
             <x-ui.button as="a" href="{{ route('calibration.index') }}" variant="ghost" wire:navigate>Kembali</x-ui.button>
@@ -29,7 +29,7 @@
             <form wire:submit="addParticipant" class="mt-4 flex flex-wrap items-end gap-2 border-t border-[var(--border)] pt-4">
                 <div class="flex-1 space-y-1.5">
                     <label class="block text-sm font-medium">Tambah penilai</label>
-                    <select wire:model="addSupervisorId" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                    <select wire:model="addSupervisorId" class="field-input">
                         <option value="">— pilih supervisor —</option>
                         @foreach ($candidates as $c)
                             <option value="{{ $c->id }}">{{ $c->name }}</option>
@@ -48,7 +48,7 @@
                     <div class="flex items-center justify-between gap-4">
                         <span class="text-sm">{{ $item['label'] }} <span class="text-xs text-[var(--text-muted)]">({{ $item['section'] }})</span></span>
                         <input type="number" step="0.5" min="0" wire:model="scores.{{ $item['key'] }}"
-                               class="w-24 rounded-md border-0 bg-[var(--surface)] px-2 py-1 text-sm ring-1 ring-inset ring-[var(--border)]">
+                               class="field-input w-24 py-1">
                     </div>
                 @endforeach
                 <x-ui.button type="submit">Kirim skor</x-ui.button>
@@ -64,15 +64,15 @@
         @php $s = $session->stats; @endphp
         <x-ui.card title="Hasil reliabilitas">
             <dl class="grid gap-3 sm:grid-cols-3">
-                <div class="rounded-md border border-[var(--border)] px-3 py-2">
+                <div class="rounded-lg border border-[var(--border)] bg-[var(--surface-muted)]/50 px-3.5 py-2.5">
                     <dt class="text-xs text-[var(--text-muted)]">Persen kesepakatan</dt>
                     <dd class="text-lg font-semibold">{{ $s['persen_kesepakatan'] !== null ? number_format($s['persen_kesepakatan'] * 100, 0).'%' : '—' }}</dd>
                 </div>
-                <div class="rounded-md border border-[var(--border)] px-3 py-2">
+                <div class="rounded-lg border border-[var(--border)] bg-[var(--surface-muted)]/50 px-3.5 py-2.5">
                     <dt class="text-xs text-[var(--text-muted)]">Fleiss' κ</dt>
                     <dd class="text-lg font-semibold">{{ $s['fleiss_kappa'] ?? '—' }}</dd>
                 </div>
-                <div class="rounded-md border border-[var(--border)] px-3 py-2">
+                <div class="rounded-lg border border-[var(--border)] bg-[var(--surface-muted)]/50 px-3.5 py-2.5">
                     <dt class="text-xs text-[var(--text-muted)]">Deviasi absolut rata-rata</dt>
                     <dd class="text-lg font-semibold">{{ $s['deviasi_absolut_rata'] ?? '—' }}</dd>
                 </div>

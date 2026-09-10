@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Penugasan Supervisor" description="Tetapkan supervisor pembina untuk setiap guru.">
+    <x-ui.page-header eyebrow="Administrasi" title="Penugasan Supervisor" description="Tetapkan supervisor pembina untuk setiap guru.">
         <x-slot:actions><x-ui.button wire:click="create">Tambah penugasan</x-ui.button></x-slot:actions>
     </x-ui.page-header>
 
@@ -47,7 +47,7 @@
         <form wire:submit="save" class="space-y-4">
             <div class="space-y-1.5">
                 <label class="block text-sm font-medium">Supervisor</label>
-                <select wire:model="supervisorId" class="block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                <select wire:model="supervisorId" class="field-input">
                     <option value="">Pilih supervisor…</option>
                     @foreach ($supervisors as $s) <option value="{{ $s->id }}">{{ $s->name }} — {{ $s->sekolah?->nama }}</option> @endforeach
                 </select>
@@ -55,7 +55,7 @@
             </div>
             <div class="space-y-1.5">
                 <label class="block text-sm font-medium">Guru</label>
-                <select wire:model="guruId" class="block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                <select wire:model="guruId" class="field-input">
                     <option value="">Pilih guru…</option>
                     @foreach ($gurus as $g) <option value="{{ $g->id }}">{{ $g->name }} — {{ $g->sekolah?->nama }}</option> @endforeach
                 </select>

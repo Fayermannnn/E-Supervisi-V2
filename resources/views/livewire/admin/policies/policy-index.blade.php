@@ -1,10 +1,10 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Konfigurasi Kebijakan" description="Nilai default berlaku global; setiap dinas dapat menimpanya." />
+    <x-ui.page-header eyebrow="Administrasi" title="Konfigurasi Kebijakan" description="Nilai default berlaku global; setiap dinas dapat menimpanya." />
 
     @if ($dinasOptions->isNotEmpty())
         <x-ui.card>
             <label class="block text-sm font-medium">Lingkup</label>
-            <select wire:model.live="scopeDinasId" class="mt-1.5 block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)] sm:max-w-sm">
+            <select wire:model.live="scopeDinasId" class="field-input mt-1.5 sm:max-w-sm">
                 <option value="">Default global</option>
                 @foreach ($dinasOptions as $d) <option value="{{ $d->id }}">{{ $d->nama }}</option> @endforeach
             </select>
@@ -26,9 +26,9 @@
                                     <input type="checkbox" wire:model="values.{{ $key }}" class="rounded text-brand-600 focus:ring-brand-600"> Aktif
                                 </label>
                             @elseif ($def['type'] === 'integer')
-                                <input type="number" wire:model="values.{{ $key }}" class="w-28 rounded-md border-0 px-3 py-1.5 text-sm ring-1 ring-inset ring-[var(--border)]">
+                                <input type="number" wire:model="values.{{ $key }}" class="field-input w-28 py-1.5">
                             @else
-                                <input type="text" wire:model="values.{{ $key }}" class="w-40 rounded-md border-0 px-3 py-1.5 text-sm ring-1 ring-inset ring-[var(--border)]" placeholder="mis. 3,1">
+                                <input type="text" wire:model="values.{{ $key }}" class="field-input w-40 py-1.5" placeholder="mis. 3,1">
                             @endif
                         </div>
                     </div>

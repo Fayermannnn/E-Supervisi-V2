@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Manajemen Pengguna" description="Buat akun, atur peran, penempatan sekolah, dan status aktif.">
+    <x-ui.page-header eyebrow="Administrasi" title="Manajemen Pengguna" description="Buat akun, atur peran, penempatan sekolah, dan status aktif.">
         <x-slot:actions>
             <x-ui.button wire:click="create">Tambah pengguna</x-ui.button>
         </x-slot:actions>
@@ -10,12 +10,12 @@
     <x-ui.card flush>
         <div class="flex flex-col gap-3 border-b border-[var(--border)] p-4 sm:flex-row">
             <input type="search" wire:model.live.debounce.300ms="search" placeholder="Cari nama atau email…"
-                class="w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)] focus:ring-2 focus:ring-brand-600 sm:max-w-xs">
-            <select wire:model.live="roleFilter" class="rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                class="field-input sm:max-w-xs">
+            <select wire:model.live="roleFilter" class="field-input">
                 <option value="">Semua peran</option>
                 @foreach ($roles as $r) <option value="{{ $r->value }}">{{ $r->label() }}</option> @endforeach
             </select>
-            <select wire:model.live="statusFilter" class="rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+            <select wire:model.live="statusFilter" class="field-input">
                 <option value="">Semua status</option>
                 <option value="active">Aktif</option>
                 <option value="inactive">Nonaktif</option>
@@ -47,7 +47,7 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex justify-end gap-2">
-                                    <button wire:click="edit('{{ $u->id }}')" class="text-brand-600 hover:text-brand-700">Ubah</button>
+                                    <button wire:click="edit('{{ $u->id }}')" class="text-brand-700 hover:text-brand-800">Ubah</button>
                                     <button wire:click="sendReset('{{ $u->id }}')" class="text-ink-500 hover:text-ink-700">Reset sandi</button>
                                     <button wire:click="toggleActive('{{ $u->id }}')" class="{{ $u->is_active ? 'text-status-overdue' : 'text-status-done' }}">
                                         {{ $u->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
@@ -74,7 +74,7 @@
 
             <div class="space-y-1.5">
                 <label class="block text-sm font-medium text-ink-800 dark:text-ink-100">Peran</label>
-                <select wire:model.live="role" name="role" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                <select wire:model.live="role" name="role" class="field-input">
                     <option value="">Pilih peran…</option>
                     @foreach ($roles as $r) <option value="{{ $r->value }}">{{ $r->label() }}</option> @endforeach
                 </select>
@@ -84,7 +84,7 @@
             @if ($role === 'supervisor')
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium text-ink-800 dark:text-ink-100">Jenis supervisor</label>
-                    <select wire:model="supervisorType" name="supervisorType" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                    <select wire:model="supervisorType" name="supervisorType" class="field-input">
                         <option value="">Pilih…</option>
                         @foreach ($supervisorTypes as $t) <option value="{{ $t->value }}">{{ $t->label() }}</option> @endforeach
                     </select>
@@ -95,7 +95,7 @@
             @if (in_array($role, ['guru', 'supervisor'], true))
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium text-ink-800 dark:text-ink-100">Sekolah</label>
-                    <select wire:model="sekolahId" name="sekolahId" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                    <select wire:model="sekolahId" name="sekolahId" class="field-input">
                         <option value="">Pilih sekolah…</option>
                         @foreach ($sekolahOptions as $s) <option value="{{ $s->id }}">{{ $s->nama }}</option> @endforeach
                     </select>

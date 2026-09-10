@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Perpustakaan Praktik Baik"
+    <x-ui.page-header eyebrow="Pengembangan Profesional" title="Perpustakaan Praktik Baik"
         description="Kurasi praktik pembelajaran baik antar-guru dari siklus berskor tinggi sebagai referensi tindak lanjut." />
 
     @error('curate') <x-ui.alert variant="danger">{{ $message }}</x-ui.alert> @enderror
@@ -15,7 +15,7 @@
                         <p class="mt-1 whitespace-pre-line text-[var(--text-muted)]">{{ $bp->praktik }}</p>
                     </details>
                     <input type="text" wire:model="catatan.{{ $bp->id }}" placeholder="Catatan kurasi (opsional)"
-                           class="mt-2 block w-full rounded-md border-0 bg-[var(--surface)] px-2.5 py-1 text-xs ring-1 ring-inset ring-[var(--border)]">
+                           class="field-input mt-2 py-1 text-xs">
                     <div class="mt-2 flex gap-2">
                         <x-ui.button wire:click="curate('{{ $bp->id }}', true)">Terbitkan</x-ui.button>
                         <x-ui.button wire:click="curate('{{ $bp->id }}', false)" variant="ghost">Tolak</x-ui.button>

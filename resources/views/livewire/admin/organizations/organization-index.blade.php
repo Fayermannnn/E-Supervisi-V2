@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Struktur Organisasi" description="Kelola dinas pendidikan dan sekolah di bawahnya." />
+    <x-ui.page-header eyebrow="Administrasi" title="Struktur Organisasi" description="Kelola dinas pendidikan dan sekolah di bawahnya." />
 
     <div class="flex gap-1 border-b border-[var(--border)]">
         <button wire:click="$set('tab', 'sekolah')" class="border-b-2 px-4 py-2 text-sm font-medium {{ $tab === 'sekolah' ? 'border-brand-600 text-brand-700' : 'border-transparent text-ink-500' }}">Sekolah</button>
@@ -69,7 +69,7 @@
             <x-ui.input label="Kode" name="dinasKode" wire:model="dinasKode" required />
             <div class="space-y-1.5">
                 <label class="block text-sm font-medium">Tipe</label>
-                <select wire:model="dinasTipe" class="block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                <select wire:model="dinasTipe" class="field-input">
                     <option value="kabupaten">Kabupaten</option><option value="kota">Kota</option>
                 </select>
             </div>
@@ -84,13 +84,13 @@
             <x-ui.input label="NPSN" name="sekolahNpsn" wire:model="sekolahNpsn" />
             <div class="space-y-1.5">
                 <label class="block text-sm font-medium">Jenjang</label>
-                <select wire:model="sekolahJenjang" class="block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                <select wire:model="sekolahJenjang" class="field-input">
                     @foreach (['PAUD','SD','SMP','SMA','SMK','SLB'] as $j) <option value="{{ $j }}">{{ $j }}</option> @endforeach
                 </select>
             </div>
             <div class="space-y-1.5">
                 <label class="block text-sm font-medium">Dinas</label>
-                <select wire:model="sekolahDinasId" name="sekolahDinasId" class="block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                <select wire:model="sekolahDinasId" name="sekolahDinasId" class="field-input">
                     <option value="">Pilih dinas…</option>
                     @foreach ($dinasOptions as $d) <option value="{{ $d->id }}">{{ $d->nama }}</option> @endforeach
                 </select>

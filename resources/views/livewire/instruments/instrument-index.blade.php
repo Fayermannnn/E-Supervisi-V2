@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Bank Instrumen" description="Repositori Format A–E. Struktur item mengikuti kebijakan daerah/SNP.">
+    <x-ui.page-header eyebrow="Instrumen" title="Bank Instrumen" description="Repositori Format A–E. Struktur item mengikuti kebijakan daerah/SNP.">
         <x-slot:actions>
             @if ($canManage)
                 <x-ui.button wire:click="create">Tambah instrumen</x-ui.button>
@@ -54,11 +54,11 @@
             <x-ui.input label="Nama" name="nama" wire:model="nama" />
             <div class="space-y-1.5">
                 <label class="block text-sm font-medium">Deskripsi</label>
-                <textarea wire:model="deskripsi" rows="2" class="block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]"></textarea>
+                <textarea wire:model="deskripsi" rows="2" class="field-input"></textarea>
             </div>
             <div class="space-y-1.5">
                 <label class="block text-sm font-medium">Skema (JSON)</label>
-                <textarea wire:model="schemaJson" rows="14" class="block w-full rounded-md border-0 px-3 py-2 font-mono text-xs ring-1 ring-inset ring-[var(--border)]"></textarea>
+                <textarea wire:model="schemaJson" rows="14" class="field-input font-mono text-xs"></textarea>
                 @error('schemaJson') <p class="text-xs text-status-overdue">{{ $message }}</p> @enderror
             </div>
             <x-ui.button type="submit">Simpan & terbitkan</x-ui.button>

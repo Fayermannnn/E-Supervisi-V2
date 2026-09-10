@@ -1,6 +1,6 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Evaluasi Ahli"
-        description="Validasi artefak sistem oleh panel ahli (manajemen pendidikan &amp; sistem informasi) — mendukung DSR Artikel 3.">
+    <x-ui.page-header eyebrow="Evaluasi Ahli" title="Evaluasi Ahli"
+        description="Validasi artefak sistem oleh panel ahli (manajemen pendidikan & sistem informasi) — mendukung DSR Artikel 3.">
         <x-slot:actions>
             @if ($canManage)
                 <x-ui.button wire:click="$toggle('showForm')">{{ $showForm ? 'Tutup' : 'Panel baru' }}</x-ui.button>
@@ -17,7 +17,7 @@
                 <x-ui.input label="Versi artefak yang dievaluasi" name="artefak_versi" wire:model="artefak_versi" />
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium">Deskripsi / instruksi untuk ahli <span class="text-[var(--text-muted)]">(opsional)</span></label>
-                    <textarea wire:model="deskripsi" rows="3" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]"></textarea>
+                    <textarea wire:model="deskripsi" rows="3" class="field-input"></textarea>
                 </div>
                 <x-ui.button type="submit">Buat panel</x-ui.button>
             </form>

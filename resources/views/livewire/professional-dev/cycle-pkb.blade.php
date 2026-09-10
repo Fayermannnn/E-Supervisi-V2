@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="PKB &amp; Praktik Baik" :description="'Siklus: '.$cycle->judul">
+    <x-ui.page-header eyebrow="Pengembangan Profesional" title="PKB & Praktik Baik" :description="'Siklus: '.$cycle->judul">
         <x-slot:actions>
             <x-ui.button as="a" href="{{ route('cycles.show', $cycle) }}" variant="ghost" wire:navigate>Kembali ke siklus</x-ui.button>
         </x-slot:actions>
@@ -77,11 +77,11 @@
                     <x-ui.input label="Judul praktik baik" name="bpJudul" wire:model="bpJudul" />
                     <div class="space-y-1.5">
                         <label class="block text-sm font-medium">Ringkasan</label>
-                        <textarea wire:model="bpRingkasan" rows="2" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]"></textarea>
+                        <textarea wire:model="bpRingkasan" rows="2" class="field-input"></textarea>
                     </div>
                     <div class="space-y-1.5">
                         <label class="block text-sm font-medium">Uraian praktik</label>
-                        <textarea wire:model="bpPraktik" rows="5" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]"></textarea>
+                        <textarea wire:model="bpPraktik" rows="5" class="field-input"></textarea>
                     </div>
                     <x-ui.input label="Tag (pisahkan koma)" name="bpTags" wire:model="bpTags" />
                     <label class="flex items-center gap-2 text-sm">

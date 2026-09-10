@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Program Supervisi Tahunan"
+    <x-ui.page-header eyebrow="Program" title="Program Supervisi Tahunan"
         description="Susun rencana supervisi lintas guru binaan per tahun ajaran, lalu semai siklus secara massal.">
         <x-slot:actions>
             <x-ui.button wire:click="$toggle('showForm')">{{ $showForm ? 'Tutup' : 'Program baru' }}</x-ui.button>
@@ -15,14 +15,14 @@
                 <x-ui.input label="Tahun ajaran" name="tahun_ajaran" wire:model="tahun_ajaran" />
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium">Semester</label>
-                    <select wire:model="semester" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                    <select wire:model="semester" class="field-input">
                         <option value="ganjil">Ganjil</option>
                         <option value="genap">Genap</option>
                     </select>
                 </div>
                 <div class="sm:col-span-2 space-y-1.5">
                     <label class="block text-sm font-medium">Catatan <span class="text-[var(--text-muted)]">(opsional)</span></label>
-                    <textarea wire:model="catatan" rows="2" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]"></textarea>
+                    <textarea wire:model="catatan" rows="2" class="field-input"></textarea>
                 </div>
                 <div class="sm:col-span-2">
                     <x-ui.button type="submit">Simpan &amp; kelola target</x-ui.button>

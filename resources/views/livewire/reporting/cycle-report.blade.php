@@ -1,5 +1,5 @@
 <div class="mx-auto max-w-3xl space-y-6">
-    <x-ui.page-header title="Laporan Siklus" :description="$cycle->judul">
+    <x-ui.page-header eyebrow="Siklus" title="Laporan Siklus" :description="$cycle->judul">
         <x-slot:actions>
             @if ($snapshot && $canExport)
                 <x-ui.button variant="secondary" wire:click="requestExport">Unduh PDF</x-ui.button>
@@ -23,7 +23,7 @@
                             <span class="text-xs text-[var(--text-muted)]">· {{ $ex->created_at->diffForHumans() }}</span>
                         </span>
                         @if ($ex->isReady())
-                            <a href="{{ route('reports.exports.download', $ex) }}" class="text-brand-600 hover:underline">Unduh ({{ number_format(($ex->ukuran ?? 0) / 1024, 0) }} KB)</a>
+                            <a href="{{ route('reports.exports.download', $ex) }}" class="text-brand-700 hover:underline">Unduh ({{ number_format(($ex->ukuran ?? 0) / 1024, 0) }} KB)</a>
                         @elseif ($ex->status === 'gagal')
                             <span class="text-xs text-status-overdue">Gagal: {{ \Illuminate\Support\Str::limit($ex->error, 80) }}</span>
                         @else
@@ -40,7 +40,7 @@
             <p class="text-sm text-[var(--text-muted)]">Laporan memuat ringkasan enam tahap siklus. Bila masih ada RTL terbuka, beri catatan.</p>
             <div class="mt-3 space-y-3">
                 <textarea wire:model="overrideNote" rows="2" placeholder="Catatan (opsional, wajib bila RTL belum selesai)…"
-                    class="block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]"></textarea>
+                    class="field-input"></textarea>
                 <x-ui.button wire:click="compile">Susun laporan final</x-ui.button>
             </div>
         </x-ui.card>

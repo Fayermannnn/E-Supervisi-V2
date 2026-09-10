@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Kalibrasi Antar-Penilai"
+    <x-ui.page-header eyebrow="Akuntabilitas" title="Kalibrasi Antar-Penilai"
         description="Uji konsistensi penilaian antar pengawas / kepala sekolah pada artefak observasi yang sama — mendukung reliabilitas instrumen.">
         <x-slot:actions>
             @if ($canManage)
@@ -16,7 +16,7 @@
                 <x-ui.input label="Judul" name="judul" wire:model="judul" />
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium">Instrumen</label>
-                    <select wire:model="instrument_version_id" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                    <select wire:model="instrument_version_id" class="field-input">
                         <option value="">— pilih —</option>
                         @foreach ($instruments as $instrument)
                             @foreach ($instrument->versions as $version)
@@ -29,7 +29,7 @@
                 <x-ui.input label="Tautan artefak (rekaman/dokumen yang dinilai bersama)" name="artefak_url" wire:model="artefak_url" />
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium">Deskripsi <span class="text-[var(--text-muted)]">(opsional)</span></label>
-                    <textarea wire:model="deskripsi" rows="2" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]"></textarea>
+                    <textarea wire:model="deskripsi" rows="2" class="field-input"></textarea>
                 </div>
                 <x-ui.button type="submit">Buat sesi</x-ui.button>
             </form>

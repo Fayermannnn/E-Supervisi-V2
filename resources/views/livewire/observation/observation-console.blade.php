@@ -66,7 +66,7 @@
                                                 @click="values[item.key] = (item.scale ? item.scale.min : 1) + n - 1; touch(item.key)"
                                                 :disabled="!editable"
                                                 class="flex size-9 items-center justify-center rounded-md text-sm font-medium ring-1 ring-inset ring-[var(--border)] disabled:opacity-50"
-                                                :class="values[item.key] === (item.scale ? item.scale.min : 1) + n - 1 ? 'bg-brand-600 text-white ring-brand-600' : 'bg-[var(--surface)]'"
+                                                :class="values[item.key] === (item.scale ? item.scale.min : 1) + n - 1 ? 'bg-brand-700 text-white ring-brand-600' : 'bg-[var(--surface)]'"
                                                 x-text="(item.scale ? item.scale.min : 1) + n - 1"></button>
                                         </template>
                                     </div>
@@ -85,7 +85,7 @@
 
                                 <template x-if="item.type === 'text'">
                                     <textarea x-model="values[item.key]" @input.debounce.800ms="touch(item.key)" :disabled="!editable" rows="2"
-                                        class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)] disabled:opacity-50"></textarea>
+                                        class="field-input disabled:opacity-50"></textarea>
                                 </template>
                             </div>
 
@@ -101,7 +101,7 @@
         <div class="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
             <label class="block text-sm font-medium text-ink-800 dark:text-ink-100">Catatan skrip / naratif</label>
             <textarea x-model="catatanSkrip" @input.debounce.1000ms="touch('_skrip')" :disabled="!editable" rows="4"
-                class="mt-2 block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)] disabled:opacity-50"
+                class="field-input mt-2 disabled:opacity-50"
                 placeholder="Catat peristiwa penting selama observasi…"></textarea>
         </div>
     </form>

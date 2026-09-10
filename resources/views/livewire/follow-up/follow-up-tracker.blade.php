@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Pelacak Tindak Lanjut (RTL)" :description="$cycle->judul">
+    <x-ui.page-header eyebrow="Pasca-Observasi" title="Pelacak Tindak Lanjut (RTL)" :description="$cycle->judul">
         <x-slot:actions><x-ui.button as="a" href="{{ route('cycles.show', $cycle) }}" variant="ghost">Kembali</x-ui.button></x-slot:actions>
     </x-ui.page-header>
 
@@ -40,7 +40,7 @@
                         @if ($isGuru && $plan->isOpen())
                             <div class="mt-2 flex gap-2">
                                 <input type="text" wire:model="evidenceNote.{{ $item->id }}" placeholder="Catatan bukti pelaksanaan…"
-                                    class="flex-1 rounded-md border-0 px-2 py-1 text-xs ring-1 ring-inset ring-[var(--border)]">
+                                    class="field-input flex-1 py-1 text-xs">
                                 <button wire:click="addEvidence('{{ $item->id }}')" class="rounded bg-brand-600 px-2 py-1 text-xs font-medium text-white">Tambah bukti</button>
                             </div>
                         @endif
@@ -55,7 +55,7 @@
             <form wire:submit="createPlan" class="space-y-4">
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium">Tujuan</label>
-                    <textarea wire:model="tujuan" rows="2" class="block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]"></textarea>
+                    <textarea wire:model="tujuan" rows="2" class="field-input"></textarea>
                     @error('tujuan') <p class="text-xs text-status-overdue">{{ $message }}</p> @enderror
                 </div>
                 <x-ui.input label="Tenggat" name="tenggat" type="date" wire:model="tenggat" required />
@@ -64,8 +64,8 @@
                     <p class="text-sm font-medium">Butir kegiatan</p>
                     @foreach ($items as $i => $item)
                         <div class="grid gap-2 rounded-md border border-[var(--border)] p-3 sm:grid-cols-2" wire:key="new-{{ $i }}">
-                            <input wire:model="items.{{ $i }}.deskripsi" placeholder="Deskripsi kegiatan" class="rounded-md border-0 px-2 py-1.5 text-sm ring-1 ring-inset ring-[var(--border)]">
-                            <input wire:model="items.{{ $i }}.indikator" placeholder="Indikator keberhasilan" class="rounded-md border-0 px-2 py-1.5 text-sm ring-1 ring-inset ring-[var(--border)]">
+                            <input wire:model="items.{{ $i }}.deskripsi" placeholder="Deskripsi kegiatan" class="field-input py-1.5">
+                            <input wire:model="items.{{ $i }}.indikator" placeholder="Indikator keberhasilan" class="field-input py-1.5">
                             @if (count($items) > 1)
                                 <button type="button" wire:click="removeItem({{ $i }})" class="text-xs text-status-overdue sm:col-span-2 sm:text-left">Hapus butir</button>
                             @endif

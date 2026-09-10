@@ -1,12 +1,12 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Lapor Kendala" description="Sampaikan masalah teknis atau pertanyaan penggunaan." />
+    <x-ui.page-header eyebrow="Bantuan" title="Lapor Kendala" description="Sampaikan masalah teknis atau pertanyaan penggunaan." />
 
     <div class="grid gap-6 lg:grid-cols-2">
         <x-ui.card title="Buat laporan baru">
             <form wire:submit="submit" class="space-y-4">
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium">Kategori</label>
-                    <select wire:model="category" class="block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                    <select wire:model="category" class="field-input">
                         <option value="umum">Umum</option>
                         <option value="akun">Akun & akses</option>
                         <option value="teknis">Teknis / error</option>
@@ -16,7 +16,7 @@
                 <x-ui.input label="Subjek" name="subject" wire:model="subject" required />
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium">Pesan</label>
-                    <textarea wire:model="message" rows="5" class="block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)] focus:ring-2 focus:ring-brand-600"></textarea>
+                    <textarea wire:model="message" rows="5" class="field-input"></textarea>
                     @error('message') <p class="text-xs text-status-overdue">{{ $message }}</p> @enderror
                 </div>
                 <x-ui.button type="submit">Kirim laporan</x-ui.button>

@@ -1,7 +1,7 @@
 <div class="mx-auto max-w-2xl space-y-6">
     @php $confirmed = $session?->isConfirmed(); @endphp
 
-    <x-ui.page-header title="Ruang Umpan Balik" :description="$cycle->judul">
+    <x-ui.page-header eyebrow="Pasca-Observasi" title="Ruang Umpan Balik" :description="$cycle->judul">
         <x-slot:actions><x-ui.button as="a" href="{{ route('cycles.show', $cycle) }}" variant="ghost">Kembali</x-ui.button></x-slot:actions>
     </x-ui.page-header>
 
@@ -28,7 +28,7 @@
             <div class="border-t border-[var(--border)] p-4">
                 <form wire:submit="send" class="space-y-2">
                     <div class="flex gap-2">
-                        <select wire:model="tipe" class="rounded-md border-0 px-2 py-1.5 text-xs ring-1 ring-inset ring-[var(--border)]">
+                        <select wire:model="tipe" class="field-input py-1.5 text-xs">
                             <option value="observasi">Observasi</option>
                             <option value="pertanyaan_reflektif">Pertanyaan reflektif</option>
                             <option value="tanggapan">Tanggapan</option>
@@ -38,7 +38,7 @@
                             <x-ui.button type="button" wire:click="requestAiSuggestion" variant="ghost" class="text-xs">Minta saran AI</x-ui.button>
                         @endif
                     </div>
-                    <textarea wire:model="konten" rows="3" class="block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)] focus:ring-2 focus:ring-brand-600"></textarea>
+                    <textarea wire:model="konten" rows="3" class="field-input"></textarea>
                     <x-ui.button type="submit">Kirim</x-ui.button>
                 </form>
             </div>
@@ -51,7 +51,7 @@
             <x-ui.ai-draft-banner />
             <pre class="mt-2 whitespace-pre-wrap rounded-md bg-ink-50 p-3 text-sm dark:bg-ink-800">{{ $gen->output }}</pre>
             @if ($isSupervisor && $gen->status === 'draft')
-                <textarea wire:model="aiEdit" rows="4" placeholder="Sunting bila perlu…" class="mt-2 block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]"></textarea>
+                <textarea wire:model="aiEdit" rows="4" placeholder="Sunting bila perlu…" class="field-input mt-2"></textarea>
                 <div class="mt-2 flex gap-2">
                     <x-ui.button wire:click="reviewAi('{{ $gen->id }}', 'accept')" variant="secondary">Kirim apa adanya</x-ui.button>
                     <x-ui.button wire:click="reviewAi('{{ $gen->id }}', 'edit')" variant="secondary">Kirim suntingan</x-ui.button>

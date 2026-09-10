@@ -1,5 +1,5 @@
 <div class="mx-auto max-w-3xl space-y-6">
-    <x-ui.page-header :title="'Penilaian Ahli — '.$panel->judul"
+    <x-ui.page-header eyebrow="Evaluasi Ahli" :title="'Penilaian Ahli — '.$panel->judul"
         :description="'Artefak: '.$panel->artefak_versi.'. Nilai setiap aspek dari sisi relevansi (CVR) dan kualitas (Aiken 1–5), lalu isi kuesioner usability.'" />
 
     @if ($panel->deskripsi)
@@ -20,7 +20,7 @@
                                 <div class="mt-1 flex gap-2">
                                     @foreach ($relevansiOptions as $opt)
                                         <label class="flex-1 cursor-pointer rounded-md border px-2 py-1.5 text-center text-xs
-                                            {{ ($relevansi[$key] ?? null) === $opt ? 'border-brand-600 bg-brand-50 text-brand-700 dark:bg-brand-900/40' : 'border-[var(--border)]' }}">
+                                            {{ ($relevansi[$key] ?? null) === $opt ? 'border-brand-600 bg-brand-50 font-semibold text-brand-800 dark:border-brand-500 dark:bg-brand-950/50 dark:text-brand-100' : 'border-[var(--border)]' }}">
                                             <input type="radio" wire:model="relevansi.{{ $key }}" value="{{ $opt }}" class="sr-only">
                                             {{ str($opt)->headline() }}
                                         </label>
@@ -32,7 +32,7 @@
                                 <div class="mt-1 flex gap-1.5">
                                     @foreach (range(1, 5) as $n)
                                         <label class="flex-1 cursor-pointer rounded-md border py-1.5 text-center text-xs
-                                            {{ (int) ($kualitas[$key] ?? 0) === $n ? 'border-brand-600 bg-brand-50 text-brand-700 dark:bg-brand-900/40' : 'border-[var(--border)]' }}">
+                                            {{ (int) ($kualitas[$key] ?? 0) === $n ? 'border-brand-600 bg-brand-50 font-semibold text-brand-800 dark:border-brand-500 dark:bg-brand-950/50 dark:text-brand-100' : 'border-[var(--border)]' }}">
                                             <input type="radio" wire:model="kualitas.{{ $key }}" value="{{ $n }}" class="sr-only">
                                             {{ $n }}
                                         </label>
@@ -53,7 +53,7 @@
                         <div class="flex gap-1.5">
                             @foreach (range(1, 5) as $n)
                                 <label class="cursor-pointer rounded-md border px-2.5 py-1 text-xs
-                                    {{ (int) ($sus[$key] ?? 0) === $n ? 'border-brand-600 bg-brand-50 text-brand-700 dark:bg-brand-900/40' : 'border-[var(--border)]' }}">
+                                    {{ (int) ($sus[$key] ?? 0) === $n ? 'border-brand-600 bg-brand-50 font-semibold text-brand-800 dark:border-brand-500 dark:bg-brand-950/50 dark:text-brand-100' : 'border-[var(--border)]' }}">
                                     <input type="radio" wire:model="sus.{{ $key }}" value="{{ $n }}" class="sr-only">
                                     {{ $n }}
                                 </label>
@@ -66,7 +66,7 @@
 
         <div class="space-y-1.5">
             <label class="block text-sm font-medium">Catatan / rekomendasi perbaikan <span class="text-[var(--text-muted)]">(opsional)</span></label>
-            <textarea wire:model="catatan" rows="4" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]"></textarea>
+            <textarea wire:model="catatan" rows="4" class="field-input"></textarea>
         </div>
 
         <div class="flex items-center gap-3">

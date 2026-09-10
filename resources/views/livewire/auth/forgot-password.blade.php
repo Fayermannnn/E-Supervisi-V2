@@ -20,6 +20,6 @@
     </form>
 
     <p class="mt-5 text-center text-sm text-[var(--text-muted)]">
-        <a href="{{ route('login') }}" wire:navigate class="font-medium text-brand-600 hover:text-brand-700">Kembali ke halaman masuk</a>
+        <a href="{{ route('login') }}" wire:navigate class="font-medium text-brand-700 hover:text-brand-800">Kembali ke halaman masuk</a>
     </p>
 </div>

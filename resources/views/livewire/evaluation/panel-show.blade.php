@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header :title="$panel->judul" :description="$panel->artefak_versi">
+    <x-ui.page-header eyebrow="Evaluasi Ahli" :title="$panel->judul" :description="$panel->artefak_versi">
         <x-slot:actions>
             <x-ui.status-badge :status="match ($panel->status) { 'selesai' => 'done', 'berjalan' => 'progress', default => 'draft' }" :label="ucfirst($panel->status)" />
             <x-ui.button as="a" href="{{ route('evaluation.index') }}" variant="ghost" wire:navigate>Kembali</x-ui.button>
@@ -35,7 +35,7 @@
                 </div>
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium">Rumpun</label>
-                    <select wire:model="expertRumpun" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                    <select wire:model="expertRumpun" class="field-input">
                         <option value="manajemen_pendidikan">Manajemen Pendidikan</option>
                         <option value="sistem_informasi">Sistem Informasi</option>
                         <option value="lainnya">Lainnya</option>
@@ -58,15 +58,15 @@
         @php $s = $panel->stats; @endphp
         <x-ui.card title="Hasil validasi" :subtitle="$s['n_ahli'].' ahli · nilai kritis CVR '.($s['nilai_kritis_cvr'] ?? '—')">
             <dl class="grid gap-3 sm:grid-cols-3">
-                <div class="rounded-md border border-[var(--border)] px-3 py-2">
+                <div class="rounded-lg border border-[var(--border)] bg-[var(--surface-muted)]/50 px-3.5 py-2.5">
                     <dt class="text-xs text-[var(--text-muted)]">CVI (rata-rata CVR)</dt>
                     <dd class="text-lg font-semibold">{{ $s['cvi'] ?? '—' }}</dd>
                 </div>
-                <div class="rounded-md border border-[var(--border)] px-3 py-2">
+                <div class="rounded-lg border border-[var(--border)] bg-[var(--surface-muted)]/50 px-3.5 py-2.5">
                     <dt class="text-xs text-[var(--text-muted)]">Aiken's V rata-rata</dt>
                     <dd class="text-lg font-semibold">{{ $s['aiken_v_rata'] ?? '—' }}</dd>
                 </div>
-                <div class="rounded-md border border-[var(--border)] px-3 py-2">
+                <div class="rounded-lg border border-[var(--border)] bg-[var(--surface-muted)]/50 px-3.5 py-2.5">
                     <dt class="text-xs text-[var(--text-muted)]">SUS rata-rata</dt>
                     <dd class="text-lg font-semibold">{{ $s['sus']['rata'] ?? '—' }}</dd>
                     <dd class="text-xs text-[var(--text-muted)]">{{ $s['sus']['interpretasi'] ?? '' }}</dd>

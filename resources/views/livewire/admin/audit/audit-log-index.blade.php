@@ -1,11 +1,11 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Audit Log" description="Jejak perubahan data — hanya-baca, tidak dapat diubah atau dihapus." />
+    <x-ui.page-header eyebrow="Administrasi" title="Audit Log" description="Jejak perubahan data — hanya-baca, tidak dapat diubah atau dihapus." />
 
     <x-ui.card flush>
         <div class="flex flex-col gap-3 border-b border-[var(--border)] p-4 sm:flex-row">
             <input type="search" wire:model.live.debounce.300ms="search" placeholder="Cari aksi…"
-                class="w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)] sm:max-w-xs">
-            <select wire:model.live="actionFilter" class="rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]">
+                class="field-input sm:max-w-xs">
+            <select wire:model.live="actionFilter" class="field-input">
                 <option value="">Semua aksi</option>
                 @foreach ($actions as $a) <option value="{{ $a }}">{{ $a }}</option> @endforeach
             </select>

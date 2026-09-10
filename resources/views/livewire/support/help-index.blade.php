@@ -1,8 +1,8 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Bantuan" description="Panduan penggunaan sistem E-Supervisi." />
+    <x-ui.page-header eyebrow="Bantuan" title="Bantuan" description="Panduan penggunaan sistem E-Supervisi." />
 
     <input type="search" wire:model.live.debounce.300ms="search" placeholder="Cari panduan…"
-        class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)] focus:ring-2 focus:ring-brand-600 sm:max-w-md">
+        class="field-input sm:max-w-md">
 
     @forelse ($grouped as $category => $articles)
         <x-ui.card :title="Str::title($category)">

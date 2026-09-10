@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Profil Saya" description="Kelola informasi akun dan preferensi notifikasi." />
+    <x-ui.page-header eyebrow="Akun" title="Profil Saya" description="Kelola informasi akun dan preferensi notifikasi." />
 
     <div class="grid gap-6 lg:grid-cols-2">
         <x-ui.card title="Informasi akun">
