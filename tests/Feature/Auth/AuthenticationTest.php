@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\User;
 use App\Support\Enums\Role;
 
+use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
@@ -12,8 +13,15 @@ it('shows the login screen to guests', function () {
     get('/login')->assertOk()->assertSee('Masuk');
 });
 
-it('redirects the app root to login for guests', function () {
-    get('/')->assertRedirect('/login');
+it('shows the public landing page at the app root for guests', function () {
+    get('/')->assertOk()->assertSee('siklus supervisi klinis', false);
+});
+
+it('redirects the app root to the dashboard for authenticated users', function () {
+    $user = User::factory()->create();
+    $user->assignRole(Role::Guru);
+
+    actingAs($user)->get('/')->assertRedirect(route('dashboard'));
 });
 
 it('lets an active user authenticate via the Livewire form', function () {

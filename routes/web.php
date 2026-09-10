@@ -45,7 +45,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn (): RedirectResponse => redirect()->route(Auth::check() ? 'dashboard' : 'login'));
+Route::get('/', function () {
+    return Auth::check() ? redirect()->route('dashboard') : view('welcome');
+})->name('home');
 
 Route::view('/offline', 'offline')->name('offline');
 
