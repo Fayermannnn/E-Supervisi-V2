@@ -18,7 +18,7 @@
 
 **Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **224 Pest tests / 585 assertions pass**.
 
-**Pasca-Fase 5:** ekspor laporan server-side — `dompdf/dompdf` (PDF) + `openspout/openspout` (XLSX), keduanya pure-PHP (aman untuk 3T, tanpa headless browser). `report_exports` + job `GenerateReportExport`.
+**Pasca-Fase 5** (commit `d71cd84`, di atas tag `phase5-complete`): ekspor laporan server-side — `dompdf/dompdf` (PDF) + `openspout/openspout` (XLSX), keduanya pure-PHP (aman untuk 3T, tanpa headless browser). `report_exports` + job `GenerateReportExport`. **226 tes hijau.**
 
 **MVP LENGKAP — semua domain terbangun.** Fase 5 menambahkan modul **Evaluasi Ahli** in-app (domain `Evaluation` + peran `ahli`): panel ahli (≥ 2 rumpun) menilai artefak → sistem menghitung **CVR/CVI** (Lawshe), **Aiken's V**, **SUS** (`ExpertJudgmentStats`, deterministik + unit-tested). Dokumen baru: `docs/dsr-artefak.md` (DSR Peffers dkk. 2007), `docs/expert-judgment.md`, `docs/technical-evaluation.md`, `docs/demo-script.md`. `tests/Feature/Performance/` masuk `composer ci`. Keputusan checkpoint: `DECISIONS.md` F5-01, F5-02.
 
@@ -103,7 +103,8 @@ npm run dev
 
 **MVP Fase 0–5 selesai.** Semua domain terbangun & teruji. Pasca-Fase 5 sudah
 dikerjakan: **ekspor laporan server-side** (PDF siklus + PDF/XLSX/CSV agregat,
-job `GenerateReportExport`, disk privat, commit `feat(reporting): server-side …`).
+job `GenerateReportExport`, disk privat) — commit **`d71cd84`**
+`feat(reporting): server-side report export (PDF / XLSX / CSV)`.
 
 Kandidat pekerjaan lanjutan (bukan urutan wajib; masing-masing butuh trigger +
 checkpoint sendiri):

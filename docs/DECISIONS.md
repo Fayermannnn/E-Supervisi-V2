@@ -159,7 +159,7 @@ Legend: ⬜ belum · 🟡 berjalan · ✅ selesai (DoD) · ⏸️ ditunda
 - API untuk domain `Evaluation` tidak dibuat (bukan bagian Spec §8; alur cukup lewat Livewire).
 - Instrumen expert judgment belum diuji keterbacaan pada panel nyata — redaksi aspek boleh direvisi sebelum panel dijalankan.
 
-### Pasca-Fase 5 — Ekspor laporan server-side (M6) ✅
+### Pasca-Fase 5 — Ekspor laporan server-side (M6) ✅ — commit `d71cd84`
 
 Menggantikan *known limitation* "ekspor = print-to-PDF browser".
 
