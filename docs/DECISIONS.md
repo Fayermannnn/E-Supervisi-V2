@@ -159,5 +159,20 @@ Legend: ⬜ belum · 🟡 berjalan · ✅ selesai (DoD) · ⏸️ ditunda
 - API untuk domain `Evaluation` tidak dibuat (bukan bagian Spec §8; alur cukup lewat Livewire).
 - Instrumen expert judgment belum diuji keterbacaan pada panel nyata — redaksi aspek boleh direvisi sebelum panel dijalankan.
 
+### Pasca-Fase 5 — Ekspor laporan server-side (M6) ✅
+
+Menggantikan *known limitation* "ekspor = print-to-PDF browser".
+
+| Item | Catatan |
+|---|---|
+| Tabel `report_exports` | Beberapa berkas per `report` (pdf/xlsx/csv); status `antre`→`diproses`→`siap`/`gagal`. |
+| Job `GenerateReportExport` | Idempoten; render → simpan ke disk privat `local` (`storage/app/private/reports/…`). QUEUE sync di dev → inline. |
+| Library | `dompdf/dompdf` (PDF, `isRemoteEnabled=false`) + `openspout/openspout` (XLSX, streaming) + `fputcsv` native (CSV). Semua **pure PHP** — tanpa headless browser (sesuai semangat 3T). |
+| Actions | `CompileAggregateReport` (materialisasi `Report` scope=dinas dari `BuildAggregateReport`), `RequestReportExport` (authz via `ReportAccess`, dispatch job). Laporan siklus = PDF saja; agregat = pdf/xlsx/csv. |
+| Akses | `ReportAccess` (dipakai bersama Action + `ReportExportPolicy`): supervisor/guru siklus + admin dinas dapat mengunduh; hanya supervisor/admin dinas dapat *meminta* ekspor (guru ➖, sesuai `rbac.md`). Unduh lewat route web `reports.exports.download` + Policy. |
+| UI | Tombol "Unduh PDF" di `CycleReport`; tombol PDF/XLSX/CSV di `AggregateDashboard`; daftar berkas dengan `wire:poll` status. |
+| Tes | +10 (unit `AggregateReportTable`; feature: PDF `%PDF-`, XLSX `PK`, CSV, gate guru/supervisor-lain, unduh pihak terkait vs luar, endpoint API 202). Arch: library render hanya di `Reporting\Rendering`; `AggregateReportTable` murni. **224 tes**. |
+| Skema | Additive (1 tabel). `composer.json` +2 dependency. |
+
 ### (tidak ada PHASE 6 terencana)
 

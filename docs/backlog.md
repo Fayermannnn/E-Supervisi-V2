@@ -135,8 +135,9 @@ DoD global (master prompt §22): migration + model + FormRequest + Policy + logi
   - test unit deteksi keterlambatan (batas tanggal), feature eskalasi, security (guru lain tak bisa unggah).
 
 ### C6 — Pelaporan per siklus (M6) — `GET /reports/cycle/{id}`
-- Rangkuman 6 tahap + skor + RTL + status; ekspor PDF (fase awal), XLSX/CSV bertahap; transisi `→REPORTED`.
-- **Terima:** hanya siklus lengkap (atau override dengan catatan); `report_snapshot` materialisasi; ekspor via job; audit.
+- Rangkuman 6 tahap + skor + RTL + status; transisi `→REPORTED`.
+- **Terima:** hanya siklus lengkap (atau override dengan catatan); `report_snapshot` materialisasi; audit.
+- **Ekspor server-side (pasca-Fase 5, `DECISIONS.md`):** `report_exports` + job `GenerateReportExport` — PDF laporan siklus (dompdf), PDF/XLSX/CSV laporan agregat (dompdf + OpenSpout), disk privat, unduh via Policy. Menggantikan print-to-PDF browser.
 
 ### C7 — Dasbor & laporan agregat (M6) — `GET /reports/aggregate` (S7)
 - Agregat per dinas/sekolah/wilayah/periode; filter; ekspor; anomali AI (label saja).

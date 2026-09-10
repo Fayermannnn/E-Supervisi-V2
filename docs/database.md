@@ -108,6 +108,8 @@ erDiagram
 
 **`reports`** — `id`, `scope` (`cycle`|`guru`|`sekolah`|`dinas`), `scope_id`, `tipe`, `periode_mulai`, `periode_selesai`, `filter_json` jsonb, `dibuat_oleh` FK, `file_disk`, `file_path` nullable, `format` (`pdf`|`xlsx`|`csv`), `status` (`antre`|`siap`|`gagal`), `timestamps`
 **`report_snapshots`** — `id`, `report_id` FK, `data_json` jsonb (agregat ter-materialisasi saat generate), `generated_at`
+**`report_exports`** — `id`, `report_id` FK cascade, `format` (`pdf`|`xlsx`|`csv`), `disk`/`path` nullable, `ukuran` (byte) nullable, `status` (`antre`|`diproses`|`siap`|`gagal`), `error` nullable, `dibuat_oleh` FK nullable, `selesai_at` nullable
+  - Sebuah `report` dapat punya beberapa berkas ekspor. Dibangkitkan lewat job `GenerateReportExport` (dompdf untuk PDF, OpenSpout untuk XLSX, `fputcsv` native untuk CSV). Disimpan di disk privat `local` (`storage/app/private/reports/…`); unduh lewat route `reports.exports.download` + Policy `ReportExportPolicy::download`.
 
 ### Ai — M18 (PROVISIONAL)
 

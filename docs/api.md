@@ -82,6 +82,10 @@ Konvensi API: prefix `/api/v1`, auth Sanctum, envelope `{ data, meta, errors }`,
 | `POST` | `/cycles/{id}/cancel` | Batalkan siklus (reason) | supervisor | 2 |
 | `GET` | `/reports/cycle/{id}` | Laporan per siklus | supervisor, admin_dinas | 3 `@provisional` |
 | `GET` | `/reports/aggregate` | Laporan agregat lintas sekolah | admin_dinas | 3 `@provisional` |
+| `POST` | `/cycles/{id}/reports/export` | Minta ekspor **PDF** laporan siklus → 202 + `download_url` bila siap | supervisor, admin_dinas | 6 |
+| `POST` | `/reports/aggregate/export` | Minta ekspor agregat (`format`: pdf/xlsx/csv) → 202 | admin_dinas | 6 |
+| `GET` | `/reports/exports/{export}` | Status berkas ekspor + `download_url` | pihak terkait | 6 |
+| `GET` | `/reports/exports/{export}/download` (web, bukan `/api`) | Unduh berkas (Policy `download`; disk privat, job `GenerateReportExport`) | pihak terkait | 6 |
 
 ### 2b. Endpoint sinkronisasi PWA (offline — WAJIB, Fase 2)
 

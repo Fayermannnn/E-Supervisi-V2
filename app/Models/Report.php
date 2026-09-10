@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -63,5 +64,13 @@ class Report extends Model
     public function snapshot(): HasOne
     {
         return $this->hasOne(ReportSnapshot::class);
+    }
+
+    /**
+     * @return HasMany<ReportExport, $this>
+     */
+    public function exports(): HasMany
+    {
+        return $this->hasMany(ReportExport::class)->latest();
     }
 }

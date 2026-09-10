@@ -117,6 +117,8 @@ Route::middleware('auth')->group(function (): void {
 
     // Pelaporan agregat (M6)
     Route::get('/reports', AggregateDashboard::class)->name('reports.aggregate');
+    Route::get('/reports/exports/{export}/download', [App\Http\Controllers\ReportExportController::class, 'download'])
+        ->name('reports.exports.download');
 
     Route::get('/help', HelpIndex::class)->name('help.index');
     Route::get('/help/{article:slug}', HelpShow::class)->name('help.show');

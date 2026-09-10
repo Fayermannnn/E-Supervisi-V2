@@ -25,9 +25,9 @@ npm run build   # atau: npm run dev
 | Web | Nginx + PHP-FPM 8.3/8.4 |
 | App | Laravel (opcache on), `php artisan optimize` |
 | DB | PostgreSQL 16, koneksi TLS, backup harian `pg_dump` + retensi 30 hari + uji restore triwulan |
-| Queue | `database` (awal) → Redis bila beban naik; Supervisor mengelola `queue:work` |
+| Queue | `database` (awal) → Redis bila beban naik; Supervisor mengelola `queue:work`. **Wajib jalan** — ekspor laporan (`GenerateReportExport`), AI, notifikasi, sync media semuanya queued. |
 | Scheduler | cron `* * * * * php artisan schedule:run` |
-| Storage berkas | disk lokal privat di luar web root; **enkripsi at-rest** untuk media observasi & dokumen (Spec §10); akses via signed route + Policy |
+| Storage berkas | disk lokal privat di luar web root (media observasi: `observation-media/`; berkas ekspor laporan: `private/reports/`); **enkripsi at-rest** untuk media observasi & dokumen (Spec §10); akses via route + Policy |
 | TLS | wajib (Let's Encrypt); HSTS; secure headers (CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy) |
 | PWA | HTTPS wajib untuk Service Worker |
 

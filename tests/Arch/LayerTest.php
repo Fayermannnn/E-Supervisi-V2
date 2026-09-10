@@ -91,6 +91,18 @@ arch('the evaluation layer is isolated from the supervision cycle')
         'App\Models\CycleStatusTransition',
     ]);
 
+arch('report rendering libraries stay inside the Reporting domain')
+    ->expect(['Dompdf', 'OpenSpout'])
+    ->toOnlyBeUsedIn('App\Domain\Reporting\Rendering');
+
+arch('the aggregate report table transform is a pure function')
+    ->expect('App\Domain\Reporting\Rendering\AggregateReportTable')
+    ->not->toUse([
+        'Illuminate\Support\Facades\DB',
+        'Illuminate\Database\Eloquent\Model',
+        'App\Models',
+    ]);
+
 arch('the evaluation statistics helpers stay pure')
     ->expect([
         'App\Domain\Evaluation\ExpertJudgmentStats',

@@ -2,7 +2,7 @@
 
 Sumber: master prompt §17, §22, §26. Runner: **Pest**. DB test: PostgreSQL (bukan SQLite — paritas fitur jsonb/enum). `phpunit.xml` menyetel `memory_limit=512M` (arch test).
 
-**Status (tag `phase5-complete`):** 214 tes / 522 assertions, `composer ci` hijau (Pint + Larastan 8 + Pest). Line coverage tidak dilaporkan (tanpa Xdebug/PCOV) — inventaris per kategori di `docs/technical-evaluation.md`.
+**Status:** 224 tes / 585 assertions, `composer ci` hijau (Pint + Larastan 8 + Pest) — termasuk ekspor laporan server-side pasca-Fase 5. Line coverage tidak dilaporkan (tanpa Xdebug/PCOV) — inventaris per kategori di `docs/technical-evaluation.md`.
 
 ## Piramida
 

@@ -347,6 +347,39 @@ class DatabaseSeeder extends Seeder
 
         // Jalankan deteksi keterlambatan agar status siklus demo konsisten.
         app(\App\Domain\FollowUp\Actions\DetectOverdueFollowUps::class)->handle();
+
+        $this->seedReportExports();
+    }
+
+    /**
+     * Selesaikan satu siklus sampai DILAPORKAN dan bangkitkan berkas ekspor
+     * (PDF siklus + XLSX agregat) untuk demo M6.
+     */
+    private function seedReportExports(): void
+    {
+        $cycle = \App\Models\SupervisionCycle::query()
+            ->where('status', CycleStatus::FollowUpActive)
+            ->with('supervisor')
+            ->first();
+
+        $supervisor = $cycle?->supervisor;
+        if ($cycle !== null && $supervisor !== null) {
+            foreach (\App\Models\FollowUpItem::whereIn(
+                'follow_up_plan_id',
+                \App\Models\FollowUpPlan::where('cycle_id', $cycle->id)->pluck('id'),
+            )->get() as $item) {
+                app(\App\Domain\FollowUp\Actions\UpdateFollowUpItem::class)->handle($supervisor, $item, 'selesai');
+            }
+
+            $report = app(\App\Domain\Reporting\Actions\CompileCycleReport::class)->handle($supervisor, $cycle->refresh());
+            app(\App\Domain\Reporting\Actions\RequestReportExport::class)->handle($supervisor, $report, 'pdf');
+        }
+
+        $adminDinas = User::query()->where('email', 'admin.dinas@esupervisi.test')->first();
+        if ($adminDinas !== null) {
+            $agg = app(\App\Domain\Reporting\Actions\CompileAggregateReport::class)->handle($adminDinas, []);
+            app(\App\Domain\Reporting\Actions\RequestReportExport::class)->handle($adminDinas, $agg, 'xlsx');
+        }
     }
 
     private function seedDinas(Dinas $dinas, string $wilayah, string $supervisorEmailPrefix): void

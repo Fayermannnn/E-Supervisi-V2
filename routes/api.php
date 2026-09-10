@@ -53,6 +53,9 @@ Route::prefix('v1')->group(function (): void {
             ->middleware('ability:follow-up:evidence');
         Route::get('/reports/cycle/{cycle}', [ReportController::class, 'cycle']);
         Route::get('/reports/aggregate', [ReportController::class, 'aggregate']);
+        Route::post('/cycles/{cycle}/reports/export', [ReportController::class, 'exportCycle']);
+        Route::post('/reports/aggregate/export', [ReportController::class, 'exportAggregate']);
+        Route::get('/reports/exports/{export}', [ReportController::class, 'exportStatus']);
         Route::post('/ai/generations/{generation}/review', [AiGenerationController::class, 'review']);
 
         // Pengembangan profesional & akuntabilitas (Fase 4 — M7, M9–M12).

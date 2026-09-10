@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Livewire\Reporting;
 
 use App\Domain\Reporting\Actions\CompileCycleReport;
+use App\Domain\Reporting\Actions\RequestReportExport;
 use App\Models\Report;
 use App\Models\SupervisionCycle;
 use App\Models\User;
+use DomainException;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
@@ -45,15 +48,37 @@ class CycleReport extends Component
         $this->dispatch('notify', message: 'Laporan siklus disusun.');
     }
 
+    public function requestExport(RequestReportExport $action): void
+    {
+        $report = Report::where('scope', 'cycle')->where('scope_id', $this->cycle->id)->first();
+        if ($report === null) {
+            $this->addError('report', 'Susun laporan terlebih dahulu.');
+
+            return;
+        }
+
+        try {
+            $action->handle($this->user(), $report, 'pdf');
+        } catch (AuthorizationException|DomainException $e) {
+            $this->addError('report', $e->getMessage());
+
+            return;
+        }
+
+        $this->dispatch('notify', message: 'Ekspor PDF sedang disiapkan.');
+    }
+
     public function render(): View
     {
-        $report = Report::with('snapshot')
+        $report = Report::with(['snapshot', 'exports'])
             ->where('scope', 'cycle')->where('scope_id', $this->cycle->id)->first();
 
         return view('livewire.reporting.cycle-report', [
             'report' => $report,
             'snapshot' => $report?->snapshot?->data,
+            'exports' => $report !== null ? $report->exports : collect(),
             'canCompile' => $this->cycle->supervisor_id === $this->user()->getKey(),
+            'canExport' => $report !== null && \App\Domain\Reporting\ReportAccess::canExport($this->user(), $report),
         ]);
     }
 

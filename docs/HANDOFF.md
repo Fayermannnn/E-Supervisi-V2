@@ -16,7 +16,9 @@
 | 4 | Pengembangan profesional & akuntabilitas | M7, M9, M10, M11, M12 | ✅ Selesai, tag `phase4-complete` (M9–M12 `@provisional`) |
 | 5 | Kesiapan evaluasi ahli (DSR Artikel 3) | — | ✅ Selesai, tag `phase5-complete` |
 
-**Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **214 Pest tests / 522 assertions pass**.
+**Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **224 Pest tests / 585 assertions pass**.
+
+**Pasca-Fase 5:** ekspor laporan server-side — `dompdf/dompdf` (PDF) + `openspout/openspout` (XLSX), keduanya pure-PHP (aman untuk 3T, tanpa headless browser). `report_exports` + job `GenerateReportExport`.
 
 **MVP LENGKAP — semua domain terbangun.** Fase 5 menambahkan modul **Evaluasi Ahli** in-app (domain `Evaluation` + peran `ahli`): panel ahli (≥ 2 rumpun) menilai artefak → sistem menghitung **CVR/CVI** (Lawshe), **Aiken's V**, **SUS** (`ExpertJudgmentStats`, deterministik + unit-tested). Dokumen baru: `docs/dsr-artefak.md` (DSR Peffers dkk. 2007), `docs/expert-judgment.md`, `docs/technical-evaluation.md`, `docs/demo-script.md`. `tests/Feature/Performance/` masuk `composer ci`. Keputusan checkpoint: `DECISIONS.md` F5-01, F5-02.
 
@@ -99,8 +101,12 @@ npm run dev
 
 ## 5. Berikutnya — tidak ada fase modul terencana
 
-**MVP Fase 0–5 selesai.** Semua domain terbangun & teruji. Kandidat pekerjaan
-lanjutan (bukan urutan wajib; masing-masing butuh trigger + checkpoint sendiri):
+**MVP Fase 0–5 selesai.** Semua domain terbangun & teruji. Pasca-Fase 5 sudah
+dikerjakan: **ekspor laporan server-side** (PDF siklus + PDF/XLSX/CSV agregat,
+job `GenerateReportExport`, disk privat, commit `feat(reporting): server-side …`).
+
+Kandidat pekerjaan lanjutan (bukan urutan wajib; masing-masing butuh trigger +
+checkpoint sendiri):
 
 - **Penguncian modul provisional** setelah SLR Gate 6/7 (M3–M6, M9–M12, M18) —
   revisi skema/prompt bersifat additive; perbarui `@provisional` → final.
@@ -109,7 +115,6 @@ lanjutan (bukan urutan wajib; masing-masing butuh trigger + checkpoint sendiri):
 - **Hardening pra-go-live**: review hukum PDP + dokumen basis pemrosesan,
   secure headers/CSP/HSTS, `tests/Browser` (Pest v4) untuk alur luring→online,
   uji beban lapangan (`docs/technical-evaluation.md` §4–5).
-- **Ekspor laporan server-side** (PDF/XLSX) menggantikan print-to-PDF browser.
 - **Modul JS outbox khusus bukti RTL** (saat ini online via Livewire).
 
 **Proses bila melanjutkan (master prompt §20, §25):** DISCOVER → checkpoint bila
@@ -122,8 +127,8 @@ ambiguity → PLAN → implementasi → update docs → `composer ci` hijau → 
 ## 6. Utang teknis / batasan diketahui
 
 - **M3–M6, M9–M12, M18 `@provisional`** — skema & prompt direvisi setelah SLR Gate 6/7; hanya additive setelahnya.
-- Ekspor laporan MVP = **print-to-PDF browser** (`window.print()`); PDF/XLSX server-side ditunda.
-- `QUEUE_CONNECTION=sync` di dev; `.env.example` tetap `database` + catatan worker untuk produksi.
+- Ekspor laporan **server-side** sudah ada: PDF laporan siklus (dompdf), PDF/XLSX/CSV laporan agregat (dompdf + OpenSpout), via job `GenerateReportExport` ke disk privat. Tombol "Cetak" (window.print) tetap ada sebagai pelengkap.
+- `QUEUE_CONNECTION=sync` di dev — ekspor laporan berjalan inline; **produksi butuh `queue:work`** untuk ekspor + AI + notifikasi.
 - Bukti RTL offline: endpoint idempoten ada, tapi **belum ada modul JS outbox khusus RTL**.
 - Belum ada `tests/Browser` (Pest v4 browser) otomatis untuk alur luring→online.
 - FormatB instrument = template placeholder, ditandai belum tervalidasi (`FormatBTemplate`).

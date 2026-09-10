@@ -61,7 +61,7 @@ gantinya, inventaris per kategori — gate `composer ci`:
 | Performance | 1 | 3 | dasbor & laporan agregat pada ~200 siklus |
 | Static | — | — | Pint (strict types) + Larastan level 8 "No errors" |
 
-**Total: 214 tes / 522 assertions, `composer ci` hijau.**
+**Total: 224 tes / 585 assertions, `composer ci` hijau.** (termasuk ekspor laporan server-side pasca-Fase 5: dompdf/OpenSpout.)
 
 Perintah:
 ```bash

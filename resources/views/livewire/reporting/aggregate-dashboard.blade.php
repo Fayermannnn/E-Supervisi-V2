@@ -1,5 +1,32 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Pelaporan Agregat" description="Ringkasan lintas sekolah di dinas Anda. Data individual guru tidak ditampilkan." />
+    <x-ui.page-header title="Pelaporan Agregat" description="Ringkasan lintas sekolah di dinas Anda. Data individual guru tidak ditampilkan.">
+        <x-slot:actions>
+            <x-ui.button variant="secondary" wire:click="export('pdf')">PDF</x-ui.button>
+            <x-ui.button variant="secondary" wire:click="export('xlsx')">XLSX</x-ui.button>
+            <x-ui.button variant="ghost" wire:click="export('csv')">CSV</x-ui.button>
+        </x-slot:actions>
+    </x-ui.page-header>
+
+    @error('export') <x-ui.alert variant="danger">{{ $message }}</x-ui.alert> @enderror
+
+    @if ($exports->isNotEmpty())
+        <x-ui.card title="Berkas ekspor" wire:poll.5s>
+            <ul class="divide-y divide-[var(--border)] text-sm">
+                @foreach ($exports->take(6) as $ex)
+                    <li class="flex items-center justify-between py-2">
+                        <span>{{ strtoupper($ex->format) }} <span class="text-xs text-[var(--text-muted)]">· {{ $ex->created_at->diffForHumans() }}</span></span>
+                        @if ($ex->isReady())
+                            <a href="{{ route('reports.exports.download', $ex) }}" class="text-brand-600 hover:underline">Unduh</a>
+                        @elseif ($ex->status === 'gagal')
+                            <span class="text-xs text-status-overdue">Gagal</span>
+                        @else
+                            <span class="text-xs text-[var(--text-muted)]">{{ ucfirst($ex->status) }}…</span>
+                        @endif
+                    </li>
+                @endforeach
+            </ul>
+        </x-ui.card>
+    @endif
 
     <x-ui.card>
         <div class="flex flex-wrap gap-3">
