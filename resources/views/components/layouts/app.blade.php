@@ -4,10 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#3d47b8">
+    <meta name="theme-color" content="#24356e">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <title>{{ $title ?? 'E-Supervisi' }} — {{ config('app.name') }}</title>
+    @fonts
     <script>
         (function () {
             try {
@@ -38,8 +39,8 @@
         <div class="flex min-w-0 flex-1 flex-col lg:pl-64">
             <x-app.topbar :title="$title ?? null" />
 
-            <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-                <div class="mx-auto max-w-7xl space-y-6">
+            <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+                <div class="mx-auto max-w-6xl space-y-6">
                     @if (session('status'))
                         <x-ui.alert variant="success">{{ session('status') }}</x-ui.alert>
                     @endif
@@ -54,7 +55,11 @@
          @notify.window="items.push({ id: Date.now(), message: $event.detail.message }); setTimeout(() => items.shift(), 4000)"
          class="fixed bottom-4 right-4 z-50 space-y-2">
         <template x-for="item in items" :key="item.id">
-            <div class="rounded-md bg-ink-900 px-4 py-2 text-sm text-white shadow-lg" x-text="item.message"></div>
+            <div x-transition.opacity.duration.200ms
+                 class="flex items-center gap-2.5 rounded-lg bg-ink-900 py-2.5 pl-3 pr-4 text-sm font-medium text-white shadow-lg dark:bg-ink-50 dark:text-ink-900">
+                <span class="flex size-4 items-center justify-center rounded-full bg-status-done text-[10px] font-bold text-white">✓</span>
+                <span x-text="item.message"></span>
+            </div>
         </template>
     </div>
 

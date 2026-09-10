@@ -1,7 +1,10 @@
 <div class="space-y-6">
+    @php $hour = now()->hour; $greet = $hour < 11 ? 'Selamat pagi' : ($hour < 15 ? 'Selamat siang' : ($hour < 19 ? 'Selamat sore' : 'Selamat malam')); @endphp
+
     <x-ui.page-header
-        title="Selamat datang, {{ Str::before($user->name, ' ') }}"
-        :description="collect($user->roles())->map(fn ($r) => $r->label())->join(', ')" />
+        eyebrow="Dasbor"
+        title="{{ $greet }}, {{ Str::before($user->name, ' ') }}"
+        :description="collect($user->roles())->map(fn ($r) => $r->label())->join(' · ').' — '.now()->translatedFormat('l, d F Y')" />
 
     <dl class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         @foreach ($stats as $stat)
@@ -13,20 +16,34 @@
         @endforeach
     </dl>
 
-    @if ($user->isGuru() || $user->isSupervisor())
-        <x-ui.alert variant="info" title="Modul siklus supervisi">
-            Perencanaan, observasi, analisis, umpan balik, tindak lanjut, dan pelaporan
-            hadir bertahap pada Fase 2–3. Fondasi identitas, peran, dan notifikasi sudah aktif.
-        </x-ui.alert>
-    @endif
+    <div class="grid gap-6 lg:grid-cols-3">
+        <x-ui.card title="Langkah cepat" class="lg:col-span-2">
+            <div class="flex flex-wrap gap-2.5">
+                @if ($user->isSupervisor())
+                    <x-ui.button as="a" href="{{ route('cycles.create') }}">Buat siklus</x-ui.button>
+                    <x-ui.button as="a" href="{{ route('cycles.index') }}" variant="secondary">Siklus saya</x-ui.button>
+                @elseif ($user->isGuru())
+                    <x-ui.button as="a" href="{{ route('cycles.index') }}">Siklus supervisi saya</x-ui.button>
+                @endif
+                @can(\App\Support\Enums\Permission::ViewAggregateReport->value)
+                    <x-ui.button as="a" href="{{ route('reports.aggregate') }}" variant="secondary">Pelaporan agregat</x-ui.button>
+                @endcan
+                @can(\App\Support\Enums\Permission::ManageUsers->value)
+                    <x-ui.button as="a" href="{{ route('admin.users.index') }}" variant="secondary">Kelola pengguna</x-ui.button>
+                @endcan
+                @can(\App\Support\Enums\Permission::SubmitExpertReview->value)
+                    <x-ui.button as="a" href="{{ route('evaluation.index') }}">Panel evaluasi</x-ui.button>
+                @endcan
+                <x-ui.button as="a" href="{{ route('profile.edit') }}" variant="ghost">Perbarui profil</x-ui.button>
+            </div>
+        </x-ui.card>
 
-    <x-ui.card title="Langkah cepat">
-        <div class="flex flex-wrap gap-3">
-            <x-ui.button as="a" href="{{ route('profile.edit') }}" variant="secondary">Perbarui profil</x-ui.button>
-            <x-ui.button as="a" href="{{ route('help.index') }}" variant="secondary">Baca panduan</x-ui.button>
-            @can(\App\Support\Enums\Permission::ManageUsers->value)
-                <x-ui.button as="a" href="{{ route('admin.users.index') }}" variant="secondary">Kelola pengguna</x-ui.button>
-            @endcan
-        </div>
-    </x-ui.card>
+        <x-ui.card title="Butuh bantuan?">
+            <p class="text-sm text-[var(--text-muted)]">Baca panduan penggunaan enam tahap siklus, atau laporkan kendala teknis ke tim pendukung.</p>
+            <div class="mt-3 flex gap-2.5">
+                <x-ui.button as="a" href="{{ route('help.index') }}" variant="secondary" size="sm">Panduan</x-ui.button>
+                <x-ui.button as="a" href="{{ route('support.tickets') }}" variant="ghost" size="sm">Lapor kendala</x-ui.button>
+            </div>
+        </x-ui.card>
+    </div>
 </div>

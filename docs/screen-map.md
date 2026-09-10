@@ -82,7 +82,11 @@ Login → Dasbor Sistem
 
 ## Pola komponen
 
-- **Design system**: Tailwind + token warna institusional (netral + 1 warna aksen). Komponen Blade: `<x-card>`, `<x-stat>`, `<x-status-badge>`, `<x-timeline>`, `<x-cycle-stepper>`, `<x-sync-indicator>`, `<x-ai-draft-banner>`.
+- **Design system (redesain "govtech modern & bersih")**: Tailwind v4 (`resources/css/app.css` `@theme`) — brand biru tua `--color-brand-*` (600 `#3450d3` / 900 `#24356e`), netral hangat `--color-ink-*`, token shadow `--shadow-xs..lg`, token surface (`--surface`, `--surface-muted`, `--surface-sunken`, `--border`, `--border-strong`). Font **Instrument Sans** self-hosted (bunny, weights 400–700) — di-inject via `@fonts` di kedua layout.
+- Utilitas: `.field-input` (input/textarea/select seragam), `.accent-bar` (garis aksen kiri untuk stat tile).
+- Komponen Blade `x-ui.*`: `button` (variant primary/secondary/danger/ghost/link + size sm/md/lg), `card` (header di `--surface-muted`), `page-header` (eyebrow + judul tebal + border bawah), `stat` (accent bar + panah affordance), `status-badge`, `alert` (ikon), `empty-state` (ikon SVG + slot action), `input`, `cycle-stepper` (progress track horizontal bernomor + konektor), `ai-draft-banner`, `sync-indicator`.
+- Komponen `x-app.*`: `sidebar` (brand mark + seksi ber-label + ikon per item + indikator aktif garis kiri), `topbar` (avatar + peran + menu tema), `nav-link` (ikon inline), `slide-over`.
+- Layout `auth`: split-screen — panel brand biru tua (headline 6 tahap) + panel form; stacked di mobile.
 - **`<x-cycle-stepper>`**: visualisasi 6 tahap + status saat ini, dipakai di semua layar siklus.
 - **`<x-ai-draft-banner>`**: banner kuning "DRAFT / SARAN AI — belum ditinjau" wajib membungkus setiap output AI (Spec §9, §10).
 - **`<x-sync-indicator>`**: `Luring · Tersimpan lokal · Menunggu sinkron · Menyinkronkan · Tersinkron` (Spec §13).

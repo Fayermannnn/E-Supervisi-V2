@@ -15,24 +15,31 @@
     $canceled = $status === CycleStatus::Canceled;
 @endphp
 
-<ol class="flex flex-wrap items-center gap-x-1 gap-y-2 text-xs">
-    @foreach ($steps as $i => $step)
-        @php
-            $done = ! $canceled && $current > $step['at']->value;
-            $active = ! $canceled && ($current === $step['at']->value || ($current === 0 && $i === 0));
-        @endphp
-        <li class="flex items-center gap-1">
-            <span class="flex size-5 items-center justify-center rounded-full text-[10px] font-semibold
-                {{ $done ? 'bg-status-done text-white' : ($active ? 'bg-brand-600 text-white' : 'bg-ink-200 text-ink-500 dark:bg-ink-700') }}">
-                {{ $done ? '✓' : $i + 1 }}
-            </span>
-            <span class="{{ $active ? 'font-semibold text-ink-900 dark:text-ink-50' : 'text-[var(--text-muted)]' }}">{{ $step['label'] }}</span>
-            @if (! $loop->last)
-                <span class="mx-1 h-px w-5 bg-ink-200 dark:bg-ink-700"></span>
-            @endif
-        </li>
-    @endforeach
-    @if ($canceled)
-        <li class="ml-2"><x-ui.status-badge status="canceled" label="Dibatalkan" /></li>
-    @endif
-</ol>
+@if ($canceled)
+    <div class="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+        <x-ui.status-badge status="canceled" label="Dibatalkan" />
+        <span>Siklus dihentikan.</span>
+    </div>
+@else
+    <ol class="grid grid-cols-3 gap-y-4 sm:grid-cols-6">
+        @foreach ($steps as $i => $step)
+            @php
+                $done = $current > $step['at']->value;
+                $active = $current === $step['at']->value || ($current === 0 && $i === 0);
+            @endphp
+            <li class="relative flex flex-col items-center px-1 text-center">
+                @unless ($loop->last)
+                    <span aria-hidden="true"
+                        class="absolute left-1/2 top-3.5 hidden h-0.5 w-full sm:block {{ $done ? 'bg-status-done' : 'bg-[var(--border-strong)]' }}"></span>
+                @endunless
+                <span class="relative z-10 flex size-7 items-center justify-center rounded-full text-xs font-bold ring-4 ring-[var(--surface)]
+                    {{ $done ? 'bg-status-done text-white' : ($active ? 'bg-brand-700 text-white' : 'bg-[var(--surface-sunken)] text-ink-400 dark:bg-ink-700') }}">
+                    {{ $done ? '✓' : $i + 1 }}
+                </span>
+                <span class="mt-1.5 text-[0.7rem] font-medium leading-tight {{ $active || $done ? 'text-ink-900 dark:text-ink-50' : 'text-[var(--text-muted)]' }}">
+                    {{ $step['label'] }}
+                </span>
+            </li>
+        @endforeach
+    </ol>
+@endif

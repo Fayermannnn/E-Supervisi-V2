@@ -4,19 +4,25 @@
 @endphp
 
 <div x-data="{ open: false }" @toggle-sidebar.window="open = !open">
-    <div x-show="open" x-transition.opacity class="fixed inset-0 z-40 bg-ink-900/40 lg:hidden" @click="open = false"></div>
+    <div x-show="open" x-transition.opacity x-cloak class="fixed inset-0 z-40 bg-ink-900/50 lg:hidden" @click="open = false"></div>
 
     <aside :class="open ? 'translate-x-0' : '-translate-x-full'"
-           class="fixed inset-y-0 left-0 z-40 w-64 transform border-r border-[var(--border)] bg-[var(--surface)] transition-transform lg:translate-x-0">
-        <div class="flex h-16 items-center gap-2 border-b border-[var(--border)] px-5 text-brand-600">
-            <svg class="size-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                <path d="M12 3 4 7v6c0 4.5 3.4 7.3 8 8 4.6-.7 8-3.5 8-8V7l-8-4Z" stroke-linejoin="round"/>
-                <path d="m9 12 2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span class="font-semibold tracking-tight">E-Supervisi</span>
+           class="fixed inset-y-0 left-0 z-40 flex w-64 transform flex-col border-r border-[var(--border)] bg-[var(--surface)] transition-transform lg:translate-x-0">
+
+        <div class="flex h-16 items-center gap-2.5 border-b border-[var(--border)] px-5">
+            <span class="flex size-8 items-center justify-center rounded-lg bg-brand-900 text-white">
+                <svg class="size-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+                    <path d="M12 3 4 7v6c0 4.5 3.4 7.3 8 8 4.6-.7 8-3.5 8-8V7l-8-4Z" stroke-linejoin="round"/>
+                    <path d="m9 12 2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+            <div class="leading-tight">
+                <p class="text-sm font-bold tracking-tight text-ink-900 dark:text-ink-50">E-Supervisi</p>
+                <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[var(--text-muted)]">Klinis Pendidikan</p>
+            </div>
         </div>
 
-        <nav class="flex flex-col gap-1 p-3 text-sm">
+        <nav class="flex flex-1 flex-col gap-0.5 overflow-y-auto p-3 text-sm">
             <x-app.nav-link :href="route('dashboard')" icon="home">Dasbor</x-app.nav-link>
 
             @if ($user?->isGuru() || $user?->isSupervisor() || $user?->isAdminDinas())
@@ -35,26 +41,27 @@
                 <x-app.nav-link :href="route('programs.index')" icon="clipboard">Program Tahunan</x-app.nav-link>
             @endcan
 
-            @if ($user?->isGuru() || $user?->isSupervisor() || $user?->can(Permission::ManagePkbCatalog->value))
-                <x-app.nav-link :href="route('pkb.catalog')" icon="stack">Katalog PKB</x-app.nav-link>
-                <x-app.nav-link :href="route('best-practices.index')" icon="stack">Praktik Baik</x-app.nav-link>
+            @if ($user && ($user->isGuru() || $user->isSupervisor() || $user->can(Permission::ManagePkbCatalog->value)) || $user?->isAdminDinas())
+                <p class="mt-5 px-3 pb-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--text-muted)]">Pengembangan Profesional</p>
+                @if ($user->isGuru() || $user->isSupervisor() || $user->can(Permission::ManagePkbCatalog->value))
+                    <x-app.nav-link :href="route('pkb.catalog')" icon="stack">Katalog PKB</x-app.nav-link>
+                    <x-app.nav-link :href="route('best-practices.index')" icon="stack">Praktik Baik</x-app.nav-link>
+                @endif
+                @can(Permission::ViewAccountabilityReport->value)
+                    <x-app.nav-link :href="route('accountability.index')" icon="chart">Akuntabilitas 360°</x-app.nav-link>
+                @endcan
+                @canany([Permission::ManageCalibration->value, Permission::ParticipateCalibration->value])
+                    <x-app.nav-link :href="route('calibration.index')" icon="shield">Kalibrasi Penilai</x-app.nav-link>
+                @endcanany
             @endif
 
-            @can(Permission::ViewAccountabilityReport->value)
-                <x-app.nav-link :href="route('accountability.index')" icon="chart">Akuntabilitas 360°</x-app.nav-link>
-            @endcan
-
-            @canany([Permission::ManageCalibration->value, Permission::ParticipateCalibration->value])
-                <x-app.nav-link :href="route('calibration.index')" icon="shield">Kalibrasi Penilai</x-app.nav-link>
-            @endcanany
-
             @canany([Permission::ManageEvaluationPanel->value, Permission::SubmitExpertReview->value])
+                <p class="mt-5 px-3 pb-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--text-muted)]">Evaluasi</p>
                 <x-app.nav-link :href="route('evaluation.index')" icon="chart">Evaluasi Ahli</x-app.nav-link>
             @endcanany
 
             @canany([Permission::ManageUsers->value, Permission::ManageOrganization->value, Permission::ManageAssignments->value, Permission::ManagePolicySettings->value, Permission::ViewAuditLog->value])
-                <p class="mt-4 px-3 text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Administrasi</p>
-
+                <p class="mt-5 px-3 pb-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--text-muted)]">Administrasi</p>
                 @can(Permission::ManageUsers->value)
                     <x-app.nav-link :href="route('admin.users.index')" icon="users">Pengguna</x-app.nav-link>
                 @endcan
@@ -72,9 +79,11 @@
                 @endcan
             @endcanany
 
-            <p class="mt-4 px-3 text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Lainnya</p>
-            <x-app.nav-link :href="route('help.index')" icon="help">Bantuan</x-app.nav-link>
-            <x-app.nav-link :href="route('support.tickets')" icon="ticket">Lapor Kendala</x-app.nav-link>
+            <div class="mt-auto pt-4">
+                <p class="px-3 pb-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--text-muted)]">Bantuan</p>
+                <x-app.nav-link :href="route('help.index')" icon="help">Panduan</x-app.nav-link>
+                <x-app.nav-link :href="route('support.tickets')" icon="ticket">Lapor Kendala</x-app.nav-link>
+            </div>
         </nav>
     </aside>
 </div>

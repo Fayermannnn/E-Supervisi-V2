@@ -1,7 +1,7 @@
 <div class="space-y-6">
     @php use App\Support\Enums\CycleStatus; $a = $cycle->planningAgreement; @endphp
 
-    <x-ui.page-header :title="$cycle->judul"
+    <x-ui.page-header eyebrow="Siklus Supervisi" :title="$cycle->judul"
         :description="'Guru: '.$cycle->guru?->name.' · '.$cycle->tahun_ajaran.' ('.ucfirst($cycle->semester).')'">
         <x-slot:actions>
             <x-ui.status-badge :status="$cycle->status->tone()" :label="$cycle->status->label()" />
@@ -11,7 +11,7 @@
         </x-slot:actions>
     </x-ui.page-header>
 
-    <x-ui.card><x-ui.cycle-stepper :status="$cycle->status" /></x-ui.card>
+    <x-ui.card><div class="py-1"><x-ui.cycle-stepper :status="$cycle->status" /></div></x-ui.card>
 
     @error('consent') <x-ui.alert variant="danger">{{ $message }}</x-ui.alert> @enderror
 
@@ -60,7 +60,7 @@
     @if ($isGuru && $cycle->status->value <= CycleStatus::ObservationDone->value)
         <x-ui.card title="Refleksi pra-observasi" subtitle="Ditulis oleh guru sebelum observasi">
             <form wire:submit="submitReflection" class="space-y-3">
-                <textarea wire:model="reflectionContent" rows="5" class="block w-full rounded-md border-0 bg-[var(--surface)] px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)] focus:ring-2 focus:ring-brand-600"
+                <textarea wire:model="reflectionContent" rows="5" class="field-input"
                     placeholder="Apa yang menjadi perhatian Anda pada pembelajaran ini? Apa yang ingin Anda tingkatkan?"></textarea>
                 @error('reflectionContent') <p class="text-xs text-status-overdue">{{ $message }}</p> @enderror
                 <x-ui.button type="submit">Simpan refleksi</x-ui.button>
@@ -135,7 +135,7 @@
             <p class="text-sm text-[var(--text-muted)]">Pembatalan bersifat permanen dan tercatat di audit.</p>
             <div class="space-y-1.5">
                 <label class="block text-sm font-medium">Alasan pembatalan</label>
-                <textarea wire:model="cancelReason" rows="4" class="block w-full rounded-md border-0 px-3 py-2 text-sm ring-1 ring-inset ring-[var(--border)]"></textarea>
+                <textarea wire:model="cancelReason" rows="4" class="field-input"></textarea>
                 @error('cancelReason') <p class="text-xs text-status-overdue">{{ $message }}</p> @enderror
             </div>
             <x-ui.button type="submit" variant="danger">Batalkan siklus</x-ui.button>
