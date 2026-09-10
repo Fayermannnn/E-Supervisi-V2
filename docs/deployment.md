@@ -39,20 +39,52 @@ npm run build   # atau: npm run dev
 - Audit log append-only; job arsip ke cold storage, bukan hapus.
 - Sanctum token PWA: kedaluwarsa + pencabutan per device.
 
+### Header keamanan respons (aplikasi — sudah terpasang)
+
+`App\Http\Middleware\SecureHeaders` (global) menegakkan pada **setiap** respons —
+konfigurasi `config/security.php`, toggle via env (lihat ADR-016):
+
+| Header | Nilai |
+|---|---|
+| `Content-Security-Policy` | `default-src 'self'`; `script-src 'self' 'unsafe-eval' 'nonce-…' <hash>`; `style-src 'self' 'unsafe-inline'`; `object-src 'none'`; `base-uri 'self'`; `form-action 'self'`; `frame-ancestors 'none'`; `img-src 'self' data:` |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` — **hanya saat HTTPS**; aktifkan `SECURITY_HSTS_ENABLED=true` di produksi |
+| `X-Frame-Options` | `DENY` |
+| `X-Content-Type-Options` | `nosniff` |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` |
+| `Permissions-Policy` | kamera/mikrofon/geolokasi/pembayaran/USB dimatikan |
+| `Cross-Origin-Opener-Policy` / `Cross-Origin-Resource-Policy` | `same-origin` |
+
+**Env produksi:**
+```
+SECURITY_CSP_ENABLED=true
+SECURITY_CSP_REPORT_ONLY=false     # true saat memantau pelanggaran sebelum menegakkan
+SECURITY_HSTS_ENABLED=true         # setelah TLS + seluruh subdomain HTTPS
+# SECURITY_CSP_REPORT_URI=https://…  # opsional: endpoint laporan pelanggaran
+```
+
+**Di belakang reverse proxy** (Nginx TLS termination): konfigurasi
+`TrustProxies` (`bootstrap/app.php` → `$middleware->trustProxies(...)`) agar
+`$request->secure()` benar sehingga HSTS terkirim.
+
+Nginx boleh menambah header duplikat/pelengkap (mis. `X-Frame-Options`), tapi
+tidak wajib — aplikasi sudah menegakkan.
+
 ## Kepatuhan UU 27/2022 (PDP) — checklist pra-go-live
 
 Status per `tag phase5-complete` (lihat juga `docs/technical-evaluation.md` §1):
 
 - [ ] Dokumen basis pemrosesan data (pelaksanaan tugas dinas pendidikan) — **belum**, review hukum.
 - [x] Kebijakan retensi & arsip (bukan hapus otomatis) — `ArchiveReportedCyclesCommand`; `audit_logs` append-only.
-- [ ] Enkripsi transit (TLS) + at-rest (berkas observasi) — konfigurasi deployment.
+- [~] Enkripsi transit (TLS) + at-rest (berkas observasi) — TLS: HSTS + secure
+  headers ditegakkan aplikasi (`SecureHeaders`, ADR-016); sertifikat + enkripsi
+  at-rest = konfigurasi deployment.
 - [~] Daftar data pribadi yang diproses + peran — `rbac.md` + `docs/dsr-artefak.md`; formalisasi dokumen hukum belum.
 - [ ] Prosedur permintaan akses/koreksi data oleh guru — UI profil ada; prosedur formal belum.
 - [x] Audit trail perubahan data sensitif — `AuditLogger` + trait `Auditable` + `CycleStateMachine`; diuji immutability.
 - [x] Persetujuan (consent) sebelum mempublikasi praktik pembelajaran guru — `RespondBestPracticeConsent` (M10); penilaian 360° anonim di atas ambang (M11).
 - [ ] Review oleh pihak berkompeten sebelum go-live.
 
-Kontrol teknis yang **sudah** ada: RBAC default-deny + global scope + suite security (IDOR/cross-dinas), rate-limit login/sync, `APP_DEBUG=false` + halaman error kustom, token PWA scoped + dapat dicabut.
+Kontrol teknis yang **sudah** ada: RBAC default-deny + global scope + suite security (IDOR/cross-dinas), rate-limit login/sync, `APP_DEBUG=false` + halaman error kustom, token PWA scoped + dapat dicabut, **header keamanan respons (CSP nonce+hash, HSTS, X-Frame-Options, dst.) via `SecureHeaders` middleware** (ADR-016).
 
 ## Rilis
 

@@ -7,6 +7,7 @@
     <meta name="theme-color" content="#24356e">
     <title>{{ $title ?? 'Masuk' }} — {{ config('app.name') }}</title>
     @fonts
+    {{-- Boot tema anti-FOUC — statis & byte-stable; di-whitelist via hash CSP (config/security.php). --}}
     <script>
         (function () {
             try {

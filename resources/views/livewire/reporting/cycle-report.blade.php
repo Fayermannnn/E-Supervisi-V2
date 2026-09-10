@@ -5,7 +5,7 @@
                 <x-ui.button variant="secondary" wire:click="requestExport">Unduh PDF</x-ui.button>
             @endif
             @if ($snapshot)
-                <x-ui.button variant="ghost" onclick="window.print()">Cetak</x-ui.button>
+                <x-ui.button variant="ghost" x-on:click="window.print()">Cetak</x-ui.button>
             @endif
             <x-ui.button as="a" href="{{ route('cycles.show', $cycle) }}" variant="ghost">Kembali</x-ui.button>
         </x-slot:actions>

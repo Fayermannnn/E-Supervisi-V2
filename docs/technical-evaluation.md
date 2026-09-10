@@ -16,7 +16,7 @@ konsolidasi terhadap risiko `docs/risk-register.md`:
 | T-01 | Kehilangan/duplikasi data observasi luring | UUID klien = PK (idempoten); unik `(observation_id,item_key)`; optimistic lock `version`; deteksi konflik + resolusi manual; diuji `ObservationSyncTest` | MITIGATED |
 | T-02 | Bias/kesalahan AI memengaruhi penilaian guru | Semua keluaran `draft`; `App\Domain\Ai\Providers` tanpa akses DB (arch test); tak memicu transisi; gate berlapis (`FinalizeAnalysis`, `PostFeedbackMessage`, state machine) | MITIGATED |
 | T-03 | Kebocoran data lintas peran (IDOR, cross-school/dinas) | Default deny; Policy + global scope `visibleTo`; route-model-binding; suite `tests/Feature/Security`; audit `authorization.denied` | MITIGATED |
-| T-04 | Kepatuhan UU 27/2022 (PDP) | TLS + enkripsi at-rest berkas observasi (`deployment.md`); retensi = arsip bukan hapus; audit menyeluruh; consent guru wajib untuk publikasi praktik baik; 360° anonim di atas ambang | OPEN (review hukum di deployment) |
+| T-04 | Kepatuhan UU 27/2022 (PDP) | Header keamanan respons (CSP nonce+hash, HSTS, X-Frame-Options, Referrer/Permissions-Policy) via `SecureHeaders` middleware (ADR-016, diuji); TLS + enkripsi at-rest berkas observasi (`deployment.md`); retensi = arsip bukan hapus; audit menyeluruh; consent guru wajib untuk publikasi praktik baik; 360° anonim di atas ambang | OPEN (review hukum + basis pemrosesan di deployment) |
 | T-05 | Rework karena SLR mengubah prioritas Fase 3–4 | `@provisional` + additive-only + titik revisi Gate 6/7 didokumentasikan | ACCEPTED |
 | T-06 | Batas domain modular monolith luntur | Namespace convention + Larastan + **11 arch test** (`tests/Arch/LayerTest.php`) melarang import lintas domain terlarang | MITIGATED |
 | T-07 | Media besar 3T tak terunggah | Metadata dulu, file antre; UI jujur soal status | ACCEPTED (known limitation) |
@@ -42,7 +42,9 @@ konsolidasi terhadap risiko `docs/risk-register.md`:
 ### Sisa pekerjaan keamanan (bukan blok evaluasi ahli)
 
 - Review hukum PDP formal + dokumen basis pemrosesan (checklist `deployment.md`).
-- Secure headers (CSP, HSTS) & rate-limit produksi — konfigurasi deployment.
+- ~~Secure headers (CSP, HSTS)~~ — **selesai**: `SecureHeaders` middleware +
+  `config/security.php` + `tests/Feature/Security/SecureHeadersTest.php` (ADR-016).
+  Rate-limit produksi (naikkan batas login/sync) tetap konfigurasi deployment.
 - Uji unggah berkas berbahaya (`.php`/`.svg`) — endpoint media ada validasi mime;
   test eksplisit belum ditambahkan.
 - Belum ada `tests/Browser` otomatis untuk alur luring→online.
@@ -56,12 +58,12 @@ gantinya, inventaris per kategori — gate `composer ci`:
 |---|---|---|---|
 | Unit | 9 | 89 | state machine + guard, `SchemaDrivenScorer`, `InstrumentSchema`, `RolePermissionMap` (matriks), `PolicySettings`, `CalibrationStats`, `PkbMatcher`, `ExpertJudgmentStats`, SUS |
 | Feature | ~24 | 116 | auth, siklus end-to-end, sync idempoten/konflik, AI human-in-the-loop, pasca-observasi, program M7, PKB M9, praktik baik M10, 360° M11, kalibrasi M12, evaluasi ahli Fase 5, render layar Fase 4–5, performa |
-| Security | 3 | — (di dalam Feature) | IDOR, cross-dinas/school, audit immutability, privilege escalation |
+| Security | 4 | — (di dalam Feature) | IDOR, cross-dinas/school, audit immutability, privilege escalation, **header keamanan respons (CSP nonce+hash, HSTS, X-Frame-Options, dst.)** |
 | Architecture | 1 | 11 | larangan import lintas domain, AI tanpa DB, state machine satu penulis, isolasi domain Fase 4–5, kemurnian helper statistik |
 | Performance | 1 | 3 | dasbor & laporan agregat pada ~200 siklus |
 | Static | — | — | Pint (strict types) + Larastan level 8 "No errors" |
 
-**Total: 224 tes / 585 assertions, `composer ci` hijau.** (termasuk ekspor laporan server-side pasca-Fase 5: dompdf/OpenSpout.)
+**Total: 237 tes / 639 assertions, `composer ci` hijau.** (termasuk ekspor laporan server-side dompdf/OpenSpout + header keamanan respons pasca-Fase 5.)
 
 Perintah:
 ```bash
@@ -107,7 +109,8 @@ beban normal. Sesuaikan `queue:work` & opcache; naikkan ke Redis bila p95 membur
 ## 5. Kesimpulan evaluasi teknis
 
 Artefak **siap dinilai ahli**: fungsi end-to-end lengkap dan teruji, kontrol
-keamanan inti termitigasi & diuji otomatis, performa jalur baca dalam batas pada
-volume realistis. Sisa pekerjaan (review hukum PDP, hardening deployment,
-browser test, uji beban lapangan) bersifat **operasional/pra-go-live**, bukan
-prasyarat evaluasi ahli Fase 5.
+keamanan inti termitigasi & diuji otomatis (termasuk header keamanan respons
+CSP/HSTS via `SecureHeaders`, ADR-016), performa jalur baca dalam batas pada
+volume realistis. Sisa pekerjaan (review hukum PDP, enkripsi at-rest + backup
+deployment, uji unggah berkas berbahaya, browser test, uji beban lapangan)
+bersifat **operasional/pra-go-live**, bukan prasyarat evaluasi ahli Fase 5.

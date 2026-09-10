@@ -8,6 +8,7 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <title>{{ config('app.name') }} — Supervisi Klinis Pendidikan</title>
     @fonts
+    {{-- Boot tema anti-FOUC — statis & byte-stable; di-whitelist via hash CSP (config/security.php). --}}
     <script>
         (function () {
             try {

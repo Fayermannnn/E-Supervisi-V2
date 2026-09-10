@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Header keamanan respons (CSP nonce per-request, HSTS, X-Frame-Options,
+        // dst.) pada setiap request. Konfigurasi: config/security.php.
+        $middleware->append(App\Http\Middleware\SecureHeaders::class);
+
         // Sanctum: request same-origin dari SPA/Livewire terautentikasi via sesi;
         // perangkat PWA memakai bearer token (ADR-007).
         $middleware->statefulApi();

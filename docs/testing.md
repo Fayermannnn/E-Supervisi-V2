@@ -2,7 +2,7 @@
 
 Sumber: master prompt §17, §22, §26. Runner: **Pest**. DB test: PostgreSQL (bukan SQLite — paritas fitur jsonb/enum). `phpunit.xml` menyetel `memory_limit=512M` (arch test).
 
-**Status:** 224 tes / 585 assertions, `composer ci` hijau (Pint + Larastan 8 + Pest) — termasuk ekspor laporan server-side pasca-Fase 5. Line coverage tidak dilaporkan (tanpa Xdebug/PCOV) — inventaris per kategori di `docs/technical-evaluation.md`.
+**Status:** 237 tes / 639 assertions, `composer ci` hijau (Pint + Larastan 8 + Pest) — termasuk ekspor laporan server-side + header keamanan respons (`SecureHeaders`) pasca-Fase 5. Line coverage tidak dilaporkan (tanpa Xdebug/PCOV) — inventaris per kategori di `docs/technical-evaluation.md`.
 
 ## Piramida
 
@@ -10,7 +10,7 @@ Sumber: master prompt §17, §22, §26. Runner: **Pest**. DB test: PostgreSQL (b
 |---|---|---|
 | Unit | State transition & guard, skoring instrumen, deteksi keterlambatan RTL (batas tanggal), status draft AI, value objects/enums | `tests/Unit` |
 | Feature | Login, buat siklus, perencanaan, observasi, sync (idempoten/konflik), analisis, umpan balik, tindak lanjut, pelaporan, ekspor | `tests/Feature` |
-| Security | Privilege escalation, IDOR, cross-school/cross-dinas access, unauthorized API, audit log immutability, upload file berbahaya | `tests/Feature/Security` |
+| Security | Privilege escalation, IDOR, cross-school/cross-dinas access, unauthorized API, audit log immutability, upload file berbahaya, header keamanan respons (CSP nonce+hash, HSTS, X-Frame-Options, Referrer/Permissions-Policy) | `tests/Feature/Security` |
 | Architecture | Larangan import lintas domain, audit log tanpa route tulis, AI tanpa akses DB | `tests/Arch` (pest-arch) |
 | Performance | Batas query + wall-clock jalur baca (dasbor, laporan agregat) pada ~200 siklus; verifikasi index | `tests/Feature/Performance` |
 | Browser | Alur kritis Guru & Supervisor (termasuk skenario luring→online) — **belum diotomasi** | `tests/Browser` |

@@ -16,9 +16,10 @@ in-app: panel ahli (≥ 2 rumpun) menilai artefak, sistem menghitung **CVR/CVI**
 (`docs/dsr-artefak.md`), instrumen expert judgment (`docs/expert-judgment.md`),
 evaluasi teknis (`docs/technical-evaluation.md`), dan skenario demo
 (`docs/demo-script.md`) tersedia. Ekspor laporan **server-side** (PDF siklus;
-PDF/XLSX/CSV agregat) via job, pure-PHP (dompdf + OpenSpout). Modul M3–M6,
-M9–M12, M18 = `@provisional` sampai SLR Gate 6/7. `composer ci` hijau
-(Pint + PHPStan 8 + 224 tes).
+PDF/XLSX/CSV agregat) via job, pure-PHP (dompdf + OpenSpout). Header keamanan
+respons (CSP nonce+hash, HSTS, X-Frame-Options, dst.) ditegakkan aplikasi
+(`SecureHeaders`, ADR-016). Modul M3–M6, M9–M12, M18 = `@provisional` sampai
+SLR Gate 6/7. `composer ci` hijau (Pint + PHPStan 8 + 237 tes).
 
 ```bash
 php artisan migrate:fresh --seed && npm run dev

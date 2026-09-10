@@ -16,7 +16,10 @@
             Halaman ini butuh koneksi. Isian observasi yang sudah Anda kerjakan tersimpan
             di perangkat dan akan tersinkron otomatis saat koneksi kembali.
         </p>
-        <button onclick="location.reload()" class="mt-4 rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white">Coba lagi</button>
+        <button id="retry" class="mt-4 rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white">Coba lagi</button>
     </div>
+    <script @cspNonce>
+        document.getElementById('retry').addEventListener('click', function () { location.reload(); });
+    </script>
 </body>
 </html>

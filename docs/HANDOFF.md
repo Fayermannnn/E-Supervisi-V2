@@ -16,12 +16,13 @@
 | 4 | Pengembangan profesional & akuntabilitas | M7, M9, M10, M11, M12 | ✅ Selesai, tag `phase4-complete` (M9–M12 `@provisional`) |
 | 5 | Kesiapan evaluasi ahli (DSR Artikel 3) | — | ✅ Selesai, tag `phase5-complete` |
 
-**Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **227 Pest tests / 594 assertions pass** (HEAD `5c18d49`).
+**Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **237 Pest tests / 639 assertions pass**.
 
 **Pasca-Fase 5** (di atas tag `phase5-complete`):
 - `d71cd84` — **ekspor laporan server-side**: `dompdf/dompdf` (PDF) + `openspout/openspout` (XLSX), pure-PHP (aman 3T). `report_exports` + job `GenerateReportExport`.
 - `94e0d91`, `45ebf8b` — **redesain frontend "govtech modern & bersih"**: token `resources/css/app.css` (brand biru tua, netral hangat, shadow/surface), Instrument Sans self-host + `@fonts` di layout (dulu render font sistem), komponen `x-ui.*`/`x-app.*` dipoles, `.field-input` disapu ke seluruh view Livewire, eyebrow di semua `page-header`, layout auth split-screen.
 - `fa08122` — **halaman landing publik** di `/` (route `home`); tamu lihat landing, user login → dasbor. CSS-only.
+- **header keamanan respons** — `App\Http\Middleware\SecureHeaders` (global) + `config/security.php`: CSP ditegakkan (`script-src 'self' 'unsafe-eval' 'nonce-…' <hash>`, tanpa `'unsafe-inline'` untuk script), HSTS (HTTPS-only), X-Frame-Options `DENY`, X-Content-Type-Options, Referrer/Permissions-Policy, COOP/CORP. Nonce per-request via `Vite::useCspNonce()`; direktif `@cspNonce`. Dua inline script layout (boot tema, SW register) di-whitelist via hash SHA-256. ADR-016. Toggle env `SECURITY_CSP_ENABLED`/`SECURITY_CSP_REPORT_ONLY`/`SECURITY_HSTS_ENABLED`. Diuji: `tests/Feature/Security/SecureHeadersTest.php` (10 tes).
 
 **MVP LENGKAP — semua domain terbangun.** Fase 5 menambahkan modul **Evaluasi Ahli** in-app (domain `Evaluation` + peran `ahli`): panel ahli (≥ 2 rumpun) menilai artefak → sistem menghitung **CVR/CVI** (Lawshe), **Aiken's V**, **SUS** (`ExpertJudgmentStats`, deterministik + unit-tested). Dokumen baru: `docs/dsr-artefak.md` (DSR Peffers dkk. 2007), `docs/expert-judgment.md`, `docs/technical-evaluation.md`, `docs/demo-script.md`. `tests/Feature/Performance/` masuk `composer ci`. Keputusan checkpoint: `DECISIONS.md` F5-01, F5-02.
 
@@ -115,9 +116,11 @@ checkpoint sendiri):
   revisi skema/prompt bersifat additive; perbarui `@provisional` → final.
 - **Jalankan panel evaluasi ahli nyata** lewat `/evaluation`; masukkan hasil
   CVR/CVI, Aiken's V, SUS ke manuskrip Artikel 3 (`docs/dsr-artefak.md` §5).
-- **Hardening pra-go-live**: review hukum PDP + dokumen basis pemrosesan,
-  secure headers/CSP/HSTS, `tests/Browser` (Pest v4) untuk alur luring→online,
-  uji beban lapangan (`docs/technical-evaluation.md` §4–5).
+- **Hardening pra-go-live**: ~~secure headers/CSP/HSTS~~ **selesai** (ADR-016,
+  `SecureHeaders` middleware). Sisa: review hukum PDP + dokumen basis pemrosesan,
+  uji unggah berkas berbahaya (`.php`/`.svg` ke `POST /observations/{id}/media`),
+  `tests/Browser` (Pest v4) untuk alur luring→online, uji beban lapangan
+  (`docs/technical-evaluation.md` §4–5).
 - **Modul JS outbox khusus bukti RTL** (saat ini online via Livewire).
 
 **Proses bila melanjutkan (master prompt §20, §25):** DISCOVER → checkpoint bila
@@ -131,6 +134,7 @@ ambiguity → PLAN → implementasi → update docs → `composer ci` hijau → 
 
 - **M3–M6, M9–M12, M18 `@provisional`** — skema & prompt direvisi setelah SLR Gate 6/7; hanya additive setelahnya.
 - Ekspor laporan **server-side** sudah ada: PDF laporan siklus (dompdf), PDF/XLSX/CSV laporan agregat (dompdf + OpenSpout), via job `GenerateReportExport` ke disk privat. Tombol "Cetak" (window.print) tetap ada sebagai pelengkap.
+- **Header keamanan** ditegakkan aplikasi (`SecureHeaders`, ADR-016). Inline `<script>` baru di layout wajib pakai `@cspNonce` **atau** hash di `config/security.php` `csp.script_hashes` (kalau di-inject ulang `wire:navigate`). Inline event handler (`onclick=`) dilarang — pakai Alpine `x-on:` atau listener ber-nonce. HSTS di produksi butuh `SECURITY_HSTS_ENABLED=true` + `TrustProxies`.
 - `QUEUE_CONNECTION=sync` di dev — ekspor laporan berjalan inline; **produksi butuh `queue:work`** untuk ekspor + AI + notifikasi.
 - Bukti RTL offline: endpoint idempoten ada, tapi **belum ada modul JS outbox khusus RTL**.
 - Belum ada `tests/Browser` (Pest v4 browser) otomatis untuk alur luring→online.

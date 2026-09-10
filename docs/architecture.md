@@ -223,6 +223,45 @@ kode (`ExpertJudgmentInstrument`, `UsabilityQuestionnaire`); perhitungan di
 
 ---
 
+## ADR-016 — Header keamanan respons via middleware (CSP nonce + hash)
+
+**Keputusan.** Semua respons melewati `App\Http\Middleware\SecureHeaders`
+(global middleware) yang menyetel: `Content-Security-Policy` (ditegakkan),
+`Strict-Transport-Security` (khusus HTTPS), `X-Frame-Options: DENY`,
+`X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`,
+`Cross-Origin-Opener-Policy`, `Cross-Origin-Resource-Policy`. Konfigurasi
+deklaratif di `config/security.php` (toggle via env; `report_only` untuk
+transisi).
+
+CSP: `script-src 'self' 'unsafe-eval' 'nonce-…'` — `'unsafe-eval'` wajib untuk
+Alpine (dibundel Livewire 3), `'unsafe-inline'` **tidak** dipakai untuk script.
+Nonce per-request dibangkitkan sebelum render lewat `Vite::useCspNonce()`
+sehingga `@vite`, `@fonts`, dan aset yang disuntik Livewire ikut ber-nonce.
+`style-src` tetap `'unsafe-inline'` (atribut style Tailwind/Alpine).
+
+Dua inline `<script>` statis di layout (boot tema anti-FOUC, registrasi service
+worker) di-whitelist lewat **hash SHA-256** (`csp.script_hashes`), bukan nonce:
+`wire:navigate` menyuntik ulang `<script>` lintas-halaman sehingga nonce dari
+respons lama tak lagi cocok. Skrip SW diberi `data-navigate-once`. Direktif
+`@cspNonce` tersedia untuk inline script dinamis lain.
+
+**Alasan.** Spec §10 + `docs/deployment.md` ("HSTS; secure headers (CSP,
+X-Frame-Options, …)"). Nonce+hash dipilih di atas `'unsafe-inline'` (menyisakan
+proteksi XSS inline) dan di atas CSP strict penuh (memutus Alpine/Livewire).
+
+**Konsekuensi.**
+- Vite dev-server + websocket HMR ditambahkan otomatis ke `connect-src`/
+  `script-src` saat `Vite::isRunningHot()` — tidak perlu diatur manual.
+- Mengubah isi kedua inline script statis mengubah hash → `SecureHeadersTest`
+  gagal sampai `config/security.php` diselaraskan.
+- HSTS di belakang reverse proxy butuh `TrustProxies` dikonfigurasi agar
+  `$request->secure()` benar.
+- Diuji: `tests/Feature/Security/SecureHeadersTest.php` (header baseline,
+  nonce per-request, hash cocok markup, HSTS HTTPS-only, CSP absen di JSON,
+  mode report-only, toggle nonaktif).
+
+---
+
 ## Keputusan yang ditunda (butuh input SLR / user — lihat `risk-register.md`)
 
 | Ref | Pertanyaan | Blok |

@@ -9,6 +9,7 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <title>{{ $title ?? 'E-Supervisi' }} — {{ config('app.name') }}</title>
     @fonts
+    {{-- Boot tema anti-FOUC — statis & byte-stable; di-whitelist via hash CSP (config/security.php). --}}
     <script>
         (function () {
             try {
@@ -63,7 +64,8 @@
         </template>
     </div>
 
-    <script>
+    {{-- Statis & byte-stable; di-whitelist via hash CSP. data-navigate-once: jangan jalankan ulang saat wire:navigate. --}}
+    <script data-navigate-once>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
         }

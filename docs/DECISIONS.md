@@ -174,5 +174,20 @@ Menggantikan *known limitation* "ekspor = print-to-PDF browser".
 | Tes | +10 (unit `AggregateReportTable`; feature: PDF `%PDF-`, XLSX `PK`, CSV, gate guru/supervisor-lain, unduh pihak terkait vs luar, endpoint API 202). Arch: library render hanya di `Reporting\Rendering`; `AggregateReportTable` murni. **224 tes**. |
 | Skema | Additive (1 tabel). `composer.json` +2 dependency. |
 
+### Pasca-Fase 5 — Header keamanan respons (hardening pra-go-live) ✅ — ADR-016
+
+Checkpoint (dijawab user): **CSP ditegakkan + nonce** (bukan `'unsafe-inline'`, bukan report-only). Scope sesi: **middleware header keamanan saja** (uji unggah berkas berbahaya & review PDP tetap OPEN, ditugaskan terpisah).
+
+| Item | Catatan |
+|---|---|
+| `App\Http\Middleware\SecureHeaders` | Global middleware (`bootstrap/app.php` `$middleware->append(...)`). Nonce di-set via `Vite::useCspNonce()` sebelum render; header disusun setelah respons. CSP hanya pada respons `text/html`; HSTS hanya saat `$request->secure()`. |
+| `config/security.php` | Deklaratif: `headers.*`, `hsts.*`, `csp.{enabled,report_only,report_uri,script_hashes,directives}`. Toggle env `SECURITY_CSP_ENABLED` / `SECURITY_CSP_REPORT_ONLY` / `SECURITY_HSTS_ENABLED` (+ `.env.example`). |
+| CSP | `default-src 'self'`; `script-src 'self' 'unsafe-eval' 'nonce-…' <2 hash>` (Alpine butuh `'unsafe-eval'`; **tanpa `'unsafe-inline'` untuk script**); `style-src 'self' 'unsafe-inline'`; `object-src 'none'`; `base-uri 'self'`; `form-action 'self'`; `frame-ancestors 'none'`; `frame-src 'none'`; `img-src 'self' data:`; `connect-src/worker-src/manifest-src/font-src 'self'`. Vite dev-server + ws HMR ditambah otomatis saat `Vite::isRunningHot()`. |
+| Inline script | 2 script statis layout (boot tema anti-FOUC di `<head>`, registrasi SW di `<body>`) di-whitelist via **hash SHA-256** (`wire:navigate` inject ulang → nonce lama tak cocok); SW script diberi `data-navigate-once`. Direktif Blade `@cspNonce` untuk inline script lain. `onclick=` di `offline`/`cycle-report` diganti listener ber-nonce / `x-on:`. |
+| Header lain | `Strict-Transport-Security` (HTTPS-only), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (kamera/mikrofon/geo/pembayaran/USB off), `Cross-Origin-Opener-Policy`/`Cross-Origin-Resource-Policy: same-origin`, `X-Permitted-Cross-Domain-Policies: none`. |
+| Tes | `tests/Feature/Security/SecureHeadersTest.php` — 10 tes (header baseline, CSP enforced + nonce, hash cocok markup `/login` & `/`, nonce rotasi, HSTS HTTPS-only, CSP absen di JSON API, mode report-only, toggle nonaktif). Verifikasi browser: login/dasbor/siklus/perencanaan + Alpine (dropdown, tema) + `wire:navigate` tanpa pelanggaran CSP. |
+| Verifikasi | `composer ci` hijau — **237 tes / 639 assertions**. |
+| Skema | Tidak ada perubahan DB. `config/security.php` baru; tidak ada dependency baru. |
+
 ### (tidak ada PHASE 6 terencana)
 
