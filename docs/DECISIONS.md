@@ -224,5 +224,21 @@ sebagai *known limitation*, tidak ada keputusan arsitektur baru.
 | Verifikasi | `composer ci` hijau — **247 tes / 667 assertions**. |
 | Skema | Tidak ada. Tidak ada dependency baru. |
 
+### Pasca-Fase 5 — Enforce HTTPS + secure cookie ✅
+
+Lanjutan otonom dari kandidat HANDOFF §5 ("enforce HTTPS + secure cookie") —
+tanpa checkpoint baru (konfigurasi produksi additive, default off, tanpa
+efek di lokal; sama pola dengan toggle `SECURITY_*` sebelumnya).
+
+| Item | Catatan |
+|---|---|
+| `URL::forceScheme('https')` | `AppServiceProvider::boot()`, aktif bila `config('security.force_https')` (env `FORCE_HTTPS`, default `false`). |
+| `TrustProxies` | `bootstrap/app.php` — `$middleware->trustProxies(at: ..., headers: X-Forwarded-*)` bila env `TRUSTED_PROXIES` diisi (`*` atau daftar IP koma). **Wajib** di produksi: tanpa ini `$request->secure()` selalu `false` di balik Nginx TLS-terminating (koneksi app↔Nginx = HTTP lokal) — sehingga `SECURITY_HSTS_ENABLED=true` (ADR-016) TIDAK PERNAH benar-benar mengirim header HSTS. Ini menutup gap laten dari commit header-keamanan sebelumnya. |
+| `SESSION_SECURE_COOKIE` | Sudah ada di `config/session.php` bawaan Laravel (`env('SESSION_SECURE_COOKIE')`) — tidak butuh kode baru, hanya didokumentasikan eksplisit di `.env.example`/`.env` (default `false`, aktifkan bersamaan `FORCE_HTTPS` di produksi). |
+| Bug ditemukan & diperbaiki | `config('security.trusted_proxies')` di dalam closure `withMiddleware()` meng-crash `composer stan` — Larastan mem-bootstrap `bootstrap/app.php` pada tahap SEBELUM container `config` terdaftar ("Target class [config] does not exist"). Diperbaiki: baca `env('TRUSTED_PROXIES')` langsung di `bootstrap/app.php` (dicatat sebagai gotcha di ADR-016). |
+| Tes | `tests/Feature/Security/HttpsEnforcementTest.php` — 2 tes (default tak berubah; `force_https=true` → `url()`/`route()` menghasilkan `https://`). `TrustProxies` sendiri tak praktis diuji feature-level (efek bootstrap sekali-jalan) — diverifikasi manual: `TRUSTED_PROXIES='*' php artisan about` tetap boot normal. |
+| Verifikasi | `composer ci` hijau — **249 tes / 670 assertions**. |
+| Skema | Tidak ada. Tidak ada dependency baru. |
+
 ### (tidak ada PHASE 6 terencana)
 

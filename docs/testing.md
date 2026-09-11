@@ -2,7 +2,7 @@
 
 Sumber: master prompt §17, §22, §26. Runner: **Pest**. DB test: PostgreSQL (bukan SQLite — paritas fitur jsonb/enum). `phpunit.xml` menyetel `memory_limit=512M` (arch test).
 
-**Status:** 247 tes / 667 assertions, `composer ci` hijau (Pint + Larastan 8 + Pest) — termasuk ekspor laporan server-side + header keamanan respons (`SecureHeaders`) + visualisasi data (`x-ui.meter`/`x-ui.bar-distribution`) + hardening unggah berkas pasca-Fase 5. Line coverage tidak dilaporkan (tanpa Xdebug/PCOV) — inventaris per kategori di `docs/technical-evaluation.md`.
+**Status:** 249 tes / 670 assertions, `composer ci` hijau (Pint + Larastan 8 + Pest) — termasuk ekspor laporan server-side + header keamanan respons (`SecureHeaders`) + visualisasi data (`x-ui.meter`/`x-ui.bar-distribution`) + hardening unggah berkas pasca-Fase 5. Line coverage tidak dilaporkan (tanpa Xdebug/PCOV) — inventaris per kategori di `docs/technical-evaluation.md`.
 
 ## Piramida
 

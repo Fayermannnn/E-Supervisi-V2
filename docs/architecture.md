@@ -255,10 +255,18 @@ proteksi XSS inline) dan di atas CSP strict penuh (memutus Alpine/Livewire).
 - Mengubah isi kedua inline script statis mengubah hash → `SecureHeadersTest`
   gagal sampai `config/security.php` diselaraskan.
 - HSTS di belakang reverse proxy butuh `TrustProxies` dikonfigurasi agar
-  `$request->secure()` benar.
+  `$request->secure()` benar — **sudah diimplementasikan**: `bootstrap/app.php`
+  membaca `env('TRUSTED_PROXIES')` LANGSUNG (bukan `config()`) karena closure
+  `withMiddleware()` dieksekusi sebagian bootstrap (termasuk harness Larastan)
+  sebelum container `config` terdaftar — memanggil `config()` di situ
+  meng-crash `composer stan` ("Target class [config] does not exist").
+  `AppServiceProvider::boot()` menambahkan `URL::forceScheme('https')` bila
+  `FORCE_HTTPS=true` (`config('security.force_https')` — aman di sini karena
+  provider `boot()` berjalan setelah config termuat penuh).
 - Diuji: `tests/Feature/Security/SecureHeadersTest.php` (header baseline,
   nonce per-request, hash cocok markup, HSTS HTTPS-only, CSP absen di JSON,
-  mode report-only, toggle nonaktif).
+  mode report-only, toggle nonaktif) + `tests/Feature/Security/HttpsEnforcementTest.php`
+  (`URL::forceScheme` toggle).
 
 ---
 

@@ -60,11 +60,21 @@ SECURITY_CSP_ENABLED=true
 SECURITY_CSP_REPORT_ONLY=false     # true saat memantau pelanggaran sebelum menegakkan
 SECURITY_HSTS_ENABLED=true         # setelah TLS + seluruh subdomain HTTPS
 # SECURITY_CSP_REPORT_URI=https://…  # opsional: endpoint laporan pelanggaran
+
+FORCE_HTTPS=true                   # route()/url()/asset() selalu https://
+TRUSTED_PROXIES=*                  # VPS tunggal, Nginx satu-satunya jalur masuk
+SESSION_SECURE_COOKIE=true         # cookie sesi hanya lewat HTTPS
 ```
 
-**Di belakang reverse proxy** (Nginx TLS termination): konfigurasi
-`TrustProxies` (`bootstrap/app.php` → `$middleware->trustProxies(...)`) agar
-`$request->secure()` benar sehingga HSTS terkirim.
+**Di belakang reverse proxy** (Nginx TLS termination): **wajib** set
+`TRUSTED_PROXIES` (`bootstrap/app.php` → `$middleware->trustProxies(...)`,
+dibaca dari env langsung — lihat komentar di berkas tsb.) agar
+`$request->secure()` membaca header `X-Forwarded-Proto` Nginx, bukan koneksi
+lokal proxy↔app (yang selalu HTTP). **Tanpa ini `SECURITY_HSTS_ENABLED=true`
+tidak akan pernah benar-benar mengirim header HSTS.** `*` cocok untuk VPS
+tunggal dengan Nginx sebagai satu-satunya jalur masuk (Spec §3.1); bila app
+juga reachable langsung tanpa proxy, daftar IP proxy eksplisit (dipisah koma)
+lebih aman daripada `*`.
 
 Nginx boleh menambah header duplikat/pelengkap (mis. `X-Frame-Options`), tapi
 tidak wajib — aplikasi sudah menegakkan.
@@ -76,8 +86,10 @@ Status per `tag phase5-complete` (lihat juga `docs/technical-evaluation.md` §1)
 - [ ] Dokumen basis pemrosesan data (pelaksanaan tugas dinas pendidikan) — **belum**, review hukum.
 - [x] Kebijakan retensi & arsip (bukan hapus otomatis) — `ArchiveReportedCyclesCommand`; `audit_logs` append-only.
 - [~] Enkripsi transit (TLS) + at-rest (berkas observasi) — TLS: HSTS + secure
-  headers ditegakkan aplikasi (`SecureHeaders`, ADR-016); sertifikat + enkripsi
-  at-rest = konfigurasi deployment.
+  headers ditegakkan aplikasi (`SecureHeaders`, ADR-016), `FORCE_HTTPS` +
+  `TRUSTED_PROXIES` + `SESSION_SECURE_COOKIE` siap pakai (§ Header keamanan
+  respons di atas); sertifikat TLS itu sendiri + enkripsi at-rest berkas
+  observasi = konfigurasi deployment (di luar kendali aplikasi).
 - [~] Daftar data pribadi yang diproses + peran — `rbac.md` + `docs/dsr-artefak.md`; formalisasi dokumen hukum belum.
 - [ ] Prosedur permintaan akses/koreksi data oleh guru — UI profil ada; prosedur formal belum.
 - [x] Audit trail perubahan data sensitif — `AuditLogger` + trait `Auditable` + `CycleStateMachine`; diuji immutability.

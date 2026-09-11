@@ -7,6 +7,7 @@ namespace App\Providers;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -28,5 +29,11 @@ class AppServiceProvider extends ServiceProvider
         // @cspNonce → atribut nonce untuk inline <script> agar lolos
         // Content-Security-Policy (App\Http\Middleware\SecureHeaders).
         Blade::directive('cspNonce', static fn (): string => "<?php echo 'nonce=\"'.e(\\Illuminate\\Support\\Facades\\Vite::cspNonce()).'\"'; ?>");
+
+        // Paksa URL::/route()/asset() menghasilkan https:// di balik proxy
+        // TLS-terminating (config/security.php `force_https`; docs/deployment.md).
+        if (config('security.force_https') === true) {
+            URL::forceScheme('https');
+        }
     }
 }

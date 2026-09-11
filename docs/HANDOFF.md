@@ -16,7 +16,7 @@
 | 4 | Pengembangan profesional & akuntabilitas | M7, M9, M10, M11, M12 | ✅ Selesai, tag `phase4-complete` (M9–M12 `@provisional`) |
 | 5 | Kesiapan evaluasi ahli (DSR Artikel 3) | — | ✅ Selesai, tag `phase5-complete` |
 
-**Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **247 Pest tests / 667 assertions pass**.
+**Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **249 Pest tests / 670 assertions pass**.
 
 **Pasca-Fase 5** (di atas tag `phase5-complete`):
 - `d71cd84` — **ekspor laporan server-side**: `dompdf/dompdf` (PDF) + `openspout/openspout` (XLSX), pure-PHP (aman 3T). `report_exports` + job `GenerateReportExport`.
@@ -25,6 +25,7 @@
 - **header keamanan respons** — `App\Http\Middleware\SecureHeaders` (global) + `config/security.php`: CSP ditegakkan (`script-src 'self' 'unsafe-eval' 'nonce-…' <hash>`, tanpa `'unsafe-inline'` untuk script), HSTS (HTTPS-only), X-Frame-Options `DENY`, X-Content-Type-Options, Referrer/Permissions-Policy, COOP/CORP. Nonce per-request via `Vite::useCspNonce()`; direktif `@cspNonce`. Dua inline script layout (boot tema, SW register) di-whitelist via hash SHA-256. ADR-016. Toggle env `SECURITY_CSP_ENABLED`/`SECURITY_CSP_REPORT_ONLY`/`SECURITY_HSTS_ENABLED`. Diuji: `tests/Feature/Security/SecureHeadersTest.php` (10 tes).
 - **poles UI: visualisasi data** — komponen `<x-ui.meter>` + `<x-ui.bar-distribution>` (SVG-less, HTML/CSS murni, sesuai `docs/dataviz`) dipasang di Analisis, Laporan Siklus, Pelaporan Agregat, Akuntabilitas 360°, Dasbor, Pelacak RTL. Lihat `docs/screen-map.md`. Diverifikasi di browser (desktop + 360px) untuk tiap layar. Plus: **confetti** ringan (CSS/Alpine, tanpa dependency) saat laporan siklus pertama kali disusun (`CycleReport::compile()` → event `celebrate`) — `prefers-reduced-motion` dihormati.
 - **hardening unggah berkas observasi** — `UploadObservationMediaRequest::withValidator()` menolak berkas yang isinya (deteksi konten asli, bukan ekstensi klien) tak sesuai kategori `tipe` yang diklaim; `ObservationController::sanitizeOriginalName()` melucuti direktori/karakter kontrol dari `original_name` sebelum disimpan. `tests/Feature/Security/MediaUploadSecurityTest.php` (8 tes) membuktikan `.php`/`.svg`/PHP-berkedok-`.jpg`/oversize/tipe-mismatch semua ditolak — closes item "uji unggah berkas berbahaya" di §5/§6 lama.
+- **enforce HTTPS + secure cookie** — `AppServiceProvider::boot()`: `URL::forceScheme('https')` bila `FORCE_HTTPS=true`. `bootstrap/app.php`: `$middleware->trustProxies(...)` bila env `TRUSTED_PROXIES` diisi (`*` atau daftar IP koma) — **wajib** di produksi agar `$request->secure()` membaca `X-Forwarded-Proto` Nginx, jika tidak `SECURITY_HSTS_ENABLED=true` tak pernah benar-benar mengirim header. `SESSION_SECURE_COOKIE` didokumentasikan eksplisit di `.env.example`. Semua default `false`/kosong — tanpa efek di lokal. Diuji: `tests/Feature/Security/HttpsEnforcementTest.php`.
 
 **MVP LENGKAP — semua domain terbangun.** Fase 5 menambahkan modul **Evaluasi Ahli** in-app (domain `Evaluation` + peran `ahli`): panel ahli (≥ 2 rumpun) menilai artefak → sistem menghitung **CVR/CVI** (Lawshe), **Aiken's V**, **SUS** (`ExpertJudgmentStats`, deterministik + unit-tested). Dokumen baru: `docs/dsr-artefak.md` (DSR Peffers dkk. 2007), `docs/expert-judgment.md`, `docs/technical-evaluation.md`, `docs/demo-script.md`. `tests/Feature/Performance/` masuk `composer ci`. Keputusan checkpoint: `DECISIONS.md` F5-01, F5-02.
 
@@ -119,12 +120,11 @@ checkpoint sendiri):
   revisi skema/prompt bersifat additive; perbarui `@provisional` → final.
 - **Jalankan panel evaluasi ahli nyata** lewat `/evaluation`; masukkan hasil
   CVR/CVI, Aiken's V, SUS ke manuskrip Artikel 3 (`docs/dsr-artefak.md` §5).
-- **Hardening pra-go-live**: ~~secure headers/CSP/HSTS~~ **selesai** (ADR-016,
-  `SecureHeaders` middleware). ~~Uji unggah berkas berbahaya~~ **selesai**
-  (`MediaUploadSecurityTest`, lihat §1). Sisa: review hukum PDP + dokumen basis
-  pemrosesan, enforce HTTPS + secure cookie (`SESSION_SECURE_COOKIE`,
-  `URL::forceScheme`), `tests/Browser` (Pest v4) untuk alur luring→online, uji
-  beban lapangan (`docs/technical-evaluation.md` §4–5).
+- **Hardening pra-go-live**: ~~secure headers/CSP/HSTS~~, ~~uji unggah berkas
+  berbahaya~~, ~~enforce HTTPS + secure cookie~~ — **semua selesai** (lihat
+  §1). Sisa: review hukum PDP + dokumen basis pemrosesan (butuh pihak
+  berkompeten, bukan kode), `tests/Browser` (Pest v4) untuk alur
+  luring→online, uji beban lapangan (`docs/technical-evaluation.md` §4–5).
 - **Modul JS outbox khusus bukti RTL** (saat ini online via Livewire).
 - ~~Poles UI lanjutan: chart/visualisasi~~ **sebagian selesai** (lihat §1) — sisa: chart di Kalibrasi (`CalibrationShow`, reliabilitas antar-penilai) bila dibutuhkan.
 

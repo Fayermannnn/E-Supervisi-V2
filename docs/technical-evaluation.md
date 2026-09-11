@@ -16,7 +16,7 @@ konsolidasi terhadap risiko `docs/risk-register.md`:
 | T-01 | Kehilangan/duplikasi data observasi luring | UUID klien = PK (idempoten); unik `(observation_id,item_key)`; optimistic lock `version`; deteksi konflik + resolusi manual; diuji `ObservationSyncTest` | MITIGATED |
 | T-02 | Bias/kesalahan AI memengaruhi penilaian guru | Semua keluaran `draft`; `App\Domain\Ai\Providers` tanpa akses DB (arch test); tak memicu transisi; gate berlapis (`FinalizeAnalysis`, `PostFeedbackMessage`, state machine) | MITIGATED |
 | T-03 | Kebocoran data lintas peran (IDOR, cross-school/dinas) | Default deny; Policy + global scope `visibleTo`; route-model-binding; suite `tests/Feature/Security`; audit `authorization.denied` | MITIGATED |
-| T-04 | Kepatuhan UU 27/2022 (PDP) | Header keamanan respons (CSP nonce+hash, HSTS, X-Frame-Options, Referrer/Permissions-Policy) via `SecureHeaders` middleware (ADR-016, diuji); TLS + enkripsi at-rest berkas observasi (`deployment.md`); retensi = arsip bukan hapus; audit menyeluruh; consent guru wajib untuk publikasi praktik baik; 360° anonim di atas ambang | OPEN (review hukum + basis pemrosesan di deployment) |
+| T-04 | Kepatuhan UU 27/2022 (PDP) | Header keamanan respons (CSP nonce+hash, HSTS, X-Frame-Options, Referrer/Permissions-Policy) via `SecureHeaders` middleware (ADR-016, diuji); `FORCE_HTTPS`/`TRUSTED_PROXIES`/`SESSION_SECURE_COOKIE` siap pakai untuk produksi (diuji); enkripsi at-rest berkas observasi (`deployment.md`, operasional); retensi = arsip bukan hapus; audit menyeluruh; consent guru wajib untuk publikasi praktik baik; 360° anonim di atas ambang | OPEN (review hukum + basis pemrosesan — butuh pihak berkompeten, bukan kode) |
 | T-05 | Rework karena SLR mengubah prioritas Fase 3–4 | `@provisional` + additive-only + titik revisi Gate 6/7 didokumentasikan | ACCEPTED |
 | T-06 | Batas domain modular monolith luntur | Namespace convention + Larastan + **11 arch test** (`tests/Arch/LayerTest.php`) melarang import lintas domain terlarang | MITIGATED |
 | T-07 | Media besar 3T tak terunggah | Metadata dulu, file antre; UI jujur soal status | ACCEPTED (known limitation) |
@@ -69,7 +69,7 @@ gantinya, inventaris per kategori — gate `composer ci`:
 | Performance | 1 | 3 | dasbor & laporan agregat pada ~200 siklus |
 | Static | — | — | Pint (strict types) + Larastan level 8 "No errors" |
 
-**Total: 247 tes / 667 assertions, `composer ci` hijau.** (termasuk ekspor laporan server-side dompdf/OpenSpout + header keamanan respons + hardening unggah berkas pasca-Fase 5.)
+**Total: 249 tes / 670 assertions, `composer ci` hijau.** (termasuk ekspor laporan server-side dompdf/OpenSpout + header keamanan respons + hardening unggah berkas pasca-Fase 5.)
 
 Perintah:
 ```bash

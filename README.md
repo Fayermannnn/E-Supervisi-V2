@@ -22,7 +22,7 @@ respons (CSP nonce+hash, HSTS, X-Frame-Options, dst.) ditegakkan aplikasi
 `x-ui.bar-distribution`) di Analisis, Pelaporan, Akuntabilitas, Dasbor. Unggah
 berkas observasi divalidasi & diuji terhadap berkas berbahaya. Modul M3–M6,
 M9–M12, M18 = `@provisional` sampai SLR Gate 6/7. `composer ci` hijau
-(Pint + PHPStan 8 + 247 tes).
+(Pint + PHPStan 8 + 249 tes).
 
 ```bash
 php artisan migrate:fresh --seed && npm run dev

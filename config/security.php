@@ -106,4 +106,27 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | HTTPS di produksi
+    |--------------------------------------------------------------------------
+    |
+    | Paksa Illuminate\Support\Facades\URL menghasilkan skema https:// —
+    | penting di balik proxy TLS-terminating (Nginx) tanpa header
+    | X-Forwarded-Proto tepercaya. Diterapkan di AppServiceProvider::boot().
+    |
+    | Proxy tepercaya (env TRUSTED_PROXIES) diatur LANGSUNG via env() di
+    | bootstrap/app.php, BUKAN lewat config di sini — closure
+    | `withMiddleware()` dieksekusi pada tahap bootstrap (termasuk harness
+    | Larastan) sebelum container 'config' terdaftar. Lihat komentar di sana;
+    | nilainya: null/kosong (default, aman untuk `php artisan serve` lokal) —
+    | atau '*'/daftar IP dipisah koma di produksi (VPS tunggal + Nginx,
+    | docs/deployment.md) supaya $request->secure() membaca X-Forwarded-Proto
+    | asli — tanpa ini HSTS TIDAK PERNAH terkirim walau
+    | SECURITY_HSTS_ENABLED=true (koneksi app↔Nginx di localhost = HTTP).
+    |
+    */
+
+    'force_https' => env('FORCE_HTTPS', false),
+
 ];
