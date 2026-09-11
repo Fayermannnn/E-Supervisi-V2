@@ -16,6 +16,13 @@
         @endforeach
     </dl>
 
+    @if (! empty($distribution))
+        <x-ui.card title="Sebaran siklus per status"
+            :subtitle="($user->isAdminDinas() ? 'Seluruh dinas' : 'Siklus yang Anda ikuti').' — '.array_sum(array_column($distribution, 'value')).' siklus'">
+            <x-ui.bar-distribution :segments="$distribution" unit="siklus" />
+        </x-ui.card>
+    @endif
+
     <div class="grid gap-6 lg:grid-cols-3">
         <x-ui.card title="Langkah cepat" class="lg:col-span-2">
             <div class="flex flex-wrap gap-2.5">

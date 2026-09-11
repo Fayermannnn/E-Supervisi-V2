@@ -45,7 +45,8 @@ class CycleReport extends Component
         }
 
         $this->cycle->refresh();
-        $this->dispatch('notify', message: 'Laporan siklus disusun.');
+        $this->dispatch('notify', message: '🎉 Laporan siklus disusun — enam tahap selesai!');
+        $this->dispatch('celebrate');
     }
 
     public function requestExport(RequestReportExport $action): void

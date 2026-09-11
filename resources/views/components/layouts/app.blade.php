@@ -64,6 +64,29 @@
         </template>
     </div>
 
+    {{-- Confetti: kejutan kecil saat momen selesai (laporan siklus disusun — akhir
+         enam tahap). Murni CSS/Alpine — tanpa dependency baru, tanpa <script> inline
+         (jadi tak butuh nonce/hash CSP). Lihat @keyframes confetti-fall di app.css. --}}
+    <div x-data="{ pieces: [] }"
+         @celebrate.window="
+            pieces = Array.from({ length: 70 }, (_, i) => ({
+                id: Date.now() + i,
+                x: Math.random() * 100,
+                delay: (Math.random() * 0.5).toFixed(2),
+                dur: (2 + Math.random() * 1.4).toFixed(2),
+                rot: Math.floor(Math.random() * 360),
+                w: 6 + Math.round(Math.random() * 4),
+                color: ['#3450d3', '#15803d', '#b45309', '#b91c1c', '#24356e', '#eab308'][i % 6],
+            }));
+            setTimeout(() => pieces = [], 3800)
+         "
+         class="pointer-events-none fixed inset-0 z-[70] overflow-hidden" aria-hidden="true">
+        <template x-for="p in pieces" :key="p.id">
+            <span class="absolute -top-3 block rounded-[1px]"
+                  :style="`left:${p.x}%; width:${p.w}px; height:${p.w * 2.4}px; background:${p.color}; animation: confetti-fall ${p.dur}s ${p.delay}s ease-in forwards; transform: rotate(${p.rot}deg)`"></span>
+        </template>
+    </div>
+
     {{-- Statis & byte-stable; di-whitelist via hash CSP. data-navigate-once: jangan jalankan ulang saat wire:navigate. --}}
     <script data-navigate-once>
         if ('serviceWorker' in navigator) {

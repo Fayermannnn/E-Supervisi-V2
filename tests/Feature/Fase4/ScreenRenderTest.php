@@ -39,6 +39,28 @@ it('denies the accountability dashboard to a guru', function () {
     actingAs($guru)->get(route('accountability.index'))->assertForbidden();
 });
 
+it('renders the accountability dashboard meters once the anonymity threshold is met', function () {
+    $supervisor = User::factory()->supervisor()->create();
+    $dinas = Dinas::factory()->create();
+
+    for ($i = 0; $i < 3; $i++) {
+        App\Models\SupervisorEvaluation::create([
+            'cycle_id' => fase4Cycle(CycleStatus::FeedbackGiven)['cycle']->id,
+            'guru_id' => User::factory()->guru()->create()->id,
+            'supervisor_id' => $supervisor->id,
+            'dinas_id' => $dinas->id,
+            'sekolah_id' => null,
+            'jawaban' => ['kejelasan' => 3, 'keadilan' => 3, 'dukungan' => 3, 'umpan_balik' => 3, 'rasa_hormat' => 3],
+            'submitted_at' => now(),
+        ]);
+    }
+
+    actingAs($supervisor)->get(route('accountability.index'))
+        ->assertOk()
+        ->assertSee('Rata-rata keseluruhan')
+        ->assertDontSee('Data belum cukup');
+});
+
 it('renders the program editor and a closed calibration session', function () {
     $c = fase4Pair();
     $program = app(App\Domain\Program\Actions\SaveAnnualProgram::class)->handle($c['supervisor'], null, [

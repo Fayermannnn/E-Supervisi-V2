@@ -162,3 +162,21 @@
         opacity: 0.9;
     }
 }
+
+/* Confetti — momen selesai (laporan siklus disusun). Lihat layouts/app.blade.php. */
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-10px) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(105vh) rotate(540deg);
+        opacity: 0.85;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    [x-data*="pieces"] {
+        display: none;
+    }
+}

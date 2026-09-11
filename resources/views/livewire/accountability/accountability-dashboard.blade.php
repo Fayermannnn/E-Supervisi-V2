@@ -9,12 +9,21 @@
             :description="'Diperlukan minimal '.$data['min'].' respons sebelum agregat ditampilkan (ambang anonimitas). Saat ini: '.$data['responden'].' respons.'" />
     @else
         <x-ui.card :title="'Rata-rata keseluruhan: '.$fmt($data['rata_keseluruhan']).' / 4'" :subtitle="$data['responden'].' respons'">
-            <dl class="grid gap-3 sm:grid-cols-2">
+            @php
+                $overall = $data['rata_keseluruhan'] === null ? null : (float) $data['rata_keseluruhan'];
+                $overallTone = $overall === null ? 'neutral' : ($overall >= 3 ? 'done' : ($overall >= 2 ? 'progress' : 'overdue'));
+            @endphp
+
+            @if ($overall !== null)
+                <x-ui.meter :value="$overall" :max="4" :tone="$overallTone" :value-label="$fmt($overall).' / 4'"
+                    caption="Skala 1 (sangat kurang) – 4 (sangat baik)" />
+            @endif
+
+            <dl class="mt-5 space-y-3 border-t border-[var(--border)] pt-4">
                 @foreach ($dimensions as $key => $label)
-                    <div class="rounded-lg border border-[var(--border)] bg-[var(--surface-muted)]/50 px-3.5 py-2.5">
-                        <dt class="text-xs text-[var(--text-muted)]">{{ $label }}</dt>
-                        <dd class="text-lg font-semibold">{{ $fmt($data['dimensi'][$key] ?? null) }}</dd>
-                    </div>
+                    @php $dv = $data['dimensi'][$key] ?? null; @endphp
+                    <x-ui.meter :label="$label" :value="$dv === null ? 0 : (float) $dv" :max="4"
+                        :value-label="$dv === null ? '—' : $fmt($dv).' / 4'" />
                 @endforeach
             </dl>
         </x-ui.card>

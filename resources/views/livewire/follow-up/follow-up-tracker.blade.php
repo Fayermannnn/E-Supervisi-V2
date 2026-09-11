@@ -14,6 +14,20 @@
                     :label="Str::title($plan->status)" />
             </x-slot:actions>
 
+            @php
+                $totalItems = $plan->items->count();
+                $doneItems = $plan->items->where('status', 'selesai')->count();
+            @endphp
+            @if ($totalItems > 0)
+                <div class="mb-4">
+                    <x-ui.meter
+                        :value="$doneItems" :max="$totalItems"
+                        :tone="$plan->status === 'terlambat' ? 'overdue' : ($doneItems === $totalItems ? 'done' : 'progress')"
+                        label="Butir selesai"
+                        :value-label="$doneItems.' / '.$totalItems" />
+                </div>
+            @endif
+
             <ul class="divide-y divide-[var(--border)]">
                 @foreach ($plan->items as $item)
                     <li class="py-3" wire:key="fi-{{ $item->id }}">

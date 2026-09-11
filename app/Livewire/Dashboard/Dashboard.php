@@ -25,7 +25,44 @@ class Dashboard extends Component
         return view('livewire.dashboard.dashboard', [
             'user' => $user,
             'stats' => $this->statsFor($user),
+            'distribution' => $this->distributionFor($user),
         ]);
+    }
+
+    /**
+     * Sebaran siklus per status untuk <x-ui.bar-distribution>. Kosong untuk
+     * peran tanpa siklus (admin sistem, ahli).
+     *
+     * @return list<array{label: string, value: int, tone: string}>
+     */
+    private function distributionFor(User $user): array
+    {
+        if ($user->isAdminSistem() || $user->isAhli()) {
+            return [];
+        }
+
+        $query = $user->isAdminDinas()
+            ? SupervisionCycle::query()->where('dinas_id', $user->adminDinasId())
+            : SupervisionCycle::query()->visibleTo($user);
+
+        // toBase(): terapkan scope lalu lepas casting Eloquent supaya kunci
+        // hasil = nilai int status mentah, bukan instance enum.
+        $counts = $query->toBase()
+            ->selectRaw('status, count(*) as c')
+            ->groupBy('status')
+            ->pluck('c', 'status');
+
+        $segments = [];
+
+        foreach (CycleStatus::cases() as $status) {
+            $value = (int) $counts->get($status->value, 0);
+
+            if ($value > 0) {
+                $segments[] = ['label' => $status->label(), 'value' => $value, 'tone' => $status->tone()];
+            }
+        }
+
+        return $segments;
     }
 
     /**

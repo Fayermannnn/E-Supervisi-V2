@@ -51,6 +51,31 @@
         <x-ui.stat label="RTL terlambat" :value="$data['rtl_per_status']['terlambat'] ?? 0" tone="danger" />
     </dl>
 
+    @php
+        $statusSegments = collect(\App\Support\Enums\CycleStatus::cases())
+            ->map(fn ($st) => ['label' => $st->label(), 'value' => (int) ($data['per_status'][$st->label()] ?? 0), 'tone' => $st->tone()])
+            ->all();
+
+        $rtlToneMap = ['selesai' => 'done', 'berjalan' => 'progress', 'terlambat' => 'overdue', 'dibatalkan' => 'archived'];
+        $rtlSegments = collect($data['rtl_per_status'])
+            ->map(fn ($v, $k) => ['label' => \Illuminate\Support\Str::title((string) $k), 'value' => (int) $v, 'tone' => $rtlToneMap[$k] ?? 'neutral'])
+            ->values()->all();
+    @endphp
+
+    <div class="grid gap-6 lg:grid-cols-2">
+        <x-ui.card title="Siklus per status" :subtitle="$data['total_siklus'].' siklus total'">
+            <x-ui.bar-distribution :segments="$statusSegments" unit="siklus" />
+        </x-ui.card>
+
+        <x-ui.card title="Tindak lanjut per status">
+            @if (collect($rtlSegments)->sum('value') > 0)
+                <x-ui.bar-distribution :segments="$rtlSegments" unit="RTL" />
+            @else
+                <p class="text-sm text-[var(--text-muted)]">Belum ada rencana tindak lanjut.</p>
+            @endif
+        </x-ui.card>
+    </div>
+
     @if (! empty($data['anomali']))
         <x-ui.card title="Anomali untuk tinjauan">
             <x-ui.ai-draft-banner>Ditandai otomatis. Sistem tidak mengambil tindakan — verifikasi manual.</x-ui.ai-draft-banner>
@@ -64,16 +89,21 @@
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-[var(--border)] text-sm">
                 <thead class="text-left text-xs uppercase tracking-wide text-[var(--text-muted)]">
-                    <tr><th class="px-4 py-3">Sekolah</th><th class="px-4 py-3">Wilayah</th><th class="px-4 py-3">Total</th><th class="px-4 py-3">Dilaporkan</th><th class="px-4 py-3">RTL terlambat</th></tr>
+                    <tr><th class="px-4 py-3">Sekolah</th><th class="px-4 py-3">Wilayah</th><th class="px-4 py-3">Total</th><th class="px-4 py-3 min-w-[10rem]">Dilaporkan</th><th class="px-4 py-3">RTL terlambat</th></tr>
                 </thead>
                 <tbody class="divide-y divide-[var(--border)]">
                     @forelse ($data['per_sekolah'] as $row)
                         <tr>
                             <td class="px-4 py-3 font-medium">{{ $row['sekolah'] }}</td>
                             <td class="px-4 py-3">{{ $row['wilayah'] ?? '—' }}</td>
-                            <td class="px-4 py-3">{{ $row['total'] }}</td>
-                            <td class="px-4 py-3">{{ $row['dilaporkan'] }}</td>
-                            <td class="px-4 py-3 {{ $row['tindak_lanjut_terlambat'] > 0 ? 'text-status-overdue font-medium' : '' }}">{{ $row['tindak_lanjut_terlambat'] }}</td>
+                            <td class="px-4 py-3 tabular-nums">{{ $row['total'] }}</td>
+                            <td class="px-4 py-3">
+                                <x-ui.meter
+                                    :value="$row['dilaporkan']" :max="max(1, $row['total'])"
+                                    tone="done"
+                                    :value-label="$row['dilaporkan'].'/'.$row['total']" />
+                            </td>
+                            <td class="px-4 py-3 tabular-nums {{ $row['tindak_lanjut_terlambat'] > 0 ? 'text-status-overdue font-medium' : '' }}">{{ $row['tindak_lanjut_terlambat'] }}</td>
                         </tr>
                     @empty
                         <tr><td colspan="5" class="px-4 py-10 text-center text-[var(--text-muted)]">Tidak ada data untuk filter ini.</td></tr>

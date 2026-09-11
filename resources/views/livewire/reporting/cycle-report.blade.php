@@ -65,8 +65,24 @@
 
                 <h2>2–3. Analisis</h2>
                 @if ($snapshot['analisis'])
-                    <p>Skor total: {{ isset($snapshot['analisis']['skor']['total']) ? number_format($snapshot['analisis']['skor']['total'] * 100, 0).'%' : '—' }}
+                    @php $skorTotal = $snapshot['analisis']['skor']['total'] ?? null; @endphp
+                    <p>Skor total: {{ $skorTotal !== null ? number_format($skorTotal * 100, 0).'%' : '—' }}
                         ({{ $snapshot['analisis']['skor']['band'] ?? '—' }})</p>
+                    @if ($skorTotal !== null)
+                        <div class="not-prose max-w-xs">
+                            <x-ui.meter :value="$skorTotal" :value-label="number_format($skorTotal * 100, 0).'%'" />
+                        </div>
+                        @if (! empty($snapshot['analisis']['skor']['sections']))
+                            <div class="not-prose mt-3 max-w-sm space-y-2">
+                                @foreach ($snapshot['analisis']['skor']['sections'] as $key => $sec)
+                                    <x-ui.meter
+                                        :label="\Illuminate\Support\Str::headline((string) $key)"
+                                        :value="$sec['score'] ?? 0"
+                                        :value-label="($sec['score'] ?? null) !== null ? number_format($sec['score'] * 100, 0).'%' : '—'" />
+                                @endforeach
+                            </div>
+                        @endif
+                    @endif
                     <p style="white-space: pre-line">{{ $snapshot['analisis']['ringkasan'] }}</p>
                     <ul>
                         @foreach ($snapshot['analisis']['temuan'] ?? [] as $t)

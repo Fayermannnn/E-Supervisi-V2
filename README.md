@@ -18,8 +18,10 @@ evaluasi teknis (`docs/technical-evaluation.md`), dan skenario demo
 (`docs/demo-script.md`) tersedia. Ekspor laporan **server-side** (PDF siklus;
 PDF/XLSX/CSV agregat) via job, pure-PHP (dompdf + OpenSpout). Header keamanan
 respons (CSP nonce+hash, HSTS, X-Frame-Options, dst.) ditegakkan aplikasi
-(`SecureHeaders`, ADR-016). Modul M3–M6, M9–M12, M18 = `@provisional` sampai
-SLR Gate 6/7. `composer ci` hijau (Pint + PHPStan 8 + 237 tes).
+(`SecureHeaders`, ADR-016). Visualisasi data server-rendered (`x-ui.meter`,
+`x-ui.bar-distribution`) di Analisis, Pelaporan, Akuntabilitas, Dasbor. Modul
+M3–M6, M9–M12, M18 = `@provisional` sampai SLR Gate 6/7. `composer ci` hijau
+(Pint + PHPStan 8 + 239 tes).
 
 ```bash
 php artisan migrate:fresh --seed && npm run dev

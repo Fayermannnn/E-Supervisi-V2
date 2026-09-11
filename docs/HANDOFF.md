@@ -16,13 +16,14 @@
 | 4 | Pengembangan profesional & akuntabilitas | M7, M9, M10, M11, M12 | ✅ Selesai, tag `phase4-complete` (M9–M12 `@provisional`) |
 | 5 | Kesiapan evaluasi ahli (DSR Artikel 3) | — | ✅ Selesai, tag `phase5-complete` |
 
-**Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **237 Pest tests / 639 assertions pass**.
+**Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **239 Pest tests / 645 assertions pass**.
 
 **Pasca-Fase 5** (di atas tag `phase5-complete`):
 - `d71cd84` — **ekspor laporan server-side**: `dompdf/dompdf` (PDF) + `openspout/openspout` (XLSX), pure-PHP (aman 3T). `report_exports` + job `GenerateReportExport`.
 - `94e0d91`, `45ebf8b` — **redesain frontend "govtech modern & bersih"**: token `resources/css/app.css` (brand biru tua, netral hangat, shadow/surface), Instrument Sans self-host + `@fonts` di layout (dulu render font sistem), komponen `x-ui.*`/`x-app.*` dipoles, `.field-input` disapu ke seluruh view Livewire, eyebrow di semua `page-header`, layout auth split-screen.
 - `fa08122` — **halaman landing publik** di `/` (route `home`); tamu lihat landing, user login → dasbor. CSS-only.
 - **header keamanan respons** — `App\Http\Middleware\SecureHeaders` (global) + `config/security.php`: CSP ditegakkan (`script-src 'self' 'unsafe-eval' 'nonce-…' <hash>`, tanpa `'unsafe-inline'` untuk script), HSTS (HTTPS-only), X-Frame-Options `DENY`, X-Content-Type-Options, Referrer/Permissions-Policy, COOP/CORP. Nonce per-request via `Vite::useCspNonce()`; direktif `@cspNonce`. Dua inline script layout (boot tema, SW register) di-whitelist via hash SHA-256. ADR-016. Toggle env `SECURITY_CSP_ENABLED`/`SECURITY_CSP_REPORT_ONLY`/`SECURITY_HSTS_ENABLED`. Diuji: `tests/Feature/Security/SecureHeadersTest.php` (10 tes).
+- **poles UI: visualisasi data** — komponen `<x-ui.meter>` + `<x-ui.bar-distribution>` (SVG-less, HTML/CSS murni, sesuai `docs/dataviz`) dipasang di Analisis, Laporan Siklus, Pelaporan Agregat, Akuntabilitas 360°, Dasbor, Pelacak RTL. Lihat `docs/screen-map.md`. Diverifikasi di browser (desktop + 360px) untuk tiap layar. Plus: **confetti** ringan (CSS/Alpine, tanpa dependency) saat laporan siklus pertama kali disusun (`CycleReport::compile()` → event `celebrate`) — `prefers-reduced-motion` dihormati.
 
 **MVP LENGKAP — semua domain terbangun.** Fase 5 menambahkan modul **Evaluasi Ahli** in-app (domain `Evaluation` + peran `ahli`): panel ahli (≥ 2 rumpun) menilai artefak → sistem menghitung **CVR/CVI** (Lawshe), **Aiken's V**, **SUS** (`ExpertJudgmentStats`, deterministik + unit-tested). Dokumen baru: `docs/dsr-artefak.md` (DSR Peffers dkk. 2007), `docs/expert-judgment.md`, `docs/technical-evaluation.md`, `docs/demo-script.md`. `tests/Feature/Performance/` masuk `composer ci`. Keputusan checkpoint: `DECISIONS.md` F5-01, F5-02.
 
@@ -64,6 +65,7 @@ npm run dev
 - Postgres: unique index dengan kolom nullable → pakai **partial unique index** `WHERE col IS NULL`.
 - Test DB PostgreSQL (bukan SQLite) — paritas jsonb/enum.
 - **Jangan** `Date::use(CarbonImmutable)` (bentrok ekspektasi Larastan) — pernah dicoba & di-revert.
+- Tailwind 4 men-scan `@source '../../storage/framework/views/*.php'` (blade **terkompilasi**), bukan `resources/views` langsung. Setelah `view:clear` atau di lingkungan bersih, `npm run build` sebelum blade baru pernah dirender akan **kehilangan class yang hanya dipakai class baru itu** (CSS lebih kecil, tanpa error). Jalankan `php artisan view:cache` (kompilasi semua blade) **sebelum** `npm run build` saat menambah komponen/class Tailwind baru.
 
 ---
 
@@ -122,6 +124,7 @@ checkpoint sendiri):
   `tests/Browser` (Pest v4) untuk alur luring→online, uji beban lapangan
   (`docs/technical-evaluation.md` §4–5).
 - **Modul JS outbox khusus bukti RTL** (saat ini online via Livewire).
+- ~~Poles UI lanjutan: chart/visualisasi~~ **sebagian selesai** (lihat §1) — sisa: chart di Kalibrasi (`CalibrationShow`, reliabilitas antar-penilai) bila dibutuhkan.
 
 **Proses bila melanjutkan (master prompt §20, §25):** DISCOVER → checkpoint bila
 ambiguity → PLAN → implementasi → update docs → `composer ci` hijau → commit

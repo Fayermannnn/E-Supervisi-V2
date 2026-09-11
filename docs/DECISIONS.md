@@ -189,5 +189,25 @@ Checkpoint (dijawab user): **CSP ditegakkan + nonce** (bukan `'unsafe-inline'`, 
 | Verifikasi | `composer ci` hijau — **237 tes / 639 assertions**. |
 | Skema | Tidak ada perubahan DB. `config/security.php` baru; tidak ada dependency baru. |
 
+### Pasca-Fase 5 — Poles UI: visualisasi data ✅
+
+Checkpoint (dijawab user): pendekatan **komponen SVG/HTML inline** (bukan library JS) — konsisten semangat 3T (pure-PHP, tanpa dependency baru). Scope: Analisis + Laporan Siklus, Pelaporan Agregat, Akuntabilitas 360° + RTL, Dasbor + cek viewport.
+
+| Item | Catatan |
+|---|---|
+| `<x-ui.meter>` | Rasio terhadap batas (skor 0–1, dimensi 0–4, butir RTL selesai/total, % dilaporkan per sekolah). Track = langkah lebih terang dari ramp yang sama; isi 4px rounded; label nilai di ujung. Metodologi `docs/dataviz` (meter untuk "satu rasio terhadap batas", bukan gauge/pie). |
+| `<x-ui.bar-distribution>` | Part-to-whole (siklus per status, RTL per status) — stacked bar horizontal, warna token status (`CycleStatus::tone()`), celah 2px antar segmen, legenda dot+label+angka. Bukan donut/pie (skill dataviz: donut hanya untuk part-to-whole sekilas, ≤6 segmen, dan warna identitas > perbandingan nilai dekat). |
+| Layar disentuh | `AnalysisWorkspace` (skor total + per-seksi), `CycleReport` (skor band di laporan tersusun), `AggregateDashboard` (siklus/RTL per status + % dilaporkan per sekolah), `AccountabilityDashboard` (rata-rata per dimensi 360°), `Dashboard` (sebaran siklus per status per peran), `FollowUpTracker` (progres butir per rencana RTL). |
+| Backend | `Dashboard::distributionFor()` — hitung sebaran status via `toBase()->pluck()` (hindari cast enum sebagai kunci array); scoped per peran (`visibleTo`/`adminDinasId`). Domain lain: data sudah tersedia, tidak ada Action baru. |
+| Bug ditemukan & diperbaiki | Kutip Blade tak seimbang di `aggregate-dashboard.blade.php` (`ParseError`) — tertangkap lewat verifikasi browser langsung (RULE: selalu render, jangan hanya baca kode). |
+| Verifikasi | Browser: Dasbor/Analisis/Laporan Siklus/Pelaporan Agregat/Akuntabilitas di desktop **dan** viewport 375px (mobile) — tanpa scroll horizontal, tanpa error konsol. `composer stan` + `pint` tetap hijau (banyak `mixed` dari `config()`/Blade `@props` di-cast eksplisit). |
+| Gotcha didokumentasikan | `npm run build` sebelum `php artisan view:cache` bisa menghasilkan CSS lebih kecil (class dari blade yang belum terkompilasi hilang, tanpa error) — dicatat di HANDOFF §2. |
+| Tes | +2 (render Akuntabilitas dengan meter saat ambang anonimitas terpenuhi; existing suite tak berubah). |
+| Skema | Tidak ada. Dua komponen Blade baru (`resources/views/components/ui/{meter,bar-distribution}.blade.php`), tidak ada dependency baru. |
+
+### Pasca-Fase 5 — Easter egg: konfeti saat laporan siklus disusun 🎉
+
+Di luar scope checkpoint (inisiatif bebas atas permintaan eksplisit user "buat sesuatu yang seru, atas inisiatifmu sendiri" — bukan bagian dari DoD modul, tidak menyentuh RBAC/state machine/audit/AI). `App\Livewire\Reporting\CycleReport::compile()` men-dispatch event browser `celebrate` setelah `CompileCycleReport` berhasil (siklus → `DILAPORKAN`). Listener Alpine di `layouts/app.blade.php` merender ± 70 partikel confetti CSS (`@keyframes confetti-fall`), murni HTML/CSS — tanpa dependency, tanpa `<script>` inline baru (jadi tak butuh nonce/hash CSP tambahan), menghormati `prefers-reduced-motion`. Diuji: dispatch event terverifikasi via `Livewire::test(...)->assertDispatched('celebrate')`.
+
 ### (tidak ada PHASE 6 terencana)
 

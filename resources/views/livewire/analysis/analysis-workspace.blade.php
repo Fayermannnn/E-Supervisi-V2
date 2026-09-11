@@ -21,20 +21,40 @@
             </x-slot:actions>
 
             @if ($result?->score_summary)
-                @php $s = $result->score_summary; @endphp
-                <div class="flex flex-wrap items-baseline gap-4">
-                    <div>
-                        <p class="text-3xl font-semibold text-ink-900 dark:text-ink-50">{{ $s['total'] !== null ? number_format($s['total'] * 100, 0).'%' : '—' }}</p>
-                        <p class="text-xs text-[var(--text-muted)]">Skor total · {{ $s['band'] ?? '—' }}</p>
+                @php
+                    $s = $result->score_summary;
+                    $band = $s['band'] ?? null;
+                    $bandTone = match (true) {
+                        $band === null => 'neutral',
+                        str_contains(strtolower($band), 'sangat baik'), str_contains(strtolower($band), 'baik') => 'done',
+                        str_contains(strtolower($band), 'cukup') => 'progress',
+                        default => 'overdue',
+                    };
+                @endphp
+                <div class="grid gap-5 sm:grid-cols-[minmax(0,11rem)_1fr] sm:items-center">
+                    <div class="sm:border-r sm:border-[var(--border)] sm:pr-5">
+                        <p class="text-4xl font-bold leading-none text-ink-900 dark:text-ink-50">{{ $s['total'] !== null ? number_format($s['total'] * 100, 0).'%' : '—' }}</p>
+                        <p class="mt-1 text-xs font-medium text-[var(--text-muted)]">Skor total{{ $band ? ' · '.$band : '' }}</p>
+                        @if ($s['total'] !== null)
+                            <div class="mt-2.5">
+                                <x-ui.meter :value="$s['total']" :tone="$bandTone" :value-label="number_format($s['total'] * 100, 0).'%'" />
+                            </div>
+                        @endif
                     </div>
-                    <div class="flex flex-wrap gap-2 text-xs">
-                        @foreach ($s['sections'] ?? [] as $key => $sec)
-                            <span class="rounded-md bg-ink-100 px-2 py-1 dark:bg-ink-800">{{ $key }}: {{ $sec['score'] !== null ? number_format($sec['score'] * 100, 0).'%' : '—' }}</span>
-                        @endforeach
+
+                    <div class="space-y-2.5">
+                        @forelse ($s['sections'] ?? [] as $key => $sec)
+                            <x-ui.meter
+                                :label="\Illuminate\Support\Str::headline((string) $key)"
+                                :value="$sec['score'] ?? 0"
+                                :value-label="$sec['score'] !== null ? number_format($sec['score'] * 100, 0).'%' : '—'" />
+                        @empty
+                            <p class="text-xs text-[var(--text-muted)]">Tidak ada rincian per seksi.</p>
+                        @endforelse
                     </div>
                 </div>
 
-                <ul class="mt-4 space-y-2 text-sm">
+                <ul class="mt-5 space-y-2 border-t border-[var(--border)] pt-4 text-sm">
                     @foreach ($findings as $f)
                         <li class="flex gap-2">
                             <span class="mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium uppercase {{ $f->kategori === 'kekuatan' ? 'bg-status-done/12 text-status-done' : 'bg-status-progress/12 text-status-progress' }}">
