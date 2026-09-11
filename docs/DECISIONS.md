@@ -237,7 +237,7 @@ efek di lokal; sama pola dengan toggle `SECURITY_*` sebelumnya).
 | `SESSION_SECURE_COOKIE` | Sudah ada di `config/session.php` bawaan Laravel (`env('SESSION_SECURE_COOKIE')`) — tidak butuh kode baru, hanya didokumentasikan eksplisit di `.env.example`/`.env` (default `false`, aktifkan bersamaan `FORCE_HTTPS` di produksi). |
 | Bug ditemukan & diperbaiki | `config('security.trusted_proxies')` di dalam closure `withMiddleware()` meng-crash `composer stan` — Larastan mem-bootstrap `bootstrap/app.php` pada tahap SEBELUM container `config` terdaftar ("Target class [config] does not exist"). Diperbaiki: baca `env('TRUSTED_PROXIES')` langsung di `bootstrap/app.php` (dicatat sebagai gotcha di ADR-016). |
 | Tes | `tests/Feature/Security/HttpsEnforcementTest.php` — 2 tes (default tak berubah; `force_https=true` → `url()`/`route()` menghasilkan `https://`). `TrustProxies` sendiri tak praktis diuji feature-level (efek bootstrap sekali-jalan) — diverifikasi manual: `TRUSTED_PROXIES='*' php artisan about` tetap boot normal. |
-| Verifikasi | `composer ci` hijau — **249 tes / 670 assertions**. |
+| Verifikasi | `composer ci` hijau — **254 tes / 687 assertions**. |
 | Skema | Tidak ada. Tidak ada dependency baru. |
 
 ### Pasca-Fase 5 — tests/Browser: alur luring→online otomatis ✅
@@ -287,6 +287,24 @@ di lapisan lain).
 | Cakupan yang TIDAK termasuk | Alur guru (refleksi→umpan balik→bukti RTL) dan walkthrough siklus penuh belum diotomasi sebagai browser test (item terpisah bila dibutuhkan) — sudah diuji non-browser di `tests/Feature`. |
 | Verifikasi | `composer ci` tidak berubah (tetap 249 tes / 670 assertions) — `tests/Browser` di luar `phpunit.xml` testsuites, hanya jalan via `composer test:browser`. |
 | Skema | Tidak ada. `composer.json`/`package.json` +1 dev dependency masing-masing; `data-testid` additive di 1 view. |
+
+### Pasca-Fase 5 — Modul JS outbox khusus bukti RTL ✅
+
+Menutup janji checkpoint **R-04** yang belum sepenuhnya terpenuhi: "Offline
+untuk Observasi **+ bukti RTL**" — Observasi selesai sejak Fase 2, bukti RTL
+masih online-only via Livewire sampai sekarang.
+
+| Item | Catatan |
+|---|---|
+| `resources/js/followup-evidence-outbox.js` | Modul mandiri (bukan bagian `observation-console.js`) — domain berbeda (M5 bukan M2), selaras ADR-006/ADR-012 "kompleksitas Livewire konsol observasi → modul Alpine/JS mandiri". IndexedDB `outbox` sendiri (`esupervisi-followup`, terpisah dari `esupervisi-obs`), listener `online`/`offline`, retry 20 dtk. |
+| `POST /api/v1/sync/follow-up-evidence` | Endpoint BARU (sebelumnya hanya ada di `docs/offline.md` sebagai referensi usang yang belum pernah diimplementasikan — ditemukan saat riset). Batch (maks 50), `ability:follow-up:evidence` (Sanctum `TransientToken` meloloskan semua ability untuk request sesi web first-party — mekanisme sama yang membuat `observation-console.js` bekerja tanpa token eksplisit, diverifikasi dari source Sanctum sebelum implementasi). |
+| `App\Domain\FollowUp\Actions\SyncFollowUpEvidence` | Orkestrator batch tipis — mendelegasikan tiap entri ke `SubmitFollowUpEvidence` yang **sudah** idempoten (UUID klien) sejak modul RTL pertama dibangun; satu entri gagal (mis. `follow_up_item_id` tak valid) tak menggagalkan entri lain, selaras pola `SyncObservations`. |
+| UI | `FollowUpTracker`: `addEvidence()`/`evidenceNote` (Livewire, online-only) dihapus, diganti `x-data="followUpEvidenceOutbox()"` + badge sinkron ringkas + baris "Bukti (menunggu sinkron)" lokal per butir. `$wire.$refresh()` dipanggil dari JS setelah sinkron sukses agar daftar bukti (dirender server) termutakhirkan tanpa duplikasi render. |
+| Cakupan | Catatan teks (`tipe: catatan`) saja — cakupan yang sama dengan UI Livewire lama yang digantikan. Lampiran berkas/foto bukti RTL (`tipe: dokumen/foto`) tetap di luar scope (butuh unggah berkas luring, item terpisah bila dibutuhkan — lihat T-07 `risk-register.md`). |
+| Tes | `tests/Feature/Api/FollowUpEvidenceSyncTest.php` (5: ability gate, sukses+idempoten, batch parsial gagal, cross-guru ditolak) + `tests/Browser/FollowUpEvidenceOfflineSyncTest.php` (Chromium sungguhan, pola sama `ObservationOfflineSyncTest`). Diverifikasi juga manual di browser (desktop + 375px) — badge "Luring"→"Tersinkron", baris "menunggu sinkron" muncul/hilang sesuai state. |
+| Bug fixture ditemukan | `fase4Cycle(FollowUpActive)` (helper `tests/Pest.php`) sengaja menandai satu-satunya butir 'selesai' (dipakai tes lain untuk skenario plan tertutup) — plan otomatis ikut 'selesai', form bukti pun tak tampil (`$plan->isOpen()` false). Kedua tes baru membangun fixture sendiri dari `fase4Cycle(FeedbackGiven)` + `CreateFollowUpPlan` manual agar butir tetap terbuka. Bukan bug aplikasi — helper bersama memang didesain begitu untuk pemakai lain. |
+| Verifikasi | `composer ci` hijau — **254 tes / 687 assertions**. `tests/Browser` (2 tes browser, 21 assertion) tetap opt-in. |
+| Skema | Tidak ada. Tidak ada dependency baru (memakai `pest-plugin-browser` yang sudah terpasang). |
 
 ### (tidak ada PHASE 6 terencana)
 

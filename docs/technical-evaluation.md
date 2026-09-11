@@ -72,9 +72,9 @@ gantinya, inventaris per kategori — gate `composer ci`:
 | Architecture | 1 | 11 | larangan import lintas domain, AI tanpa DB, state machine satu penulis, isolasi domain Fase 4–5, kemurnian helper statistik |
 | Performance | 1 | 3 | dasbor & laporan agregat pada ~200 siklus |
 | Static | — | — | Pint (strict types) + Larastan level 8 "No errors" |
-| Browser *(opt-in, di luar `composer ci`)* | 1 | 10 | luring→online: deteksi offline (`navigator.onLine`), antre IndexedDB, sinkron otomatis saat online, tanpa duplikasi server — Chromium sungguhan via Pest\Browser + Playwright |
+| Browser *(opt-in, di luar `composer ci`)* | 2 | 21 | luring→online: deteksi offline (`navigator.onLine`), antre IndexedDB, sinkron otomatis saat online, tanpa duplikasi server — Chromium sungguhan via Pest\Browser + Playwright |
 
-**Total (`composer ci`): 249 tes / 670 assertions, hijau.** (termasuk ekspor laporan server-side dompdf/OpenSpout + header keamanan respons + hardening unggah berkas pasca-Fase 5.) Ditambah 1 tes browser opt-in (`composer test:browser`, butuh Playwright — lihat `docs/testing.md`).
+**Total (`composer ci`): 254 tes / 687 assertions, hijau.** (termasuk ekspor laporan server-side dompdf/OpenSpout + header keamanan respons + hardening unggah berkas pasca-Fase 5.) Ditambah 2 tes browser opt-in (`composer test:browser`, butuh Playwright — lihat `docs/testing.md`).
 
 Perintah:
 ```bash

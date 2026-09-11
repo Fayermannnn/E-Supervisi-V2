@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Domain\FollowUp\Actions\SyncFollowUpEvidence;
 use App\Domain\Observation\Actions\SyncObservations;
+use App\Http\Requests\Api\SyncFollowUpEvidenceRequest;
 use App\Http\Requests\Api\SyncObservationsRequest;
 use App\Http\Resources\ObservationResource;
 use App\Models\Observation;
@@ -75,6 +77,17 @@ class SyncController extends ApiController
             'applied' => $result['applied'],
             'conflicts' => $result['conflicts'],
         ], ['count' => count($result['applied'])]);
+    }
+
+    /**
+     * Batch bukti RTL dari antrean luring (ADR-006, R-04). Setiap entri
+     * idempoten via `id` UUID klien — didelegasikan ke `SubmitFollowUpEvidence`.
+     */
+    public function followUpEvidence(SyncFollowUpEvidenceRequest $request, SyncFollowUpEvidence $action): JsonResponse
+    {
+        $result = $action->handle($this->user($request), $request->batch());
+
+        return $this->ok($result, ['count' => count($result['applied'])]);
     }
 
     public function status(Request $request): JsonResponse

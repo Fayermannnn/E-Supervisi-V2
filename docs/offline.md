@@ -1,8 +1,8 @@
-# Offline-First — Strategi (IMPLEMENTED, Fase 2)
+# Offline-First — Strategi (IMPLEMENTED, Fase 2 + pasca-Fase 5)
 
-Sumber: Spec §3.2, §9, §13; master prompt §13. Cakupan MVP: **konsol Observasi (M2)** (selesai) + **unggah bukti RTL (M5)** (Fase 3).
+Sumber: Spec §3.2, §9, §13; master prompt §13. Cakupan MVP: **konsol Observasi (M2)** (selesai, Fase 2) + **bukti RTL (M5)** (selesai, pasca-Fase 5 — lihat checkpoint R-04).
 
-## Implementasi Fase 2
+## Implementasi Fase 2 — Observasi
 
 | Bagian | Berkas |
 |---|---|
@@ -13,7 +13,24 @@ Sumber: Spec §3.2, §9, §13; master prompt §13. Cakupan MVP: **konsol Observa
 | Action server | `App\Domain\Observation\Actions\SyncObservations` — upsert per UUID klien, idempoten via hash payload di `observation_sync_log`, optimistic lock `observations.version` → 409 + state server pada konflik |
 | Indikator UI | `<x-ui.sync-indicator>` — `Siap · Luring · Menyimpan lokal · Menunggu sinkron · Menyinkronkan · Tersinkron · Konflik` |
 
-Diuji: `tests/Feature/Api/ObservationSyncTest.php` (idempotensi 3× kirim → 1 baris; konflik base-version → 409 + `observation_sync_log`; scope token; cross-supervisor ditolak).
+Diuji: `tests/Feature/Api/ObservationSyncTest.php` (idempotensi 3× kirim → 1 baris; konflik base-version → 409 + `observation_sync_log`; scope token; cross-supervisor ditolak) + `tests/Browser/ObservationOfflineSyncTest.php` (Chromium sungguhan — deteksi luring, antre, sinkron otomatis, tanpa duplikat).
+
+## Implementasi pasca-Fase 5 — Bukti RTL
+
+Modul mandiri terpisah dari konsol observasi (domain berbeda, M5 bukan M2 — selaras ADR-006/ADR-012 "kompleksitas Livewire → modul Alpine/JS mandiri").
+
+| Bagian | Berkas |
+|---|---|
+| Modul klien | `resources/js/followup-evidence-outbox.js` — IndexedDB (`outbox`), listener `online`/`offline`, retry tiap 20 dtk, `$wire.$refresh()` setelah sinkron sukses agar daftar bukti (dirender server) termutakhirkan |
+| Endpoint sync | `POST /api/v1/sync/follow-up-evidence` (`ability:follow-up:evidence`) — batch, maks 50 entri per kirim |
+| Action server | `App\Domain\FollowUp\Actions\SyncFollowUpEvidence` — mengorkestrasi batch, mendelegasikan tiap entri ke `SubmitFollowUpEvidence` (sudah idempoten via UUID klien sejak awal); satu entri gagal tak menggagalkan entri lain |
+| UI | `resources/views/livewire/follow-up/follow-up-tracker.blade.php` — badge sinkron ringkas + baris "Bukti (menunggu sinkron)" lokal per butir sebelum tersinkron |
+
+Diuji: `tests/Feature/Api/FollowUpEvidenceSyncTest.php` (idempotensi, ability gate, batch parsial gagal, cross-guru ditolak) + `tests/Browser/FollowUpEvidenceOfflineSyncTest.php` (Chromium sungguhan).
+
+Cakupan MVP **tidak** termasuk lampiran berkas/foto luring untuk bukti RTL —
+hanya catatan teks (`tipe: catatan`); unggah berkas (`dokumen`/`foto`) tetap
+API-only, online (lihat T-07 di `risk-register.md`).
 
 > Master prompt §13: **jangan** klaim "offline support" bila hanya menyimpan draft di browser tanpa sinkronisasi sesungguhnya.
 
@@ -39,7 +56,7 @@ Diuji: `tests/Feature/Api/ObservationSyncTest.php` (idempotensi 3× kirim → 1 
 3. **Online kembali**: Background Sync memicu flush → `POST /api/v1/sync/observations` (batch, idempoten).
 4. **Server**: `upsert` berdasarkan UUID klien; unik `(observation_id, item_key)` mencegah duplikat pada retry; kembalikan `version` baru.
 5. **Konflik**: 409 + `data.server` → klien simpan sebagai `conflict`, UI resolusi (ambil server / ambil lokal / gabung manual) → `POST /sync/observations/{id}/resolve`.
-6. **Media**: `POST /api/v1/sync/follow-up-evidence` & `/observations/{id}/media` saat online.
+6. **Bukti RTL** (mandiri, lihat §Implementasi pasca-Fase 5 di atas): catatan diantre luring → `POST /api/v1/sync/follow-up-evidence` (batch, idempoten) begitu online. Lampiran berkas (`/observations/{id}/media`) tetap online-only.
 
 ## Invarian (diuji)
 

@@ -86,6 +86,8 @@ Route::prefix('v1')->group(function (): void {
             Route::get('/sync/bootstrap', [SyncController::class, 'bootstrap']);
             Route::post('/sync/observations', [SyncController::class, 'observations'])
                 ->middleware('ability:observation:sync');
+            Route::post('/sync/follow-up-evidence', [SyncController::class, 'followUpEvidence'])
+                ->middleware('ability:follow-up:evidence');
             Route::get('/sync/status', [SyncController::class, 'status']);
         });
     });

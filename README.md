@@ -21,10 +21,10 @@ respons (CSP nonce+hash, HSTS, X-Frame-Options, dst.) ditegakkan aplikasi
 (`SecureHeaders`, ADR-016). Visualisasi data server-rendered (`x-ui.meter`,
 `x-ui.bar-distribution`) di Analisis, Pelaporan, Akuntabilitas, Dasbor. Unggah
 berkas observasi divalidasi & diuji terhadap berkas berbahaya. Alur luring→
-online (observasi) diuji lewat browser sungguhan (`composer test:browser`,
-Chromium via Pest\Browser — opt-in, lihat `docs/testing.md`). Modul M3–M6,
-M9–M12, M18 = `@provisional` sampai SLR Gate 6/7. `composer ci` hijau
-(Pint + PHPStan 8 + 249 tes).
+online (observasi **dan** bukti RTL — outbox JS mandiri, R-04) diuji lewat
+browser sungguhan (`composer test:browser`, Chromium via Pest\Browser —
+opt-in, lihat `docs/testing.md`). Modul M3–M6, M9–M12, M18 = `@provisional`
+sampai SLR Gate 6/7. `composer ci` hijau (Pint + PHPStan 8 + 254 tes).
 
 ```bash
 php artisan migrate:fresh --seed && npm run dev

@@ -2,7 +2,7 @@
 
 Sumber: master prompt §17, §22, §26. Runner: **Pest**. DB test: PostgreSQL (bukan SQLite — paritas fitur jsonb/enum). `phpunit.xml` menyetel `memory_limit=512M` (arch test).
 
-**Status:** 249 tes / 670 assertions, `composer ci` hijau (Pint + Larastan 8 + Pest) — termasuk ekspor laporan server-side + header keamanan respons (`SecureHeaders`) + visualisasi data (`x-ui.meter`/`x-ui.bar-distribution`) + hardening unggah berkas pasca-Fase 5. Line coverage tidak dilaporkan (tanpa Xdebug/PCOV) — inventaris per kategori di `docs/technical-evaluation.md`.
+**Status:** 254 tes / 687 assertions, `composer ci` hijau (Pint + Larastan 8 + Pest) — termasuk ekspor laporan server-side + header keamanan respons (`SecureHeaders`) + visualisasi data (`x-ui.meter`/`x-ui.bar-distribution`) + hardening unggah berkas pasca-Fase 5. Line coverage tidak dilaporkan (tanpa Xdebug/PCOV) — inventaris per kategori di `docs/technical-evaluation.md`.
 
 ## Piramida
 
@@ -33,8 +33,8 @@ Sumber: master prompt §17, §22, §26. Runner: **Pest**. DB test: PostgreSQL (b
 - token sync scope `observation:sync` tak bisa memanggil endpoint admin.
 
 **Browser:**
-- Guru: login → jadwal → refleksi → hasil observasi → konfirmasi umpan balik → unggah bukti RTL. *(belum diotomasi.)*
-- Supervisor: login → observasi (matikan jaringan, isi, nyalakan, verifikasi sinkron tanpa duplikat) — **otomatis**, `tests/Browser/ObservationOfflineSyncTest.php`. Sisa alur (perencanaan → analisis → umpan balik → RTL → laporan) belum diotomasi sebagai browser test (sudah diuji di `tests/Feature` non-browser).
+- Guru: login → jadwal → refleksi → hasil observasi → konfirmasi umpan balik → unggah bukti RTL (matikan jaringan, catat, nyalakan, verifikasi sinkron tanpa duplikat) — **otomatis**, `tests/Browser/FollowUpEvidenceOfflineSyncTest.php`. Refleksi & konfirmasi umpan balik belum diotomasi sebagai browser test.
+- Supervisor: login → observasi (matikan jaringan, isi, nyalakan, verifikasi sinkron tanpa duplikat) — **otomatis**, `tests/Browser/ObservationOfflineSyncTest.php`. Sisa alur (perencanaan → analisis → umpan balik → laporan) belum diotomasi sebagai browser test (sudah diuji di `tests/Feature` non-browser).
 
 ## Browser (`tests/Browser`, Pest\Browser + Playwright)
 

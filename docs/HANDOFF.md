@@ -16,7 +16,7 @@
 | 4 | Pengembangan profesional & akuntabilitas | M7, M9, M10, M11, M12 | ✅ Selesai, tag `phase4-complete` (M9–M12 `@provisional`) |
 | 5 | Kesiapan evaluasi ahli (DSR Artikel 3) | — | ✅ Selesai, tag `phase5-complete` |
 
-**Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **249 Pest tests / 670 assertions pass**.
+**Gate hijau saat ini:** `composer ci` = Pint (strict types) clean + PHPStan level 8 "No errors" + **254 Pest tests / 687 assertions pass**. Plus 2 tes browser opt-in (`composer test:browser`, di luar `composer ci`).
 
 **Pasca-Fase 5** (di atas tag `phase5-complete`):
 - `d71cd84` — **ekspor laporan server-side**: `dompdf/dompdf` (PDF) + `openspout/openspout` (XLSX), pure-PHP (aman 3T). `report_exports` + job `GenerateReportExport`.
@@ -26,6 +26,8 @@
 - **poles UI: visualisasi data** — komponen `<x-ui.meter>` + `<x-ui.bar-distribution>` (SVG-less, HTML/CSS murni, sesuai `docs/dataviz`) dipasang di Analisis, Laporan Siklus, Pelaporan Agregat, Akuntabilitas 360°, Dasbor, Pelacak RTL. Lihat `docs/screen-map.md`. Diverifikasi di browser (desktop + 360px) untuk tiap layar. Plus: **confetti** ringan (CSS/Alpine, tanpa dependency) saat laporan siklus pertama kali disusun (`CycleReport::compile()` → event `celebrate`) — `prefers-reduced-motion` dihormati.
 - **hardening unggah berkas observasi** — `UploadObservationMediaRequest::withValidator()` menolak berkas yang isinya (deteksi konten asli, bukan ekstensi klien) tak sesuai kategori `tipe` yang diklaim; `ObservationController::sanitizeOriginalName()` melucuti direktori/karakter kontrol dari `original_name` sebelum disimpan. `tests/Feature/Security/MediaUploadSecurityTest.php` (8 tes) membuktikan `.php`/`.svg`/PHP-berkedok-`.jpg`/oversize/tipe-mismatch semua ditolak — closes item "uji unggah berkas berbahaya" di §5/§6 lama.
 - **enforce HTTPS + secure cookie** — `AppServiceProvider::boot()`: `URL::forceScheme('https')` bila `FORCE_HTTPS=true`. `bootstrap/app.php`: `$middleware->trustProxies(...)` bila env `TRUSTED_PROXIES` diisi (`*` atau daftar IP koma) — **wajib** di produksi agar `$request->secure()` membaca `X-Forwarded-Proto` Nginx, jika tidak `SECURITY_HSTS_ENABLED=true` tak pernah benar-benar mengirim header. `SESSION_SECURE_COOKIE` didokumentasikan eksplisit di `.env.example`. Semua default `false`/kosong — tanpa efek di lokal. Diuji: `tests/Feature/Security/HttpsEnforcementTest.php`.
+- **tests/Browser: alur luring→online otomatis** — `pestphp/pest-plugin-browser` + `playwright` npm (dev-only, opt-in, `composer test:browser`, **di luar** `composer ci`). Server HTTP Laravel berjalan in-process (AMPHP) — `RefreshDatabase` tetap berlaku. `ObservationOfflineSyncTest.php`: login sungguhan → konsol observasi → simulasi luring (`navigator.onLine` + event asli) → isi skor → simulasi online → tepat 1 baris server, bukan duplikat. Gotcha ditemukan: selektor "tebak" non-eksplisit (`GuessLocator`, mis. `fill('form.email', …)`) macet ~30 dtk di halaman ber-Livewire pada plugin v5.0.1 — selalu pakai selektor eksplisit (`[id="…"]`/`[data-testid="…"]`), lihat `docs/testing.md` §Browser.
+- **Modul JS outbox khusus bukti RTL** — `resources/js/followup-evidence-outbox.js` (pola sama observation-console.js, modul mandiri). Endpoint baru `POST /api/v1/sync/follow-up-evidence` (`ability:follow-up:evidence`, batch idempoten, `App\Domain\FollowUp\Actions\SyncFollowUpEvidence` mendelegasikan ke `SubmitFollowUpEvidence` yang sudah idempoten). UI `FollowUpTracker`: badge sinkron + baris "menunggu sinkron" lokal, `$wire.$refresh()` setelah sukses. Cakupan: catatan teks luring saja (bukan lampiran berkas). Diuji: `FollowUpEvidenceSyncTest.php` (API, 5 tes) + `FollowUpEvidenceOfflineSyncTest.php` (browser).
 
 **MVP LENGKAP — semua domain terbangun.** Fase 5 menambahkan modul **Evaluasi Ahli** in-app (domain `Evaluation` + peran `ahli`): panel ahli (≥ 2 rumpun) menilai artefak → sistem menghitung **CVR/CVI** (Lawshe), **Aiken's V**, **SUS** (`ExpertJudgmentStats`, deterministik + unit-tested). Dokumen baru: `docs/dsr-artefak.md` (DSR Peffers dkk. 2007), `docs/expert-judgment.md`, `docs/technical-evaluation.md`, `docs/demo-script.md`. `tests/Feature/Performance/` masuk `composer ci`. Keputusan checkpoint: `DECISIONS.md` F5-01, F5-02.
 
@@ -127,7 +129,7 @@ checkpoint sendiri):
 - ~~tests/Browser untuk alur luring→online~~ — **selesai** (lihat §1):
   `ObservationOfflineSyncTest.php`. Sisa alur browser lain (guru, siklus penuh)
   belum diotomasi sebagai browser test — sudah diuji non-browser di `tests/Feature`.
-- **Modul JS outbox khusus bukti RTL** (saat ini online via Livewire).
+- ~~Modul JS outbox khusus bukti RTL~~ — **selesai** (lihat §1): `followup-evidence-outbox.js`. Cakupan: catatan teks luring saja; lampiran berkas/foto bukti RTL tetap online-only (di luar scope R-04, lihat `docs/offline.md`).
 - ~~Poles UI lanjutan: chart/visualisasi~~ **sebagian selesai** (lihat §1) — sisa: chart di Kalibrasi (`CalibrationShow`, reliabilitas antar-penilai) bila dibutuhkan.
 
 **Proses bila melanjutkan (master prompt §20, §25):** DISCOVER → checkpoint bila

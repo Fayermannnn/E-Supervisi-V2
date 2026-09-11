@@ -1,7 +1,28 @@
-<div class="space-y-6">
+<div class="space-y-6" @if ($isGuru) x-data="followUpEvidenceOutbox()" @endif>
     <x-ui.page-header eyebrow="Pasca-Observasi" title="Pelacak Tindak Lanjut (RTL)" :description="$cycle->judul">
-        <x-slot:actions><x-ui.button as="a" href="{{ route('cycles.show', $cycle) }}" variant="ghost">Kembali</x-ui.button></x-slot:actions>
+        <x-slot:actions>
+            @if ($isGuru)
+                <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium"
+                    :class="{
+                        'bg-ink-100 text-ink-600 dark:bg-ink-800 dark:text-ink-300': syncState === 'idle',
+                        'bg-status-progress/12 text-status-progress': ['pending','syncing'].includes(syncState),
+                        'bg-status-done/12 text-status-done': syncState === 'synced',
+                        'bg-status-overdue/12 text-status-overdue': ['offline','error'].includes(syncState),
+                    }">
+                    <span class="size-1.5 rounded-full bg-current" :class="{ 'animate-pulse': ['pending','syncing'].includes(syncState) }"></span>
+                    <span x-text="{ idle: 'Siap', offline: 'Luring', pending: 'Menunggu sinkron', syncing: 'Menyinkronkan', synced: 'Tersinkron', error: 'Gagal sinkron' }[syncState] ?? '—'"></span>
+                    <span x-show="queued.length > 0" x-text="'(' + queued.length + ')'" class="opacity-70"></span>
+                </span>
+            @endif
+            <x-ui.button as="a" href="{{ route('cycles.show', $cycle) }}" variant="ghost">Kembali</x-ui.button>
+        </x-slot:actions>
     </x-ui.page-header>
+
+    @if ($isGuru)
+        <p class="text-xs text-[var(--text-muted)]" x-show="!online">
+            Anda sedang luring. Catatan bukti tersimpan di perangkat ini dan akan terkirim otomatis begitu koneksi kembali.
+        </p>
+    @endif
 
     @error('tujuan') <x-ui.alert variant="danger">{{ $message }}</x-ui.alert> @enderror
 
@@ -52,10 +73,20 @@
                         @endforeach
 
                         @if ($isGuru && $plan->isOpen())
-                            <div class="mt-2 flex gap-2">
-                                <input type="text" wire:model="evidenceNote.{{ $item->id }}" placeholder="Catatan bukti pelaksanaan…"
-                                    class="field-input flex-1 py-1 text-xs">
-                                <button wire:click="addEvidence('{{ $item->id }}')" class="rounded bg-brand-600 px-2 py-1 text-xs font-medium text-white">Tambah bukti</button>
+                            {{-- Bukti yang tersimpan lokal tapi belum tersinkron ke server (luring). --}}
+                            <template x-for="q in queuedFor('{{ $item->id }}')" :key="q.id">
+                                <p class="mt-1 rounded bg-status-progress/10 px-2 py-1 text-xs text-status-progress">
+                                    <span class="font-medium">Bukti (menunggu sinkron):</span> <span x-text="q.payload.deskripsi"></span>
+                                </p>
+                            </template>
+
+                            <div class="mt-2 flex gap-2" x-data="{ note: '' }">
+                                <input type="text" x-model="note" @keydown.enter="queueEvidence('{{ $item->id }}', note); note = ''"
+                                    data-testid="evidence-input-{{ $item->id }}"
+                                    placeholder="Catatan bukti pelaksanaan…" class="field-input flex-1 py-1 text-xs">
+                                <button @click="queueEvidence('{{ $item->id }}', note); note = ''"
+                                    data-testid="evidence-submit-{{ $item->id }}"
+                                    class="rounded bg-brand-600 px-2 py-1 text-xs font-medium text-white">Tambah bukti</button>
                             </div>
                         @endif
                     </li>
