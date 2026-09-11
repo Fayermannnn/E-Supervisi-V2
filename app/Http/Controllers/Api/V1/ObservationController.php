@@ -93,7 +93,7 @@ class ObservationController extends ApiController
             'tipe' => $request->string('tipe')->toString(),
             'disk' => 'observation_media',
             'path' => $path,
-            'original_name' => $file->getClientOriginalName(),
+            'original_name' => $this->sanitizeOriginalName($file->getClientOriginalName()),
             'size' => $file->getSize(),
             'checksum' => hash_file('sha256', $file->getRealPath()),
             'upload_status' => 'stored',
@@ -109,5 +109,21 @@ class ObservationController extends ApiController
         assert($user instanceof User);
 
         return $user;
+    }
+
+    /**
+     * Nama berkas asli disimpan hanya sebagai metadata tampilan — jangan
+     * pernah dipakai sebagai path fisik (path storage = acak, lihat
+     * `store()` di atas). Dibersihkan untuk jaga-jaga bila kelak dipakai di
+     * header `Content-Disposition` (unduhan) atau ditampilkan di UI:
+     * lepas komponen direktori, karakter kontrol, dan batasi panjang.
+     */
+    private function sanitizeOriginalName(?string $name): string
+    {
+        $name = basename($name ?? '');
+        $name = preg_replace('/[\x00-\x1F\x7F]/', '', $name) ?? '';
+        $name = trim($name);
+
+        return $name === '' ? 'berkas' : mb_substr($name, 0, 180);
     }
 }

@@ -45,8 +45,14 @@ konsolidasi terhadap risiko `docs/risk-register.md`:
 - ~~Secure headers (CSP, HSTS)~~ — **selesai**: `SecureHeaders` middleware +
   `config/security.php` + `tests/Feature/Security/SecureHeadersTest.php` (ADR-016).
   Rate-limit produksi (naikkan batas login/sync) tetap konfigurasi deployment.
-- Uji unggah berkas berbahaya (`.php`/`.svg`) — endpoint media ada validasi mime;
-  test eksplisit belum ditambahkan.
+- ~~Uji unggah berkas berbahaya (`.php`/`.svg`)~~ — **selesai**:
+  `tests/Feature/Security/MediaUploadSecurityTest.php` (8 tes) membuktikan
+  `mimes:` Laravel mendeteksi dari konten asli (fileinfo), bukan ekstensi
+  klien — `.php` diblokir eksplisit, `.svg` tak di-whitelist, PHP berkedok
+  `.jpg` gagal deteksi konten. Ditambah lapis kedua: `tipe` (video/audio/
+  foto/dokumen) harus cocok kategori ekstensi hasil deteksi konten
+  (`UploadObservationMediaRequest::withValidator`), dan `original_name`
+  disanitasi (`basename()` + lucuti karakter kontrol) sebelum disimpan.
 - Belum ada `tests/Browser` otomatis untuk alur luring→online.
 
 ## 2. Inventaris pengujian
@@ -58,12 +64,12 @@ gantinya, inventaris per kategori — gate `composer ci`:
 |---|---|---|---|
 | Unit | 9 | 89 | state machine + guard, `SchemaDrivenScorer`, `InstrumentSchema`, `RolePermissionMap` (matriks), `PolicySettings`, `CalibrationStats`, `PkbMatcher`, `ExpertJudgmentStats`, SUS |
 | Feature | ~24 | 116 | auth, siklus end-to-end, sync idempoten/konflik, AI human-in-the-loop, pasca-observasi, program M7, PKB M9, praktik baik M10, 360° M11, kalibrasi M12, evaluasi ahli Fase 5, render layar Fase 4–5, performa |
-| Security | 4 | — (di dalam Feature) | IDOR, cross-dinas/school, audit immutability, privilege escalation, **header keamanan respons (CSP nonce+hash, HSTS, X-Frame-Options, dst.)** |
+| Security | 5 | — (di dalam Feature) | IDOR, cross-dinas/school, audit immutability, privilege escalation, header keamanan respons (CSP nonce+hash, HSTS, X-Frame-Options, dst.), **unggah berkas berbahaya (`.php`/`.svg`/spoofed extension/oversize/tipe-mismatch)** |
 | Architecture | 1 | 11 | larangan import lintas domain, AI tanpa DB, state machine satu penulis, isolasi domain Fase 4–5, kemurnian helper statistik |
 | Performance | 1 | 3 | dasbor & laporan agregat pada ~200 siklus |
 | Static | — | — | Pint (strict types) + Larastan level 8 "No errors" |
 
-**Total: 237 tes / 639 assertions, `composer ci` hijau.** (termasuk ekspor laporan server-side dompdf/OpenSpout + header keamanan respons pasca-Fase 5.)
+**Total: 247 tes / 667 assertions, `composer ci` hijau.** (termasuk ekspor laporan server-side dompdf/OpenSpout + header keamanan respons + hardening unggah berkas pasca-Fase 5.)
 
 Perintah:
 ```bash
@@ -109,8 +115,9 @@ beban normal. Sesuaikan `queue:work` & opcache; naikkan ke Redis bila p95 membur
 ## 5. Kesimpulan evaluasi teknis
 
 Artefak **siap dinilai ahli**: fungsi end-to-end lengkap dan teruji, kontrol
-keamanan inti termitigasi & diuji otomatis (termasuk header keamanan respons
-CSP/HSTS via `SecureHeaders`, ADR-016), performa jalur baca dalam batas pada
-volume realistis. Sisa pekerjaan (review hukum PDP, enkripsi at-rest + backup
-deployment, uji unggah berkas berbahaya, browser test, uji beban lapangan)
-bersifat **operasional/pra-go-live**, bukan prasyarat evaluasi ahli Fase 5.
+keamanan inti termitigasi & diuji otomatis (header keamanan respons CSP/HSTS
+via `SecureHeaders` ADR-016; unggah berkas divalidasi & diuji terhadap
+skenario berbahaya), performa jalur baca dalam batas pada volume realistis.
+Sisa pekerjaan (review hukum PDP, enkripsi at-rest + backup deployment,
+browser test, uji beban lapangan) bersifat **operasional/pra-go-live**, bukan
+prasyarat evaluasi ahli Fase 5.

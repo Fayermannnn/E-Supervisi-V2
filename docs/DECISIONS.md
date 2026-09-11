@@ -209,5 +209,20 @@ Checkpoint (dijawab user): pendekatan **komponen SVG/HTML inline** (bukan librar
 
 Di luar scope checkpoint (inisiatif bebas atas permintaan eksplisit user "buat sesuatu yang seru, atas inisiatifmu sendiri" — bukan bagian dari DoD modul, tidak menyentuh RBAC/state machine/audit/AI). `App\Livewire\Reporting\CycleReport::compile()` men-dispatch event browser `celebrate` setelah `CompileCycleReport` berhasil (siklus → `DILAPORKAN`). Listener Alpine di `layouts/app.blade.php` merender ± 70 partikel confetti CSS (`@keyframes confetti-fall`), murni HTML/CSS — tanpa dependency, tanpa `<script>` inline baru (jadi tak butuh nonce/hash CSP tambahan), menghormati `prefers-reduced-motion`. Diuji: dispatch event terverifikasi via `Livewire::test(...)->assertDispatched('celebrate')`.
 
+### Pasca-Fase 5 — Hardening unggah berkas observasi ✅
+
+Lanjutan otonom dari kandidat HANDOFF §5 ("uji unggah berkas berbahaya") —
+tanpa checkpoint baru karena murni menutup gap yang sudah didokumentasikan
+sebagai *known limitation*, tidak ada keputusan arsitektur baru.
+
+| Item | Catatan |
+|---|---|
+| Temuan | `mimes:` Laravel **sudah** mendeteksi dari konten asli berkas (fileinfo `guessExtension()`), bukan ekstensi yang diklaim klien — dan memblokir `.php`/`.phtml`/`.phar`/dst. eksplisit berdasar ekstensi asli. `.svg` sengaja tak di-whitelist. Validasi lama sudah cukup kuat; celahnya adalah **tidak ada tes** yang membuktikannya (persis seperti dicatat `technical-evaluation.md`). |
+| `UploadObservationMediaRequest::withValidator()` | Lapis kedua: ekstensi hasil deteksi konten harus cocok kategori `tipe` (video/audio/foto/dokumen) yang diklaim — sebelumnya `mimes:` meloloskan kombinasi apa pun (mis. `tipe=foto` berisi `.docx`). |
+| `ObservationController::sanitizeOriginalName()` | `original_name` (metadata tampilan) dilucuti jadi `basename()` + tanpa karakter kontrol + dibatasi 180 karakter — jaga-jaga untuk pemakaian masa depan (header `Content-Disposition` saat unduhan bukti dibangun). Path fisik penyimpanan sudah acak (`$file->store()`), tidak pernah dari `original_name`. |
+| Tes | `tests/Feature/Security/MediaUploadSecurityTest.php` — 8 tes: `.php` ditolak, `.svg` ditolak, PHP berkedok `.jpg` ditolak (pakai `UploadedFile` sungguhan di atas berkas temp nyata — `UploadedFile::fake()` Laravel menebak mime dari **nama**, bukan isi, sehingga tak representatif untuk skenario "isi vs nama"), tipe-mismatch ditolak, oversize ditolak, unggah sah diterima + nama tersanitasi, otorisasi (bukan observer → 403; tanpa token → 401). |
+| Verifikasi | `composer ci` hijau — **247 tes / 667 assertions**. |
+| Skema | Tidak ada. Tidak ada dependency baru. |
+
 ### (tidak ada PHASE 6 terencana)
 
