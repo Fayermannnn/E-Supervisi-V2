@@ -31,3 +31,4 @@ Thumbs.db
 *.local
 /storage/phpstan
 /storage/observation-media
+/tests/Browser/Screenshots

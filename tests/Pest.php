@@ -18,6 +18,14 @@ pest()->extend(TestCase::class)
 pest()->extend(TestCase::class)
     ->in('Unit');
 
+// tests/Browser (Pest\Browser + Playwright, group "browser"): server HTTP
+// berjalan IN-PROCESS (AMPHP di dalam proses Pest yang sama, lihat
+// LaravelHttpServer) sehingga transaksi RefreshDatabase tetap berlaku —
+// request dari Chromium melihat data yang dibuat test yang sama.
+pest()->extend(TestCase::class)
+    ->use(RefreshDatabase::class)
+    ->in('Browser');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations

@@ -65,6 +65,7 @@
                                             <button type="button"
                                                 @click="values[item.key] = (item.scale ? item.scale.min : 1) + n - 1; touch(item.key)"
                                                 :disabled="!editable"
+                                                :data-testid="'score-' + item.key + '-' + ((item.scale ? item.scale.min : 1) + n - 1)"
                                                 class="flex size-9 items-center justify-center rounded-md text-sm font-medium ring-1 ring-inset ring-[var(--border)] disabled:opacity-50"
                                                 :class="values[item.key] === (item.scale ? item.scale.min : 1) + n - 1 ? 'bg-brand-700 text-white ring-brand-600' : 'bg-[var(--surface)]'"
                                                 x-text="(item.scale ? item.scale.min : 1) + n - 1"></button>

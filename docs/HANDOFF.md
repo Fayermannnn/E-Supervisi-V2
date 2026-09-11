@@ -123,8 +123,10 @@ checkpoint sendiri):
 - **Hardening pra-go-live**: ~~secure headers/CSP/HSTS~~, ~~uji unggah berkas
   berbahaya~~, ~~enforce HTTPS + secure cookie~~ — **semua selesai** (lihat
   §1). Sisa: review hukum PDP + dokumen basis pemrosesan (butuh pihak
-  berkompeten, bukan kode), `tests/Browser` (Pest v4) untuk alur
-  luring→online, uji beban lapangan (`docs/technical-evaluation.md` §4–5).
+  berkompeten, bukan kode), uji beban lapangan (`docs/technical-evaluation.md` §4–5).
+- ~~tests/Browser untuk alur luring→online~~ — **selesai** (lihat §1):
+  `ObservationOfflineSyncTest.php`. Sisa alur browser lain (guru, siklus penuh)
+  belum diotomasi sebagai browser test — sudah diuji non-browser di `tests/Feature`.
 - **Modul JS outbox khusus bukti RTL** (saat ini online via Livewire).
 - ~~Poles UI lanjutan: chart/visualisasi~~ **sebagian selesai** (lihat §1) — sisa: chart di Kalibrasi (`CalibrationShow`, reliabilitas antar-penilai) bila dibutuhkan.
 
@@ -142,7 +144,11 @@ ambiguity → PLAN → implementasi → update docs → `composer ci` hijau → 
 - **Header keamanan** ditegakkan aplikasi (`SecureHeaders`, ADR-016). Inline `<script>` baru di layout wajib pakai `@cspNonce` **atau** hash di `config/security.php` `csp.script_hashes` (kalau di-inject ulang `wire:navigate`). Inline event handler (`onclick=`) dilarang — pakai Alpine `x-on:` atau listener ber-nonce. HSTS di produksi butuh `SECURITY_HSTS_ENABLED=true` + `TrustProxies`.
 - `QUEUE_CONNECTION=sync` di dev — ekspor laporan berjalan inline; **produksi butuh `queue:work`** untuk ekspor + AI + notifikasi.
 - Bukti RTL offline: endpoint idempoten ada, tapi **belum ada modul JS outbox khusus RTL**.
-- Belum ada `tests/Browser` (Pest v4 browser) otomatis untuk alur luring→online.
+- `tests/Browser` (Pest\Browser + Playwright, `composer test:browser`) — hanya
+  1 skenario (observasi luring→online). **Opt-in**: butuh `npx playwright
+  install chromium` sekali (~280 MB); tidak masuk `composer ci`. Selalu pakai
+  selektor CSS eksplisit (`[id="…"]`/`[data-testid="…"]`), bukan nama/id
+  polos — gotcha RPC plugin v5.0.1, lihat `docs/testing.md` §Browser.
 - FormatB instrument = template placeholder, ditandai belum tervalidasi (`FormatBTemplate`).
 - **API Fase 4** (`/programs`, `/pkb/*`, `/best-practices/*`, `/calibration/*`, `/supervisor-evaluation`) belum diuji feature-level — write path terverifikasi lewat Livewire. Domain `Evaluation` (Fase 5) tidak punya API (bukan Spec §8).
 - **M7 tanpa delegasi pengawas** (F4-01) — `program_assignments` additive bila dibutuhkan.

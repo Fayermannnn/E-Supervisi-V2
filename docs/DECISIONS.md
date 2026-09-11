@@ -240,5 +240,53 @@ efek di lokal; sama pola dengan toggle `SECURITY_*` sebelumnya).
 | Verifikasi | `composer ci` hijau — **249 tes / 670 assertions**. |
 | Skema | Tidak ada. Tidak ada dependency baru. |
 
+### Pasca-Fase 5 — tests/Browser: alur luring→online otomatis ✅
+
+Lanjutan otonom dari kandidat HANDOFF §5 ("tests/Browser Pest v4/Playwright
+untuk alur luring→online") — gap yang sudah didokumentasikan sejak Fase 2
+(`docs/testing.md` menjanjikannya di kasus wajib master prompt §17).
+
+**Dependency baru (dev-only, opt-in):** `pestphp/pest-plugin-browser` (^5.0,
+composer) + `playwright` (^1.62, npm) + Chromium (~280 MB, diunduh via
+`npx playwright install chromium`, di-cache di luar repo). Tidak masuk
+`composer ci`/`composer test`/`npm run build` — dijalankan lewat script baru
+`composer test:browser`.
+
+**Temuan arsitektur kunci:** `pest-plugin-browser` menjalankan server HTTP
+Laravel **in-process** lewat AMPHP (`LaravelHttpServer`, bukan proses
+`php artisan serve` terpisah) — artinya `RefreshDatabase` tetap berlaku dan
+request dari Chromium melihat data yang dibuat test yang sama tanpa
+komit/transaksi terpisah. `tests/Pest.php` menambah binding
+`pest()->extend(TestCase::class)->use(RefreshDatabase::class)->in('Browser')`.
+
+**Bug lingkungan ditemukan & didiagnosis (bukan bug aplikasi):** selektor
+"tebak" non-eksplisit `GuessLocator` (dipakai `->fill('form.email', …)` —
+bentuk yang wajar dipakai pertama kali) **macet ~30 detik lalu timeout** pada
+elemen apa pun di halaman ber-Livewire (login) — sementara elemen yang SAMA
+via selektor CSS eksplisit (`->fill('[id="form.email"]', …)`) sukses instan
+(< 1 detik). Diagnosis lewat isolasi bertahap: `page.evaluate()` (JS murni)
+sukses; klik teks/link sukses; klik via selektor eksplisit ke elemen yang
+sama sukses; HANYA jalur `[id]`/`[name]`-guess (`count()` lalu act, dibungkus
+`page->unstrict()`) yang macet — kemungkinan race/state bug internal
+`pest-plugin-browser` v5.0.1 (plugin browser testing Pest yang masih sangat
+baru). **Solusi:** selalu pakai selektor eksplisit di `tests/Browser/*`.
+Ditambahkan `data-testid` pada tombol skor konsol observasi
+(`resources/views/livewire/observation/observation-console.blade.php`) agar
+item bisa ditarget presisi (item berulang tanpa `id`/`name` unik sebelumnya).
+
+**Simulasi "luring":** plugin ini (v5.0.1) tidak punya primitif Playwright
+`context.setOffline()`. Disimulasikan lewat `->script()` meng-override
+`navigator.onLine` (getter) + dispatch event `online`/`offline` asli —
+PERSIS mekanisme deteksi konektivitas yang dipakai `observation-console.js`
+sendiri, jadi tetap akurat menguji perilaku sungguhan aplikasi (bukan mock
+di lapisan lain).
+
+| Item | Catatan |
+|---|---|
+| `tests/Browser/ObservationOfflineSyncTest.php` | Login sungguhan (form nyata) → buka konsol observasi (auto-`StartObservation` di `mount()`) → simulasi luring → isi skor 2× (edit berulang saat luring) → assert `pendingCount>0` + badge "Luring" + **0 baris di server** → simulasi online → assert badge "Tersinkron" + **tepat 1** `ObservationResponse` (nilai TERAKHIR, bukan duplikat) + outbox IndexedDB kosong. 10 assertion, ~4 detik, stabil di 3× run berturut-turut. |
+| Cakupan yang TIDAK termasuk | Alur guru (refleksi→umpan balik→bukti RTL) dan walkthrough siklus penuh belum diotomasi sebagai browser test (item terpisah bila dibutuhkan) — sudah diuji non-browser di `tests/Feature`. |
+| Verifikasi | `composer ci` tidak berubah (tetap 249 tes / 670 assertions) — `tests/Browser` di luar `phpunit.xml` testsuites, hanya jalan via `composer test:browser`. |
+| Skema | Tidak ada. `composer.json`/`package.json` +1 dev dependency masing-masing; `data-testid` additive di 1 view. |
+
 ### (tidak ada PHASE 6 terencana)
 

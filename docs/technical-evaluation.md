@@ -13,7 +13,7 @@ konsolidasi terhadap risiko `docs/risk-register.md`:
 
 | ID | Risiko | Mitigasi terpasang | Status |
 |---|---|---|---|
-| T-01 | Kehilangan/duplikasi data observasi luring | UUID klien = PK (idempoten); unik `(observation_id,item_key)`; optimistic lock `version`; deteksi konflik + resolusi manual; diuji `ObservationSyncTest` | MITIGATED |
+| T-01 | Kehilangan/duplikasi data observasi luring | UUID klien = PK (idempoten); unik `(observation_id,item_key)`; optimistic lock `version`; deteksi konflik + resolusi manual; diuji `ObservationSyncTest` (API) + `tests/Browser/ObservationOfflineSyncTest.php` (Chromium sungguhan — luring→online tanpa duplikat) | MITIGATED |
 | T-02 | Bias/kesalahan AI memengaruhi penilaian guru | Semua keluaran `draft`; `App\Domain\Ai\Providers` tanpa akses DB (arch test); tak memicu transisi; gate berlapis (`FinalizeAnalysis`, `PostFeedbackMessage`, state machine) | MITIGATED |
 | T-03 | Kebocoran data lintas peran (IDOR, cross-school/dinas) | Default deny; Policy + global scope `visibleTo`; route-model-binding; suite `tests/Feature/Security`; audit `authorization.denied` | MITIGATED |
 | T-04 | Kepatuhan UU 27/2022 (PDP) | Header keamanan respons (CSP nonce+hash, HSTS, X-Frame-Options, Referrer/Permissions-Policy) via `SecureHeaders` middleware (ADR-016, diuji); `FORCE_HTTPS`/`TRUSTED_PROXIES`/`SESSION_SECURE_COOKIE` siap pakai untuk produksi (diuji); enkripsi at-rest berkas observasi (`deployment.md`, operasional); retensi = arsip bukan hapus; audit menyeluruh; consent guru wajib untuk publikasi praktik baik; 360° anonim di atas ambang | OPEN (review hukum + basis pemrosesan — butuh pihak berkompeten, bukan kode) |
@@ -53,7 +53,11 @@ konsolidasi terhadap risiko `docs/risk-register.md`:
   foto/dokumen) harus cocok kategori ekstensi hasil deteksi konten
   (`UploadObservationMediaRequest::withValidator`), dan `original_name`
   disanitasi (`basename()` + lucuti karakter kontrol) sebelum disimpan.
-- Belum ada `tests/Browser` otomatis untuk alur luring→online.
+- ~~Belum ada `tests/Browser` otomatis~~ — **selesai**:
+  `tests/Browser/ObservationOfflineSyncTest.php` (Pest\Browser + Playwright
+  Chromium sungguhan; lihat `docs/testing.md` §Browser). Opt-in
+  (`composer test:browser`), tidak masuk `composer ci` (butuh Playwright
+  terpasang, ~280 MB binari Chromium — tak deterministik untuk gate wajib).
 
 ## 2. Inventaris pengujian
 
@@ -68,8 +72,9 @@ gantinya, inventaris per kategori — gate `composer ci`:
 | Architecture | 1 | 11 | larangan import lintas domain, AI tanpa DB, state machine satu penulis, isolasi domain Fase 4–5, kemurnian helper statistik |
 | Performance | 1 | 3 | dasbor & laporan agregat pada ~200 siklus |
 | Static | — | — | Pint (strict types) + Larastan level 8 "No errors" |
+| Browser *(opt-in, di luar `composer ci`)* | 1 | 10 | luring→online: deteksi offline (`navigator.onLine`), antre IndexedDB, sinkron otomatis saat online, tanpa duplikasi server — Chromium sungguhan via Pest\Browser + Playwright |
 
-**Total: 249 tes / 670 assertions, `composer ci` hijau.** (termasuk ekspor laporan server-side dompdf/OpenSpout + header keamanan respons + hardening unggah berkas pasca-Fase 5.)
+**Total (`composer ci`): 249 tes / 670 assertions, hijau.** (termasuk ekspor laporan server-side dompdf/OpenSpout + header keamanan respons + hardening unggah berkas pasca-Fase 5.) Ditambah 1 tes browser opt-in (`composer test:browser`, butuh Playwright — lihat `docs/testing.md`).
 
 Perintah:
 ```bash
